@@ -1,0 +1,47 @@
+<div class="auth-page-wrapper">
+  <div class="auth-card">
+    <header>
+      <h1>Login</h1>
+    </header>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-field">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="e.g. john@mail.com"
+          [class.error-input]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error-input]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        >
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">{{ errorMessage() }}</div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading()">
+        {{ isLoading() ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>Account Actions</span>
+    </div>
+
+    <button type="button" class="btn-ghost" (click)="onLogout()">
+      Logout of all sessions
+    </button>
+  </div>
+</div>

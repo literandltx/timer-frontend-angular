@@ -1,0 +1,47 @@
+<div class="auth-page-wrapper">
+  <div class="auth-card">
+    <header>
+      <h1>Create Account</h1>
+    </header>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-field">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="name@company.com"
+          [class.error-input]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="At least 8 characters"
+          [class.error-input]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        >
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">{{ errorMessage() }}</div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isLoading()">
+        {{ isLoading() ? 'Creating Account...' : 'Register' }}
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>Or</span>
+    </div>
+
+    <p class="footer-text">
+      Already have an account? <a routerLink="/login">Sign In</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div
+  class="timer-wrapper"
+  (click)="handleClick()"
+  (dblclick)="handleDoubleClick()"
+>
+  <h1 class="timer-display">
+    {{ timerService.formattedTime() }}
+  </h1>
+
+  <p class="timer-subtitle">
+    {{ timerService.isRunning() ? 'Click to Pause' : 'Click to Start' }} • Double-click to Reset
+  </p>
+</div>

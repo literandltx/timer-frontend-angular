@@ -1,0 +1,18 @@
+<nav class="main-nav">
+  <div class="nav-links">
+    <a routerLink="/home" routerLinkActive="active">Home</a>
+    <a routerLink="/timer-list" routerLinkActive="active">Timer List</a>
+    <a routerLink="/label-list" routerLinkActive="active">Labels List</a>
+    <a routerLink="/history" routerLinkActive="active">History</a>
+    <a routerLink="/register" routerLinkActive="active">Sign Up</a>
+    <a routerLink="/login" routerLinkActive="active">Login</a>
+  </div>
+
+  <div class="status-badge" [style.color]="entryService.isOnline() ? '#2b8a3e' : '#c92a2a'">
+<!--    ● {{ entryService.isOnline() ? 'Online' : 'Offline' }}-->
+    ●
+    @if (entryService.isSyncing()) {
+      <span class="sync-text">(Syncing...)</span>
+    }
+  </div>
+</nav>

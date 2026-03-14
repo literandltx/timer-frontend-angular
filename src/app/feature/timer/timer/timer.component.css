@@ -1,0 +1,22 @@
+.timer-wrapper {
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.timer-display {
+  font-size: 8rem;
+  font-weight: bold;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-subtitle {
+  color: #666666;
+  margin-top: 10px;
+}
