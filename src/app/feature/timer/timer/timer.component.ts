@@ -12,7 +12,7 @@ import {
 import {TimerService} from './timer.service';
 
 @Component({
-  selector: 'app-timer',
+  selector: 'ns-app-timer',
   standalone: true,
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.css'],
@@ -20,8 +20,8 @@ import {TimerService} from './timer.service';
 })
 export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   @Input({required: true}) timeAmount!: number;
-  @Output() finish = new EventEmitter<{ durationUsed: number }>();
-  @Output() reset = new EventEmitter<{ durationUsed: number }>();
+  @Output() timerFinish = new EventEmitter<{ durationUsed: number }>();
+  @Output() timerReset = new EventEmitter<{ durationUsed: number }>();
 
   timerService = inject(TimerService);
 
@@ -42,14 +42,14 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   handleClick() {
     this.timerService.toggle(() => {
-      this.finish.emit({durationUsed: this.timeAmount});
+      this.timerFinish.emit({durationUsed: this.timeAmount});
     });
   }
 
   handleDoubleClick() {
     const durationUsed = this.timerService.getDurationUsed();
     if (durationUsed > 0) {
-      this.reset.emit({durationUsed});
+      this.timerReset.emit({durationUsed});
     }
     this.timerService.reset(this.timeAmount);
   }

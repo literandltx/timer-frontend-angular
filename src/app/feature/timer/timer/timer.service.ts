@@ -5,9 +5,9 @@ export class TimerService {
   timeLeft: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
 
-  private initialTime: number = 0;
+  private initialTime = 0;
   private endTime: number | null = null;
-  private intervalId: any;
+  private intervalId: number | null = null;
 
   formattedTime: Signal<string> = computed(() => {
     const total_second: number = this.timeLeft();
@@ -39,7 +39,7 @@ export class TimerService {
     this.endTime = Date.now() + this.timeLeft() * 1000;
     this.isRunning.set(true);
 
-    this.intervalId = setInterval(() => {
+    this.intervalId = window.setInterval(() => {
       if (!this.endTime) {
         return;
       }
@@ -57,8 +57,8 @@ export class TimerService {
   pause() {
     this.isRunning.set(false);
     this.endTime = null;
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+    if (this.intervalId !== null) {
+      window.clearInterval(this.intervalId);
       this.intervalId = null;
     }
   }

@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TimerEntryService } from '../timer/entry/timer-entry.service';
 
 @Component({
-  selector: 'app-header',
+  selector: 'ns-app-header',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',

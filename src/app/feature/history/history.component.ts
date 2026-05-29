@@ -7,7 +7,7 @@ import {TimerEntryService} from '../timer/entry/timer-entry.service';
 import {LabelService} from '../labels/label.service';
 
 @Component({
-  selector: 'app-history',
+  selector: 'ns-app-history',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './history.component.html',
@@ -21,8 +21,8 @@ export class HistoryComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   editingEntry: Partial<TimerEntry> | null = null;
-  formDateStr: string = '';
-  formDurationMins: number = 0;
+  formDateStr = '';
+  formDurationMins = 0;
 
   ngOnInit() {
     this.historyService.loadData();
@@ -86,7 +86,7 @@ export class HistoryComponent implements OnInit {
       try {
         await this.historyService.importCSV(file);
         alert('Import successful!');
-      } catch (err) {
+      } catch {
         alert('Import failed. Please check the file format and try again.');
       } finally {
         target.value = '';

@@ -8,10 +8,10 @@ import {LabelService} from '../labels/label.service';
 import {TimerSettingService} from '../timer/settings/timer-setting.service';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 
-const DEFAULT_MINIMUM_TIMER_DURATION: number = 60;
+const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
 @Component({
-  selector: 'app-home',
+  selector: 'ns-app-home',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, TimerComponent],
   templateUrl: './home.component.html'
@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
 
   activeLabelId = signal<number | undefined>(undefined);
 
-  private blinkInterval: any;
+  private blinkInterval: number | undefined;
   private originalTitle = document.title;
 
   constructor() {
@@ -97,15 +97,16 @@ export class HomeComponent implements OnInit {
 
   private startBlinking() {
     let isOriginal = false;
-    this.blinkInterval = setInterval(() => {
+    this.blinkInterval = window.setInterval(() => {
       document.title = isOriginal ? this.originalTitle : '⏰ Timer Finished!';
       isOriginal = !isOriginal;
     }, 1000);
   }
 
   private stopBlinking() {
-    if (this.blinkInterval) {
-      clearInterval(this.blinkInterval);
+    if (this.blinkInterval !== undefined) {
+      window.clearInterval(this.blinkInterval);
+      this.blinkInterval = undefined;
       document.title = this.originalTitle;
     }
   }

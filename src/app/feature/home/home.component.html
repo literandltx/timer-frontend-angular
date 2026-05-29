@@ -2,11 +2,11 @@
   style="position: relative; width: 100%; height: calc(100vh - 60px); background: #ffffff; color: #1a1a1a; overflow: hidden; font-family: sans-serif;">
 
   @for (key of [settingService.activeSetting()?.timerOptionId]; track key) {
-    <app-timer
+    <ns-app-timer
       [timeAmount]="currentTimerSeconds()"
-      (finish)="onTimerFinish($event)"
-      (reset)="onTimerReset($event)">
-    </app-timer>
+      (timerFinish)="onTimerFinish($event)"
+      (timerReset)="onTimerReset($event)">
+    </ns-app-timer>
   }
 
   <div
@@ -14,8 +14,8 @@
     @for (option of settingService.options(); track option.id) {
       <button
         (click)="settingService.setActiveOption(option.id)"
-        [style.background]="settingService.activeSetting()?.timerOptionId == option.id ? '#1a1a1a' : 'transparent'"
-        [style.color]="settingService.activeSetting()?.timerOptionId == option.id ? 'white' : '#1a1a1a'"
+        [style.background]="settingService.activeSetting()?.timerOptionId === option.id ? '#1a1a1a' : 'transparent'"
+        [style.color]="settingService.activeSetting()?.timerOptionId === option.id ? 'white' : '#1a1a1a'"
         style="border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
         {{ option.value }}m
       </button>

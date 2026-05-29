@@ -2,6 +2,7 @@ import {Injectable, signal} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {TimerOption, TimerSetting} from './timer-setting.model';
 import {BaseOfflineSyncService} from '../../../core/utils/base-offline-sync.service';
+import {HttpErrorResponse} from '@angular/common/http';
 
 interface SyncAction {
   id: string;
@@ -132,11 +133,14 @@ export class TimerSettingService extends BaseOfflineSyncService<SyncAction> {
 
           this.removeActionFromQueue(action.id);
 
-        } catch (err: any) {
-          if (err.status === 0 || err.status === 429 || err.status >= 500) {
-            if (err.status !== 429) this.isOnline.set(false);
-            break;
+        } catch (err: unknown) {
+          if (err instanceof HttpErrorResponse) {
+            if (err.status === 0 || err.status === 429 || err.status >= 500) {
+              if (err.status !== 429) this.isOnline.set(false);
+              break;
+            }
           }
+
           this.removeActionFromQueue(action.id);
         }
       }

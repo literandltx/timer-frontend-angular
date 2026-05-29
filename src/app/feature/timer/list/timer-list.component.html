@@ -10,7 +10,7 @@
         <div class="input-group">
           <span class="edit-label">{{ editingOption.id ? 'Edit Timer:' : 'New Timer:' }}</span>
           <input class="modern-input" type="number" [(ngModel)]="editingOption.value"
-                 placeholder="Duration (e.g., 25)" autofocus/>
+                 placeholder="Duration (e.g., 25)"/>
           <div class="edit-actions">
             <button class="btn primary-btn" (click)="save()">Save</button>
             <button class="btn ghost-btn" (click)="cancel()">Cancel</button>

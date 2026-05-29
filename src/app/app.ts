@@ -3,7 +3,7 @@ import {RouterOutlet} from '@angular/router';
 import {HeaderComponent} from './feature/header/header.component';
 
 @Component({
-  selector: 'app-root',
+  selector: 'ns-app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   templateUrl: './app.component.html',
