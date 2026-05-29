@@ -28,10 +28,10 @@ jobs:
         run: npm run build -- --configuration production --base-href=/timer-frontend-angular/
 
       - name: Create 404 page for Angular routing
-        run: cp ./dist/timer-frontend-angular/browser/index.html ./dist/timer-frontend-angular/browser/404.html
+        run: cp ./dist/timer-angular/browser/index.html ./dist/timer-angular/browser/404.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/timer-frontend-angular/browser
+          publish_dir: ./dist/timer-angular/browser
