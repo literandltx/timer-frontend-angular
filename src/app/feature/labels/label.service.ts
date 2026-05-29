@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Label, CreateLabelRequest } from './label.model';
 import {BaseOfflineSyncService} from '../../core/utils/base-offline-sync.service';
+import {HttpErrorResponse} from '@angular/common/http';
 
 interface SyncAction {
   id: string;
@@ -96,12 +97,12 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
             await new Promise(resolve => setTimeout(resolve, 1100));
           }
 
-        } catch (err: any) {
-          if (err.status === 0 || err.status === 429 || err.status >= 500) {
-            if (err.status !== 429) {
-              this.isOnline.set(false);
+        } catch (err: unknown) {
+          if (err instanceof HttpErrorResponse) {
+            if (err.status === 0 || err.status === 429 || err.status >= 500) {
+              if (err.status !== 429) this.isOnline.set(false);
+              break;
             }
-            break;
           }
 
           console.error(`Permanent error on action ${action.id}, dropping.`, err);

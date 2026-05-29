@@ -5,7 +5,7 @@ import {TimerSettingService} from '../settings/timer-setting.service';
 import {TimerOption} from '../settings/timer-setting.model';
 
 @Component({
-  selector: 'app-timer-list',
+  selector: 'ns-app-timer-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './timer-list.component.html',

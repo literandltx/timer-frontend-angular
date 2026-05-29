@@ -1,6 +1,22 @@
-import {Injectable, inject} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+
+export interface LoginCredentials {
+  email?: string;
+  username?: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +25,9 @@ export class AuthService {
   private http: HttpClient = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/api/v1/auth';
 
-  login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response: any) => {
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response: AuthResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
@@ -19,8 +35,8 @@ export class AuthService {
     );
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+  register(userData: RegisterData): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData);
   }
 
   setToken(token: string): void {

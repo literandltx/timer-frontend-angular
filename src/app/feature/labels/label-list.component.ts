@@ -5,7 +5,7 @@ import {LabelService} from './label.service';
 import {Label} from './label.model';
 
 @Component({
-  selector: 'app-label-list',
+  selector: 'ns-app-label-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './label-list.component.html',
