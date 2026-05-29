@@ -8,7 +8,7 @@ import {LabelService} from '../labels/label.service';
 import {TimerSettingService} from '../timer/settings/timer-setting.service';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 
-const DEFAULT_MINIMUM_TIMER_DURATION: number = 60;
+const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
 @Component({
   selector: 'app-home',

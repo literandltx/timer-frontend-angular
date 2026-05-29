@@ -5,7 +5,7 @@ export class TimerService {
   timeLeft: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
 
-  private initialTime: number = 0;
+  private initialTime = 0;
   private endTime: number | null = null;
   private intervalId: any;
 

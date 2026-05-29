@@ -21,8 +21,8 @@ export class HistoryComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   editingEntry: Partial<TimerEntry> | null = null;
-  formDateStr: string = '';
-  formDurationMins: number = 0;
+  formDateStr = '';
+  formDurationMins = 0;
 
   ngOnInit() {
     this.historyService.loadData();
