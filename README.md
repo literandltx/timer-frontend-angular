@@ -1,6 +1,6 @@
-# Timer Angular
+# Timer
 
-A modern timer application built with Angular. This project provides a robust frontend for managing timers, history, and labels with features like authentication and offline synchronization.
+Timer is a local-first time-tracking app featuring custom settings and labels
 
 ## Build docker container
 Build the project:
