@@ -1,12 +1,16 @@
 {
   "name": "timer-angular",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "tauri": "tauri",
+    "tauri:serve": "tauri dev",
+    "tauri:bundle": "tauri build",
+    "lint": "ng lint"
   },
   "prettier": {
     "printWidth": 100,
@@ -36,9 +40,14 @@
     "@angular/build": "^21.1.0",
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.2.12",
+    "@eslint/js": "^10.0.1",
+    "@tauri-apps/cli": "^2.11.2",
     "angular-cli-ghpages": "^3.0.3",
+    "angular-eslint": "21.4.0",
+    "eslint": "^10.3.0",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2",
     "vitest": "^4.0.8"
   }
 }
