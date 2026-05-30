@@ -1,6 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { Label, CreateLabelRequest } from './label.model';
+import {Injectable, signal} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
+import {Label, CreateLabelRequest} from './label.model';
 import {BaseOfflineSyncService} from '../../core/utils/base-offline-sync.service';
 import {HttpErrorResponse} from '@angular/common/http';
 
@@ -12,7 +12,13 @@ interface SyncAction {
   tempId?: number;
 }
 
-@Injectable({ providedIn: 'root' })
+const DEFAULT_LABELS: Label[] = [
+  {id: 1, userId: 0, name: 'Work', color: '#ef4444'},
+  {id: 2, userId: 0, name: 'Study', color: '#3b82f6'},
+  {id: 3, userId: 0, name: 'Chill', color: '#10b981'},
+];
+
+@Injectable({providedIn: 'root'})
 export class LabelService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/labels';
   protected queueKey = 'label_sync_queue';
@@ -35,15 +41,15 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
 
   async save(label: CreateLabelRequest) {
     const tempId = -Date.now();
-    const newLabel: Label = { ...label, id: tempId, userId: 0 };
+    const newLabel: Label = {...label, id: tempId, userId: 0};
 
     this.updateLocalState(labels => [...labels, newLabel]);
-    this.enqueueAction({ type: 'CREATE', payload: label, tempId });
+    this.enqueueAction({type: 'CREATE', payload: label, tempId});
   }
 
   async update(id: number, request: CreateLabelRequest) {
     this.updateLocalState(labels =>
-      labels.map(l => l.id === id ? { ...l, ...request } : l)
+      labels.map(l => l.id === id ? {...l, ...request} : l)
     );
 
     const queue = this.getQueue();
@@ -53,7 +59,7 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
       pendingCreate.payload = request;
       this.setQueue(queue);
     } else {
-      this.enqueueAction({ type: 'UPDATE', labelId: id, payload: request });
+      this.enqueueAction({type: 'UPDATE', labelId: id, payload: request});
     }
   }
 
@@ -64,7 +70,7 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
     if (id < 0) {
       this.setQueue(queue.filter(a => !(a.tempId === id || a.labelId === id)));
     } else {
-      this.enqueueAction({ type: 'DELETE', labelId: id });
+      this.enqueueAction({type: 'DELETE', labelId: id});
     }
   }
 
@@ -122,7 +128,13 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
   }
 
   private getLocalLabels(): Label[] {
-    return JSON.parse(localStorage.getItem('labels') || '[]');
+    const stored: string | null = localStorage.getItem('labels');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+
+    this.setLocalLabels(DEFAULT_LABELS);
+    return DEFAULT_LABELS;
   }
 
   private setLocalLabels(labels: Label[]) {
@@ -131,7 +143,7 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
 
   private replaceLocalId(oldId: number, newId: number) {
     this.updateLocalState(labels =>
-      labels.map(l => l.id === oldId ? { ...l, id: newId } : l)
+      labels.map(l => l.id === oldId ? {...l, id: newId} : l)
     );
   }
 
