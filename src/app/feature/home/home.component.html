@@ -1,5 +1,4 @@
-<div
-  style="position: relative; width: 100%; height: calc(100vh - 60px); background: #ffffff; color: #1a1a1a; overflow: hidden; font-family: sans-serif;">
+<div class="timer-container">
 
   @for (key of [settingService.activeSetting()?.timerOptionId]; track key) {
     <ns-app-timer
@@ -9,24 +8,20 @@
     </ns-app-timer>
   }
 
-  <div
-    style="position: absolute; bottom: 24px; left: 24px; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 12px; display: flex; gap: 8px;">
+  <div class="timer-options-wrapper">
     @for (option of settingService.options(); track option.id) {
       <button
-        (click)="settingService.setActiveOption(option.id)"
-        [style.background]="settingService.activeSetting()?.timerOptionId === option.id ? '#1a1a1a' : 'transparent'"
-        [style.color]="settingService.activeSetting()?.timerOptionId === option.id ? 'white' : '#1a1a1a'"
-        style="border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+        class="timer-option-btn"
+        [class.active]="settingService.activeSetting()?.timerOptionId === option.id"
+        (click)="settingService.setActiveOption(option.id)">
         {{ option.value }}m
       </button>
     }
   </div>
 
-  <div
-    style="position: absolute; bottom: 24px; right: 24px; background: rgba(0,0,0,0.05); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
-
+  <div class="label-selector-wrapper">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-         [attr.stroke]="activeLabelColor()" style="width: 20px; height: 20px;">
+         [attr.stroke]="activeLabelColor()" class="label-icon">
       <path stroke-linecap="round" stroke-linejoin="round"
             d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
     </svg>
@@ -34,10 +29,14 @@
     <select
       [ngModel]="activeLabelId()"
       (ngModelChange)="activeLabelId.set($event)"
-      style="background: transparent; color: #1a1a1a; border: none; font-size: 16px; outline: none; cursor: pointer; appearance: none;">
-      <option [ngValue]="undefined" disabled style="color: gray;">Select a Label...</option>
+      class="label-select">
+
+      <option [ngValue]="undefined" disabled class="label-option-disabled">
+        Select a Label...
+      </option>
+
       @for (label of labelService.labels(); track label.id) {
-        <option [ngValue]="label.id" style="color: black;">
+        <option [ngValue]="label.id" class="label-option">
           {{ label.name }}
         </option>
       }

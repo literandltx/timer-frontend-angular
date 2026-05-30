@@ -14,7 +14,8 @@ const DEFAULT_MINIMUM_TIMER_DURATION = 60;
   selector: 'ns-app-home',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, TimerComponent],
-  templateUrl: './home.component.html'
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
   public labelService = inject(LabelService);
