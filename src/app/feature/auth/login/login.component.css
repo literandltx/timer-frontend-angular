@@ -125,3 +125,22 @@ input:focus {
 .btn-ghost:hover {
   background-color: #fef2f2;
 }
+
+.register-prompt {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.register-prompt a {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.register-prompt a:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
