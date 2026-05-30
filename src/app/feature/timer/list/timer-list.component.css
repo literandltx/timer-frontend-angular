@@ -69,23 +69,6 @@
   box-shadow: 0 0 0 3px var(--primary-ring);
 }
 
-.modern-color-input {
-  width: 38px;
-  height: 38px;
-  padding: 2px;
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  background-color: var(--card-bg);
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.modern-color-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-ring);
-}
-
 .edit-actions {
   display: flex;
   gap: 8px;
@@ -127,28 +110,6 @@
   gap: 24px;
   flex: 1;
   flex-wrap: wrap;
-}
-
-.date-text {
-  min-width: 100px;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-.label-wrapper {
-  min-width: 60px;
-}
-
-.label-pill {
-  padding: 6px 14px;
-  color: #ffffff;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: inline-block;
 }
 
 .duration-text {
@@ -282,7 +243,7 @@
   .item-info {
     gap: 12px;
   }
-  .date-text, .label-wrapper, .duration-text {
+  .duration-text {
     min-width: auto;
   }
   .edit-label {

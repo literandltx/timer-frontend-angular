@@ -116,27 +116,12 @@
   background: var(--bg-subtle);
 }
 
-.list-item.is-active {
-  background: var(--success-list-bg);
-  border-color: var(--success-border);
-}
-
 .item-info {
   display: flex;
   align-items: center;
   gap: 24px;
   flex: 1;
   flex-wrap: wrap;
-}
-
-.date-text {
-  min-width: 100px;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-.label-wrapper {
-  min-width: 60px;
 }
 
 .label-pill {
@@ -188,17 +173,6 @@
 
 .primary-btn:hover:not(:disabled) {
   background: var(--btn-dark-hover);
-}
-
-.outline-btn {
-  background: var(--card-bg);
-  border-color: var(--border-input);
-  color: var(--text-color);
-}
-
-.outline-btn:hover:not(:disabled) {
-  background: var(--bg-subtle);
-  border-color: var(--border-light);
 }
 
 .ghost-btn {
@@ -268,9 +242,6 @@
 @media (max-width: 640px) {
   .item-info {
     gap: 12px;
-  }
-  .date-text, .label-wrapper, .duration-text {
-    min-width: auto;
   }
   .edit-label {
     width: auto;

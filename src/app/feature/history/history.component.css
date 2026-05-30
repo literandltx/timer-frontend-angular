@@ -80,23 +80,6 @@
   box-shadow: 0 0 0 3px var(--primary-ring);
 }
 
-.modern-color-input {
-  width: 38px;
-  height: 38px;
-  padding: 2px;
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  background-color: var(--card-bg);
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.modern-color-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-ring);
-}
-
 .edit-actions {
   display: flex;
   gap: 8px;
@@ -125,11 +108,6 @@
 
 .list-item:hover {
   background: var(--bg-subtle);
-}
-
-.list-item.is-active {
-  background: var(--success-list-bg);
-  border-color: var(--success-border);
 }
 
 .item-info {
