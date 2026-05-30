@@ -53,8 +53,8 @@
 [data-theme="dark"] {
   /* Layout & Backgrounds */
   --bg-color: #121212;
-  --card-bg: #1e1e1e;
-  --bg-subtle: #2d2d2d;
+  --card-bg: #191919;
+  --bg-subtle: #282828;
 
   /* Text */
   --text-heading: #f3f4f6;
@@ -63,7 +63,7 @@
 
   /* Borders & Shadows */
   --border-light: #374151;
-  --border-input: #4b5563;
+  --border-input: #414b5a;
   --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.4);
 
   /* Primary */

@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: calc(100vh - 60px);
-  background: var(--card-bg);
+  background: var(--bg-color);
   color: var(--text-color);
   overflow: hidden;
   font-family: sans-serif;
