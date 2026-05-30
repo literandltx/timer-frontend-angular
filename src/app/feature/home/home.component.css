@@ -1,0 +1,76 @@
+.timer-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 60px);
+  background: var(--card-bg);
+  color: var(--text-color);
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+.timer-options-wrapper {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background: var(--bg-subtle);
+  padding: 8px;
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.timer-option-btn {
+  background: transparent;
+  color: var(--text-color);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.timer-option-btn.active {
+  background: var(--btn-dark-bg);
+  color: var(--btn-dark-text);
+}
+
+.timer-option-btn:hover:not(.active) {
+  background: var(--link-hover-bg);
+}
+
+.label-selector-wrapper {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-subtle);
+  padding: 8px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.label-select {
+  background: transparent;
+  color: var(--text-color);
+  border: none;
+  font-size: 16px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.label-option-disabled {
+  color: var(--text-muted);
+}
+
+.label-option {
+  color: var(--text-color);
+  background: var(--card-bg);
+}

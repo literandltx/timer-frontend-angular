@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TimerEntryService } from '../timer/entry/timer-entry.service';
+import {ThemeService} from '../../core/theme.service';
 
 @Component({
   selector: 'ns-app-header',
@@ -11,4 +12,5 @@ import { TimerEntryService } from '../timer/entry/timer-entry.service';
 })
 export class HeaderComponent {
   public entryService = inject(TimerEntryService);
+  public themeService = inject(ThemeService);
 }

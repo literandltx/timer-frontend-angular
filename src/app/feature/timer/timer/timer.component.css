@@ -13,10 +13,11 @@
   font-size: 8rem;
   font-weight: bold;
   margin: 0;
+  color: var(--text-heading);
   font-variant-numeric: tabular-nums;
 }
 
 .timer-subtitle {
-  color: #666666;
+  color: var(--text-muted);
   margin-top: 10px;
 }

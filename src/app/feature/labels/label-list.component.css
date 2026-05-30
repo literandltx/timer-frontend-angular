@@ -1,6 +1,6 @@
 .label-list-container {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #1f2937;
+  color: var(--text-color);
   max-width: 700px;
   margin: 40px auto;
   padding: 0 16px;
@@ -9,20 +9,22 @@
 .top-section {
   margin-bottom: 16px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--border-light);
 }
 
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .page-title {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-heading);
 }
 
 .edit-section {
@@ -35,23 +37,27 @@
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  background: #f9fafb;
-  padding: 12px 16px;
+  background: var(--bg-subtle);
+  padding: 16px;
   border-radius: 8px;
 }
 
 .edit-label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #4b5563;
+  color: var(--text-muted);
+  width: 100%;
+  margin-bottom: 4px;
 }
 
 .modern-input {
   flex: 1;
   min-width: 120px;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input);
   border-radius: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   font-family: inherit;
   font-size: 0.95rem;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -59,30 +65,31 @@
 
 .modern-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-ring);
 }
 
 .modern-color-input {
   width: 38px;
   height: 38px;
   padding: 2px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input);
   border-radius: 6px;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .modern-color-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-ring);
 }
 
 .edit-actions {
   display: flex;
   gap: 8px;
+  margin-left: auto;
 }
 
 .options-list {
@@ -97,20 +104,39 @@
   align-items: center;
   padding: 12px 16px;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--card-bg);
   transition: all 0.2s ease;
   border: 1px solid transparent;
-  border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .list-item:hover {
-  background: #f9fafb;
+  background: var(--bg-subtle);
+}
+
+.list-item.is-active {
+  background: var(--success-list-bg);
+  border-color: var(--success-border);
 }
 
 .item-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 24px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.date-text {
+  min-width: 100px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.label-wrapper {
+  min-width: 60px;
 }
 
 .label-pill {
@@ -122,6 +148,7 @@
   letter-spacing: 0.3px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: inline-block;
 }
 
 .item-actions {
@@ -155,21 +182,32 @@
 }
 
 .primary-btn {
-  background: #111827;
-  color: #ffffff;
+  background: var(--btn-dark-bg);
+  color: var(--btn-dark-text);
 }
 
 .primary-btn:hover:not(:disabled) {
-  background: #374151;
+  background: var(--btn-dark-hover);
+}
+
+.outline-btn {
+  background: var(--card-bg);
+  border-color: var(--border-input);
+  color: var(--text-color);
+}
+
+.outline-btn:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  border-color: var(--border-light);
 }
 
 .ghost-btn {
   background: transparent;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .ghost-btn:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--bg-subtle);
 }
 
 .text-btn {
@@ -178,21 +216,21 @@
 }
 
 .edit-btn {
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .edit-btn:hover:not(:disabled) {
-  color: #111827;
-  background: #e5e7eb;
+  color: var(--text-heading);
+  background: var(--border-light);
 }
 
 .delete-btn {
-  color: #ef4444;
+  color: var(--danger-color);
 }
 
 .delete-btn:hover:not(:disabled) {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--danger-bg);
+  color: var(--danger-hover);
 }
 
 .badge {
@@ -205,14 +243,14 @@
 }
 
 .pending-badge {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
 }
 
 .empty-state {
   text-align: center;
-  padding: 24px 16px;
-  color: #6b7280;
+  padding: 32px 16px;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -224,5 +262,18 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .item-info {
+    gap: 12px;
+  }
+  .date-text, .label-wrapper, .duration-text {
+    min-width: auto;
+  }
+  .edit-label {
+    width: auto;
+    margin-bottom: 0;
   }
 }
