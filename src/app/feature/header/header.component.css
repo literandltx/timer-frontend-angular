@@ -36,6 +36,11 @@
   background-color: #e6f0ff;
 }
 
+.main-nav a:focus-visible {
+  outline: 2px solid #0056b3;
+  outline-offset: 2px;
+}
+
 .status-badge {
   font-weight: bold;
   padding: 6px 14px;
