@@ -12,6 +12,8 @@ interface SyncAction {
   tempId?: number;
 }
 
+const DEFAULT_MINIMUM_TIMER_DURATION = 60;
+
 @Injectable({providedIn: 'root'})
 export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/timer-entries';
@@ -31,6 +33,25 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
         error: (err) => console.error('Background fetch failed', err)
       });
     }
+  }
+
+  recordTimerFinish(durationSeconds: number, activeLabelId?: number, fallbackLabelId?: number) {
+    const finalLabelId = activeLabelId || fallbackLabelId;
+
+    if (!finalLabelId) {
+      console.warn("No label selected, cannot save timer history.");
+      return;
+    }
+
+    const finalDuration = Math.max(durationSeconds, DEFAULT_MINIMUM_TIMER_DURATION);
+    const startTime = Date.now() - (finalDuration * 1000);
+    const request: TimerEntryRequest = {
+      labelId: finalLabelId,
+      durationSeconds: finalDuration,
+      startTime: startTime
+    };
+
+    this.save(request);
   }
 
   async save(request: TimerEntryRequest) {
