@@ -3,6 +3,7 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {CommonModule} from '@angular/common';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Component({
   selector: 'ns-app-register',
@@ -42,9 +43,15 @@ export class RegisterComponent {
           this.isLoading.set(false);
           this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.errorMessage.set('Registration failed. Please try again.');
+
+          if (err.status === 0 || err.status >= 500) {
+            this.errorMessage.set('Servers are currently offline. Cannot register right now.');
+          } else {
+            this.errorMessage.set('Registration failed. Please check your details and try again.');
+          }
+
           console.error(err);
         }
       });
