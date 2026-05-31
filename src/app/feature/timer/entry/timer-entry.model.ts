@@ -3,6 +3,10 @@ export interface TimerEntry {
   labelId: number;
   durationSeconds: number;
   startTime: number;
+  label?: {
+    name: string;
+    color: string;
+  };
 }
 
 export interface TimerEntryRequest {

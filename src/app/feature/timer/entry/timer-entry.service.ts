@@ -1,8 +1,9 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, signal, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {TimerEntry, TimerEntryRequest} from './timer-entry.model';
 import {BaseOfflineSyncService} from '../../../core/utils/base-offline-sync.service';
 import {HttpErrorResponse} from '@angular/common/http';
+import {LabelService} from '../../labels/label.service';
 
 interface SyncAction {
   id: string;
@@ -19,6 +20,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/timer-entries';
   protected queueKey = 'timer_entry_sync_queue';
 
+  private labelService = inject(LabelService);
   entries = signal<TimerEntry[]>([]);
 
   loadEntries(page: number = 0, size: number = 10) {
@@ -94,11 +96,14 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   }
 
   exportCSV() {
-    if (!this.isOnline()) {
-      alert("Server are currently unavailable.");
-      return;
+    if (this.isOnline() && this.authService.isAuthenticated()) {
+      this.exportServer();
+    } else {
+      this.exportLocal();
     }
+  }
 
+  private exportServer() {
     this.http.get(`${this.pingUrl}/export?format=CSV`, {
       observe: 'response',
       responseType: 'blob'
@@ -117,35 +122,160 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
           }
         }
 
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        this.downloadBlob(blob, filename);
       },
       error: (err) => {
-        console.error('Export failed', err);
-        alert('Failed to export CSV. Please try again.');
+        console.error('Server export failed, falling back to local export', err);
+        this.exportLocal();
       }
     });
   }
 
-  async importCSV(file: File): Promise<void> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('format', 'CSV');
+  private exportLocal() {
+    console.log('Exporting CSV from local storage...');
+    const entries = this.getLocalEntries();
+    const localLabels = this.labelService.labels();
+    const headers = ['labelName', 'color', 'durationSeconds', 'startTime'];
+    const rows = entries.map(e => {
+      const matchedLabel = localLabels.find(l => l.id === e.labelId);
+      const finalLabelName = matchedLabel?.name || e.label?.name || '';
+      const finalColor = matchedLabel?.color || e.label?.color || '';
 
-    try {
-      await firstValueFrom(this.http.post(`${this.pingUrl}/import`, formData));
-      this.loadEntries();
-    } catch (error) {
-      console.error('Import failed', error);
-      throw error;
+      return [
+        this.escapeCsvValue(finalLabelName),
+        this.escapeCsvValue(finalColor),
+        e.durationSeconds,
+        e.startTime
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    this.downloadBlob(blob, 'timer-history-offline.csv');
+  }
+
+  private escapeCsvValue(value: any): string {
+    if (value === null || value === undefined) return '';
+    const stringValue = String(value);
+    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
     }
+    return stringValue;
+  }
+
+  private downloadBlob(blob: Blob, filename: string) {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  async importCSV(file: File): Promise<void> {
+    if (this.isOnline() && this.authService.isAuthenticated()) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('format', 'CSV');
+
+      try {
+        await firstValueFrom(this.http.post(`${this.pingUrl}/import`, formData));
+        this.loadEntries();
+      } catch (error) {
+        console.error('Server import failed, falling back to local import', error);
+        await this.importLocal(file);
+      }
+    } else {
+      await this.importLocal(file);
+    }
+  }
+
+  private async importLocal(file: File): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const text = e.target?.result as string;
+          if (!text) {
+            throw new Error('File is empty');
+          }
+
+          const lines = text.split('\n').filter(l => l.trim().length > 0);
+          if (lines.length < 2) {
+            return resolve();
+          }
+
+          const newEntries: TimerEntry[] = [];
+          let localLabels = this.labelService.labels();
+
+          for (let i = 1; i < lines.length; i++) {
+            const [labelName, color, durationStr, startTimeStr] = this.parseCsvRow(lines[i]);
+
+            if (!durationStr || !startTimeStr) continue;
+
+            const durationSeconds = parseInt(durationStr, 10);
+            const startTime = parseInt(startTimeStr, 10);
+
+            let label = localLabels.find(l => l.name === labelName);
+
+            if (!label && labelName) {
+              await this.labelService.save({name: labelName, color: color});
+              localLabels = this.labelService.labels();
+              label = localLabels.find(l => l.name === labelName);
+            }
+
+            const labelId = label?.id || 0;
+            const request: TimerEntryRequest = {labelId, durationSeconds, startTime};
+            const tempId = -(Date.now() + i);
+
+            const newEntry: TimerEntry = {
+              ...request,
+              id: tempId,
+              label: {name: labelName, color: color}
+            };
+
+            newEntries.push(newEntry);
+            this.enqueueAction({type: 'CREATE', payload: request, tempId});
+          }
+
+          this.updateLocalState(entries => [...newEntries, ...entries]);
+          resolve();
+        } catch (err) {
+          console.error('Failed to parse offline CSV', err);
+          reject(err);
+        }
+      };
+
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  }
+
+  private parseCsvRow(row: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < row.length; i++) {
+      const char = row[i];
+      if (char === '"' && row[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+
+    result.push(current);
+    return result;
   }
 
   private updateLocalState(updateFn: (entries: TimerEntry[]) => TimerEntry[]) {
