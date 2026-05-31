@@ -176,18 +176,22 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
 
   async importCSV(file: File): Promise<void> {
     if (this.isOnline() && this.authService.isAuthenticated()) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('format', 'CSV');
-
-      try {
-        await firstValueFrom(this.http.post(`${this.pingUrl}/import`, formData));
-        this.loadEntries();
-      } catch (error) {
-        console.error('Server import failed, falling back to local import', error);
-        await this.importLocal(file);
-      }
+      await this.importServer(file);
     } else {
+      await this.importLocal(file);
+    }
+  }
+
+  private async importServer(file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('format', 'CSV');
+
+    try {
+      await firstValueFrom(this.http.post(`${this.pingUrl}/import`, formData));
+      this.loadEntries();
+    } catch (error) {
+      console.error('Server import failed, falling back to local import', error);
       await this.importLocal(file);
     }
   }
