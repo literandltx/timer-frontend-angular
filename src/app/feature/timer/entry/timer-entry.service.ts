@@ -94,6 +94,11 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   }
 
   exportCSV() {
+    if (!this.isOnline()) {
+      alert("Server are currently unavailable.");
+      return;
+    }
+
     this.http.get(`${this.pingUrl}/export?format=CSV`, {
       observe: 'response',
       responseType: 'blob'

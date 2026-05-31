@@ -43,6 +43,10 @@ export class HistoryService {
     await this.entryService.importCSV(file);
   }
 
+  exportCSV(): void {
+    this.entryService.exportCSV();
+  }
+
   getLabelName(labelId: number): string {
     const label = this.labelService.labels().find(l => l.id === labelId);
     return label ? label.name : 'Unknown Label';

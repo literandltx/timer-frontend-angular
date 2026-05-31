@@ -100,6 +100,10 @@ export class HistoryComponent implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
+  exportCSV() {
+    this.historyService.exportCSV();
+  }
+
   async onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const file: File | null = target.files ? target.files[0] : null;

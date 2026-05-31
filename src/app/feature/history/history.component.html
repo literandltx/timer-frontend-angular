@@ -7,7 +7,7 @@
         <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
                style="display: none;"/>
         <button class="btn outline-btn" (click)="triggerImport()">Import CSV</button>
-        <button class="btn outline-btn" (click)="entryService.exportCSV()">Export CSV</button>
+        <button class="btn outline-btn" (click)="exportCSV()">Export CSV</button>
         <button class="btn primary-btn" (click)="startAdd()">+ Add Session</button>
       </div>
     </div>
