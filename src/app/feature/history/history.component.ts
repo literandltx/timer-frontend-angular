@@ -23,9 +23,28 @@ export class HistoryComponent implements OnInit {
   editingEntry: Partial<TimerEntry> | null = null;
   formDateStr = '';
   formDurationMins = 0;
+  currentPage = 0;
+  pageSize = 10;
 
   ngOnInit() {
-    this.historyService.loadData();
+    this.historyService.loadInitialData();
+    this.loadPage();
+  }
+
+  loadPage() {
+    this.historyService.loadEntriesPage(this.currentPage, this.pageSize);
+  }
+
+  nextPage() {
+    this.currentPage++;
+    this.loadPage();
+  }
+
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadPage();
+    }
   }
 
   startAdd() {
@@ -85,6 +104,8 @@ export class HistoryComponent implements OnInit {
     if (file) {
       try {
         await this.historyService.importCSV(file);
+        this.currentPage = 0;
+        this.loadPage();
         alert('Import successful!');
       } catch {
         alert('Import failed. Please check the file format and try again.');

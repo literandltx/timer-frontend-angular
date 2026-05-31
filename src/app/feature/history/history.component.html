@@ -70,5 +70,23 @@
         <p class="empty-text">No timer history found. Complete a session or log one manually!</p>
       </div>
     }
+
+    @if (entryService.entries().length > 0 || currentPage > 0) {
+      <div class="pagination-controls">
+        <button class="btn outline-btn"
+                [disabled]="currentPage === 0"
+                (click)="prevPage()">
+          Previous
+        </button>
+
+        <span class="page-info">Page {{ currentPage + 1 }}</span>
+
+        <button class="btn outline-btn"
+                [disabled]="entryService.entries().length < pageSize"
+                (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    }
   </div>
 </div>
