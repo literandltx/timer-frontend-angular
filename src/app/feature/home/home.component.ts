@@ -7,8 +7,7 @@ import {TimerComponent} from '../timer/timer/timer.component';
 import {LabelService} from '../labels/label.service';
 import {TimerSettingService} from '../timer/settings/timer-setting.service';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
-
-const DEFAULT_MINIMUM_TIMER_DURATION = 60;
+import {TitleBlinkerService} from './title-blinker.service';
 
 @Component({
   selector: 'ns-app-home',
@@ -21,11 +20,9 @@ export class HomeComponent implements OnInit {
   public labelService = inject(LabelService);
   public settingService = inject(TimerSettingService);
   public entryService = inject(TimerEntryService);
+  private blinkerService = inject(TitleBlinkerService);
 
   activeLabelId = signal<number | undefined>(undefined);
-
-  private blinkInterval: number | undefined;
-  private originalTitle = document.title;
 
   constructor() {
     effect(() => {
@@ -64,51 +61,20 @@ export class HomeComponent implements OnInit {
 
   onTimerFinish(event: { durationUsed: number }) {
     this.saveHistory(event.durationUsed);
-    this.startBlinking();
+    this.blinkerService.startBlinking('Finished!');
   }
 
   onTimerReset(event: { durationUsed: number }) {
-    this.stopBlinking();
-
-    if (event.durationUsed <= 0) {
-      return;
+    this.blinkerService.stopBlinking();
+    if (event.durationUsed > 0) {
+      this.saveHistory(event.durationUsed);
     }
-
-    const finalDuration = Math.max(event.durationUsed, DEFAULT_MINIMUM_TIMER_DURATION);
-    this.saveHistory(finalDuration);
   }
 
   private saveHistory(durationSeconds: number) {
     const labels = this.labelService.labels();
-    const fallbackLabel = labels.length > 0 ? labels[0].id : null;
-    const finalLabelId = this.activeLabelId() || fallbackLabel;
+    const fallbackLabel = labels.length > 0 ? labels[0].id : undefined;
 
-    if (!finalLabelId) {
-      console.warn("No label selected, cannot save history.");
-      return;
-    }
-
-    console.log("Save entry");
-    this.entryService.save({
-      labelId: finalLabelId,
-      durationSeconds: durationSeconds,
-      startTime: Date.now() - (durationSeconds * 1000)
-    });
-  }
-
-  private startBlinking() {
-    let isOriginal = false;
-    this.blinkInterval = window.setInterval(() => {
-      document.title = isOriginal ? this.originalTitle : '⏰ Timer Finished!';
-      isOriginal = !isOriginal;
-    }, 1000);
-  }
-
-  private stopBlinking() {
-    if (this.blinkInterval !== undefined) {
-      window.clearInterval(this.blinkInterval);
-      this.blinkInterval = undefined;
-      document.title = this.originalTitle;
-    }
+    this.entryService.recordTimerFinish(durationSeconds, this.activeLabelId(), fallbackLabel);
   }
 }
