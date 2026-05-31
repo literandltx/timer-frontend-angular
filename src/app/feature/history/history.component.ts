@@ -6,6 +6,9 @@ import {TimerEntry} from '../timer/entry/timer-entry.model';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 import {LabelService} from '../labels/label.service';
 
+const INITIAL_PAGE = 0;
+const DEFAULT_PAGE_SIZE = 20;
+
 @Component({
   selector: 'ns-app-history',
   standalone: true,
@@ -23,8 +26,8 @@ export class HistoryComponent implements OnInit {
   editingEntry: Partial<TimerEntry> | null = null;
   formDateStr = '';
   formDurationMins = 0;
-  currentPage = 0;
-  pageSize = 10;
+  currentPage = INITIAL_PAGE;
+  pageSize = DEFAULT_PAGE_SIZE;
 
   ngOnInit() {
     this.historyService.loadInitialData();
@@ -104,7 +107,7 @@ export class HistoryComponent implements OnInit {
     if (file) {
       try {
         await this.historyService.importCSV(file);
-        this.currentPage = 0;
+        this.currentPage = INITIAL_PAGE;
         this.loadPage();
         alert('Import successful!');
       } catch {
