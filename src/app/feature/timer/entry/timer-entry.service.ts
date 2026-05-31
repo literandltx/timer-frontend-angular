@@ -21,14 +21,18 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
 
   entries = signal<TimerEntry[]>([]);
 
-  loadEntries() {
-    this.entries.set(this.getLocalEntries());
+  loadEntries(page: number = 0, size: number = 10) {
+    const allLocal = this.getLocalEntries();
+    const start = page * size;
+    this.entries.set(allLocal.slice(start, start + size));
 
     if (this.isOnline() && this.getQueue().length === 0 && this.authService.isAuthenticated()) {
-      this.http.get<TimerEntry[]>(this.pingUrl).subscribe({
+      this.http.get<TimerEntry[]>(`${this.pingUrl}?page=${page}&size=${size}`).subscribe({
         next: (data) => {
-          this.setLocalEntries(data);
           this.entries.set(data);
+          if (page === 0) {
+            this.setLocalEntries(data);
+          }
         },
         error: (err) => console.error('Background fetch failed', err)
       });
@@ -90,6 +94,11 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   }
 
   exportCSV() {
+    if (!this.isOnline()) {
+      alert("Server are currently unavailable.");
+      return;
+    }
+
     this.http.get(`${this.pingUrl}/export?format=CSV`, {
       observe: 'response',
       responseType: 'blob'
@@ -143,7 +152,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     const current = this.getLocalEntries();
     const updated = updateFn(current);
     this.setLocalEntries(updated);
-    this.entries.set(updated);
+    this.entries.update(currentView => updateFn(currentView));
   }
 
   private getLocalEntries(): TimerEntry[] {

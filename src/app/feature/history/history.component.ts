@@ -6,6 +6,9 @@ import {TimerEntry} from '../timer/entry/timer-entry.model';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 import {LabelService} from '../labels/label.service';
 
+const INITIAL_PAGE = 0;
+const DEFAULT_PAGE_SIZE = 20;
+
 @Component({
   selector: 'ns-app-history',
   standalone: true,
@@ -23,9 +26,28 @@ export class HistoryComponent implements OnInit {
   editingEntry: Partial<TimerEntry> | null = null;
   formDateStr = '';
   formDurationMins = 0;
+  currentPage = INITIAL_PAGE;
+  pageSize = DEFAULT_PAGE_SIZE;
 
   ngOnInit() {
-    this.historyService.loadData();
+    this.historyService.loadInitialData();
+    this.loadPage();
+  }
+
+  loadPage() {
+    this.historyService.loadEntriesPage(this.currentPage, this.pageSize);
+  }
+
+  nextPage() {
+    this.currentPage++;
+    this.loadPage();
+  }
+
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadPage();
+    }
   }
 
   startAdd() {
@@ -78,6 +100,10 @@ export class HistoryComponent implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
+  exportCSV() {
+    this.historyService.exportCSV();
+  }
+
   async onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const file: File | null = target.files ? target.files[0] : null;
@@ -85,6 +111,8 @@ export class HistoryComponent implements OnInit {
     if (file) {
       try {
         await this.historyService.importCSV(file);
+        this.currentPage = INITIAL_PAGE;
+        this.loadPage();
         alert('Import successful!');
       } catch {
         alert('Import failed. Please check the file format and try again.');

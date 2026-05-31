@@ -19,9 +19,12 @@ export class HistoryService {
     return this.entryService.entries;
   }
 
-  loadData(): void {
-    this.entryService.loadEntries();
+  loadInitialData(): void {
     this.labelService.loadLabels();
+  }
+
+  loadEntriesPage(page: number, size: number): void {
+    this.entryService.loadEntries(page, size);
   }
 
   async saveEntry(id: number | undefined, request: TimerEntryRequest): Promise<void> {
@@ -38,6 +41,10 @@ export class HistoryService {
 
   async importCSV(file: File): Promise<void> {
     await this.entryService.importCSV(file);
+  }
+
+  exportCSV(): void {
+    this.entryService.exportCSV();
   }
 
   getLabelName(labelId: number): string {
