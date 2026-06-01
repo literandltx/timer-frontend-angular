@@ -96,10 +96,26 @@
 .chart-legend {
   flex: 1;
   min-width: 250px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-right: 4%;
+}
+
+.chart-legend::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chart-legend::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chart-legend::-webkit-scrollbar-thumb {
+  background-color: var(--border-input, #555);
+  border-radius: 10px;
 }
 
 .legend-row {
