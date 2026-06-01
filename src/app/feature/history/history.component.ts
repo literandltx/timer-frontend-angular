@@ -3,8 +3,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HistoryService, TimerEntryRequest} from './history.service';
 import {TimerEntry} from '../timer/entry/timer-entry.model';
-import {TimerEntryService} from '../timer/entry/timer-entry.service';
-import {LabelService} from '../labels/label.service';
 import {HistoryChartComponent} from './history-chart.component';
 
 const INITIAL_PAGE = 0;
@@ -19,8 +17,6 @@ const DEFAULT_PAGE_SIZE = 20;
 })
 export class HistoryComponent implements OnInit {
   public historyService = inject(HistoryService);
-  public entryService = inject(TimerEntryService);
-  public labelService = inject(LabelService);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -29,6 +25,10 @@ export class HistoryComponent implements OnInit {
   formDurationMins = 0;
   currentPage = INITIAL_PAGE;
   pageSize = DEFAULT_PAGE_SIZE;
+
+  get pageViewEntries() {
+    return this.historyService.paginatedEntries();
+  }
 
   ngOnInit() {
     this.historyService.loadInitialData();
@@ -53,7 +53,7 @@ export class HistoryComponent implements OnInit {
 
   startAdd() {
     if (this.editingEntry && !this.editingEntry.id) {
-      this.editingEntry = null; // Toggle off if already adding
+      this.editingEntry = null;
     } else {
       this.editingEntry = {labelId: undefined, durationSeconds: 0};
       this.formDateStr = this.formatDateForInput(Date.now());

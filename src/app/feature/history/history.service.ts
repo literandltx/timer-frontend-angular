@@ -1,6 +1,8 @@
-import {Injectable, inject} from '@angular/core';
+import {Injectable, inject, Signal} from '@angular/core';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 import {LabelService} from '../labels/label.service';
+import {TimerEntry} from '../timer/entry/timer-entry.model';
+import {Label} from '../labels/label.model';
 
 export interface TimerEntryRequest {
   labelId: number;
@@ -15,7 +17,15 @@ export class HistoryService {
   private entryService = inject(TimerEntryService);
   private labelService = inject(LabelService);
 
-  get entries() {
+  get entries(): TimerEntry[] {
+    return this.entryService.allLocalEntries;
+  }
+
+  get labels(): Signal<Label[]> {
+    return this.labelService.labels;
+  }
+
+  get paginatedEntries(): Signal<TimerEntry[]> {
     return this.entryService.entries;
   }
 

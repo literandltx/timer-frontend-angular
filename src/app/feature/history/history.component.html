@@ -19,7 +19,7 @@
 
           <select class="modern-input" [(ngModel)]="editingEntry.labelId">
             <option [ngValue]="undefined" disabled>Select Label...</option>
-            @for (label of labelService.labels(); track label.id) {
+            @for (label of historyService.labels(); track label.id) {
               <option [ngValue]="label.id">{{ label.name }}</option>
             }
           </select>
@@ -41,7 +41,7 @@
   <ns-history-chart></ns-history-chart>
 
   <div class="options-list">
-    @for (entry of entryService.entries(); track entry.id) {
+    @for (entry of pageViewEntries; track entry.id) {
       <div class="list-item">
         <div class="item-info">
           <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}
@@ -55,7 +55,7 @@
 
           <span class="date-text">{{ entry.startTime | date:'medium' }}</span>
 
-          @if (entry.id < 0 && entryService.isOnline()) {
+          @if (entry.id < 0) {
             <span class="badge pending-badge">Syncing</span>
           }
         </div>
@@ -72,23 +72,23 @@
         <p class="empty-text">No timer history found. Complete a session or log one manually!</p>
       </div>
     }
-
-    @if (entryService.entries().length > 0 || currentPage > 0) {
-      <div class="pagination-controls">
-        <button class="btn outline-btn"
-                [disabled]="currentPage === 0"
-                (click)="prevPage()">
-          Previous
-        </button>
-
-        <span class="page-info">Page {{ currentPage + 1 }}</span>
-
-        <button class="btn outline-btn"
-                [disabled]="entryService.entries().length < pageSize"
-                (click)="nextPage()">
-          Next
-        </button>
-      </div>
-    }
   </div>
+
+  @if (pageViewEntries.length > 0 || currentPage > 0) {
+    <div class="pagination-controls">
+      <button class="btn outline-btn"
+              [disabled]="currentPage === 0"
+              (click)="prevPage()">
+        Previous
+      </button>
+
+      <span class="page-info">Page {{ currentPage + 1 }}</span>
+
+      <button class="btn outline-btn"
+              [disabled]="pageViewEntries.length < pageSize"
+              (click)="nextPage()">
+        Next
+      </button>
+    </div>
+  }
 </div>

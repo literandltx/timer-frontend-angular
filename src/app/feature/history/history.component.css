@@ -35,12 +35,17 @@
 }
 
 .pagination-controls {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   margin-top: 24px;
   padding-top: 16px;
+  padding-bottom: 24px;
   border-top: 1px solid var(--border-light);
 }
 
@@ -109,9 +114,13 @@
   flex-direction: column;
   gap: 8px;
 
-  max-height: 55vh;
+  max-height: 40vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 4px;
+  margin-bottom: 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .options-list::-webkit-scrollbar {
