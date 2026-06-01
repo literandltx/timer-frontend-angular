@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 48px;
   max-width: 750px;
   margin: 0 auto;
@@ -51,7 +51,8 @@
 .pie-chart-wrapper {
   flex: 0 0 35%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-left: 4%;
 }
 
 .pie-chart {
@@ -94,10 +95,11 @@
 
 .chart-legend {
   flex: 1;
-  min-width: 280px;
+  min-width: 250px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
+  margin-right: 4%;
 }
 
 .legend-row {
@@ -141,7 +143,7 @@
   /*background: #3a3a3a;*/
   /*background: #ffffff;*/
   color: #a0a0a0;
-  padding: 4px 10px;
+  padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
