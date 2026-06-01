@@ -123,6 +123,17 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/*.options-list::after {*/
+/*  content: "";*/
+/*  min-height: 8px;*/
+/*  flex-shrink: 0;*/
+/*}*/
+
+.list-item:last-child {
+  border-bottom-color: transparent;
+  margin-bottom: 16px;
+}
+
 .options-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -151,7 +162,11 @@
   border: 1px solid transparent;
   flex-wrap: wrap;
   gap: 12px;
-  border-bottom: 1px solid var(--border-light);
+  /*border-bottom: 1px solid var(--border-light);*/
+}
+
+.list-item:last-child {
+  border-bottom-color: transparent;
 }
 
 .list-item:hover {
