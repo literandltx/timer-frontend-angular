@@ -62,7 +62,7 @@ export abstract class BaseOfflineSyncService<TAction> implements OnDestroy {
       const stored = localStorage.getItem(this.queueKey);
       return stored ? JSON.parse(stored) : [];
     } catch (e) {
-      console.error('Failed to parse offline queue. Clearing corrupted data.');
+      console.error('Failed to parse offline queue. Clearing corrupted data.', e);
       localStorage.removeItem(this.queueKey);
       return [];
     }
