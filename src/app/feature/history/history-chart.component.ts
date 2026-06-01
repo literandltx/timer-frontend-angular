@@ -30,10 +30,19 @@ export class HistoryChartComponent {
     const tf = this.timeframe();
 
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    const startOfDay = today.getTime();
+
     const dayOfWeek = now.getDay() || 7;
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + 1).getTime();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - dayOfWeek + 1);
+    const startOfWeek = weekStart.getTime();
+
+    const monthStart = new Date(today);
+    monthStart.setDate(1);
+    const startOfMonth = monthStart.getTime();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
       if (tf === 'day') {
