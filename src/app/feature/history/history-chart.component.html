@@ -1,0 +1,51 @@
+<div class="chart-container">
+  <div class="timeframe-toggles">
+    <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
+            (click)="setTimeframe('day')">Today
+    </button>
+    <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
+            (click)="setTimeframe('week')">Week
+    </button>
+    <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
+            (click)="setTimeframe('month')">Month
+    </button>
+    <button class="btn toggle-btn" [class.active]="timeframe() === 'all'"
+            (click)="setTimeframe('all')">All
+    </button>
+  </div>
+
+  @if (chartData().hasData) {
+    <div class="chart-content">
+
+      <div class="pie-chart-wrapper">
+        <div class="pie-chart" [style.background]="chartData().conicStyle">
+          <div class="donut-hole">
+            <span class="total-time">{{ chartData().formattedTotal }}</span>
+            <span class="total-label">TOTAL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        @for (item of chartData().legend; track item.name) {
+          <div class="legend-row">
+            <div class="legend-left">
+              <span class="color-dot" [style.background-color]="item.color"></span>
+              <span class="item-name">{{ item.name }}</span>
+            </div>
+
+            <div class="legend-right">
+              <span class="item-time">{{ item.formattedTime }}</span>
+              <span class="item-badge">{{ item.percentage }}%</span>
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+  } @else {
+    <div class="empty-chart">
+      <p>No activity logged for this period.</p>
+    </div>
+  }
+</div>
