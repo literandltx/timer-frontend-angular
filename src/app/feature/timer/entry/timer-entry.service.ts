@@ -23,7 +23,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   private labelService = inject(LabelService);
   entries = signal<TimerEntry[]>([]);
 
-  loadEntries(page: number = 0, size: number = 10) {
+  loadEntries(page = 0, size = 10) {
     const allLocal = this.getLocalEntries();
     const start = page * size;
     this.entries.set(allLocal.slice(start, start + size));
@@ -154,7 +154,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     this.downloadBlob(blob, 'timer-history-offline.csv');
   }
 
-  private escapeCsvValue(value: any): string {
+  private escapeCsvValue(value: unknown): string {
     if (value === null || value === undefined) return '';
     const stringValue = String(value);
     if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {

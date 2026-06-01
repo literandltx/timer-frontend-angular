@@ -1,0 +1,187 @@
+.chart-container {
+  background: var(--card-bg);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+  font-family: system-ui, -apple-system, sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.timeframe-toggles {
+  display: flex;
+  background: transparent;
+  border-radius: 8px;
+  padding: 4px;
+  margin: 0 auto 40px auto;
+  max-width: 500px;
+}
+
+.toggle-btn {
+  flex: 1;
+  background: var(--card-bg);
+  border-color: var(--border-input);
+  color: var(--text-color);
+  border: none;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.chart-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 48px;
+  max-width: 750px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.pie-chart-wrapper {
+  flex: 0 0 35%;
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 4%;
+}
+
+.pie-chart {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease;
+}
+
+.donut-hole {
+  width: 75%;
+  height: 75%;
+  border-radius: 50%;
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.total-time {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.5px;
+}
+
+.total-label {
+  font-size: 0.75rem;
+  color: #888888;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.chart-legend {
+  flex: 1;
+  min-width: 250px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: 4%;
+}
+
+.chart-legend::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chart-legend::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chart-legend::-webkit-scrollbar-thumb {
+  background-color: var(--border-input, #555);
+  border-radius: 10px;
+}
+
+.legend-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.legend-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.item-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.legend-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.item-time {
+  font-size: 0.95rem;
+  color: #a0a0a0;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-badge {
+  /*background: #3a3a3a;*/
+  /*background: #ffffff;*/
+  color: #a0a0a0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+}
+
+.empty-chart {
+  text-align: center;
+  padding: 40px 0;
+  color: #888888;
+  font-style: italic;
+}
+
+@media (max-width: 650px) {
+  .chart-content {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .chart-legend {
+    width: 100%;
+  }
+}

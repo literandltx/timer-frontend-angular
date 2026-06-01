@@ -5,6 +5,7 @@ import {HistoryService, TimerEntryRequest} from './history.service';
 import {TimerEntry} from '../timer/entry/timer-entry.model';
 import {TimerEntryService} from '../timer/entry/timer-entry.service';
 import {LabelService} from '../labels/label.service';
+import {HistoryChartComponent} from './history-chart.component';
 
 const INITIAL_PAGE = 0;
 const DEFAULT_PAGE_SIZE = 20;
@@ -12,7 +13,7 @@ const DEFAULT_PAGE_SIZE = 20;
 @Component({
   selector: 'ns-app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HistoryChartComponent],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'
 })
