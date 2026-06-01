@@ -26,7 +26,7 @@ export class HistoryChartComponent {
   timeframe = signal<Timeframe>('day');
 
   chartData = computed(() => {
-    const entries = this.historyService.entries();
+    const entries = this.historyService.entries;
     const tf = this.timeframe();
 
     const now = new Date();

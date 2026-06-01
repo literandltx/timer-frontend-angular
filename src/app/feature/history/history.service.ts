@@ -16,7 +16,7 @@ export class HistoryService {
   private labelService = inject(LabelService);
 
   get entries() {
-    return this.entryService.entries;
+    return this.entryService.allLocalEntries;
   }
 
   loadInitialData(): void {

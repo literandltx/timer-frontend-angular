@@ -21,7 +21,12 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   protected queueKey = 'timer_entry_sync_queue';
 
   private labelService = inject(LabelService);
+  private allEntriesSignal = signal<TimerEntry[]>(this.getLocalEntries());
   entries = signal<TimerEntry[]>([]);
+
+  get allLocalEntries() {
+    return this.allEntriesSignal();
+  }
 
   loadEntries(page = 0, size = 10) {
     const allLocal = this.getLocalEntries();
@@ -286,6 +291,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     const current = this.getLocalEntries();
     const updated = updateFn(current);
     this.setLocalEntries(updated);
+    this.allEntriesSignal.set(updated);
     this.entries.update(currentView => updateFn(currentView));
   }
 
