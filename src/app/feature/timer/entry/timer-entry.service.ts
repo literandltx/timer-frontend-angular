@@ -38,7 +38,14 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
         next: (data) => {
           this.entries.set(data);
           if (page === 0) {
-            this.setLocalEntries(data);
+            const currentLocal = this.getLocalEntries();
+            const serverIds = new Set(data.map(e => e.id));
+            const merged = [
+              ...data,
+              ...currentLocal.filter(e => !serverIds.has(e.id))
+            ];
+
+            this.updateLocalState(() => merged);
           }
         },
         error: (err) => console.error('Background fetch failed', err)
