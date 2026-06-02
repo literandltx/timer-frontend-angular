@@ -377,6 +377,31 @@
   white-space: nowrap;
 }
 
+.x-axis-day {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  pointer-events: none;
+}
+
+.x-label-day {
+  position: absolute;
+  color: #666666;
+  font-size: 0.8rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.x-label-day:first-child {
+  transform: none;
+}
+
+.x-label-day:last-child {
+  transform: translateX(-100%);
+}
+
 @media (max-width: 650px) {
   .chart-content {
     flex-direction: column;

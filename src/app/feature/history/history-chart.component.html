@@ -132,10 +132,22 @@
                         </div>
                       }
                     </div>
-                    <span class="x-label">{{ bucket.label || '&nbsp;' }}</span>
+                    <span class="x-label">
+                      @if (timeframe() !== 'day') {
+                        {{ bucket.label || '&nbsp;' }}
+                      }
+                    </span>
                   </div>
                 }
               </div>
+
+              @if (timeframe() === 'day') {
+                <div class="x-axis-day">
+                  @for (tick of barChartData().dayXTicks; track tick.label) {
+                    <span class="x-label-day" [style.left.%]="tick.position">{{ tick.label }}</span>
+                  }
+                </div>
+              }
             </div>
           </div>
         </div>

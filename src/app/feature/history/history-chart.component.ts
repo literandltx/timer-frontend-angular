@@ -122,17 +122,28 @@ export class HistoryChartComponent {
       return true;
     });
 
-    const buckets: { label: string, totalSeconds: number, entries: { color: string, seconds: number }[] }[] = [];
+    const buckets: { id: number, label: string, totalSeconds: number, entries: { color: string, seconds: number }[] }[] = [];
     let totalSeconds = 0;
     let averageLabel = 'Daily average';
     let averageValue = 0;
     const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
 
+    const dayXTicks = [
+      { label: '00:00', position: 0 },
+      { label: '04:00', position: 16.666 },
+      { label: '08:00', position: 33.333 },
+      { label: '12:00', position: 50 },
+      { label: '16:00', position: 66.666 },
+      { label: '20:00', position: 83.333 },
+      { label: '24:00', position: 100 }
+    ];
+
     if (tf === 'day') {
       averageLabel = 'Hourly average';
       for (let i = 0; i < 24; i++) {
         buckets.push({
-          label: i % 4 === 0 ? `${i.toString().padStart(2, '0')}:00` : '',
+          id: i,
+          label: '',
           totalSeconds: 0,
           entries: []
         });
@@ -148,8 +159,8 @@ export class HistoryChartComponent {
 
     } else if (tf === 'week') {
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      for (const day of days) {
-        buckets.push({ label: day, totalSeconds: 0, entries: [] });
+      for (let i = 0; i < days.length; i++) {
+        buckets.push({ id: i, label: days[i], totalSeconds: 0, entries: [] });
       }
       for (const entry of filteredEntries) {
         const entryDate = new Date(entry.startTime);
@@ -164,6 +175,7 @@ export class HistoryChartComponent {
     } else if (tf === 'month') {
       for (let i = 1; i <= daysInMonth; i++) {
         buckets.push({
+          id: i,
           label: (i === 1 || i % 5 === 0) ? i.toString() : '',
           totalSeconds: 0,
           entries: []
@@ -192,40 +204,26 @@ export class HistoryChartComponent {
 
     let stepMinutes = 15;
     if (tf === 'day' && maxMinutes <= 60) {
-      if (maxMinutes <= 10) {
-        stepMinutes = 2;
-      }
-      else if (maxMinutes <= 25) {
-        stepMinutes = 5;
-      }
-      else if (maxMinutes <= 50) {
-        stepMinutes = 10;
-      }
-      else {
-        stepMinutes = 15;
-      }
+      if (maxMinutes <= 10) stepMinutes = 2;
+      else if (maxMinutes <= 25) stepMinutes = 5;
+      else if (maxMinutes <= 50) stepMinutes = 10;
+      else stepMinutes = 15;
     } else {
-      if (maxMinutes > 600) {
-        stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
-      }
-      else if (maxMinutes <= 60) {
-        stepMinutes = 15;
-      }
-      else {
-        stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
-      }
+      if (maxMinutes > 600) stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
+      else if (maxMinutes <= 60) stepMinutes = 15;
+      else stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
     }
 
     const yMaxMinutes = stepMinutes * 5;
     const yLabels = [5, 4, 3, 2, 1, 0].map(i => i * stepMinutes);
 
-    const bucketsView = buckets.map((b, index) => {
+    const bucketsView = buckets.map(b => {
       const stacks = b.entries.map(e => ({
         color: e.color,
         heightPct: (e.seconds / 60 / yMaxMinutes) * 100
       }));
 
-      return { id: index, label: b.label, stacks };
+      return { id: b.id, label: b.label, stacks };
     });
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -247,6 +245,7 @@ export class HistoryChartComponent {
     return {
       title,
       buckets: bucketsView,
+      dayXTicks,
       yLabels,
       averageLabel,
       averageValue,
