@@ -8,8 +8,6 @@ type ChartType = 'pie' | 'bar';
 
 const days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-let dateRange = 'This Period';
-let title = 'Current Period';
 
 interface ChartLegendItem {
   name: string;
@@ -31,36 +29,45 @@ export class HistoryChartComponent {
 
   timeframe = signal<Timeframe>('day');
   chartType = signal<ChartType>('pie');
+  periodOffset = signal<number>(0);
+
+  periodRange = computed(() => {
+    const tf = this.timeframe();
+    const offset = this.periodOffset();
+    const targetDate = new Date();
+
+    if (tf === 'day') {
+      targetDate.setDate(targetDate.getDate() + offset);
+      const start = new Date(targetDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+    } else if (tf === 'week') {
+      targetDate.setDate(targetDate.getDate() + offset * 7);
+      const start = new Date(targetDate);
+      start.setHours(0, 0, 0, 0);
+      const dayOfWeek = start.getDay() || 7;
+      start.setDate(start.getDate() - dayOfWeek + 1);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+    } else if (tf === 'month') {
+      targetDate.setMonth(targetDate.getMonth() + offset);
+      const start = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+      const end = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 1);
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+    } else {
+      return {start: 0, end: Infinity, targetDate: new Date()};
+    }
+  });
 
   chartData = computed(() => {
     const entries = this.historyService.entries;
-    const tf = this.timeframe();
-
-    const now = new Date();
-    const today = new Date(now);
-    today.setHours(0, 0, 0, 0);
-    const startOfDay = today.getTime();
-
-    const dayOfWeek = now.getDay() || 7;
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - dayOfWeek + 1);
-    const startOfWeek = weekStart.getTime();
-
-    const monthStart = new Date(today);
-    monthStart.setDate(1);
-    const startOfMonth = monthStart.getTime();
+    const range = this.periodRange();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
-      if (tf === 'day') {
-        return entry.startTime >= startOfDay;
-      }
-      if (tf === 'week') {
-        return entry.startTime >= startOfWeek;
-      }
-      if (tf === 'month') {
-        return entry.startTime >= startOfMonth;
-      }
-      return true;
+      return entry.startTime >= range.start && entry.startTime < range.end;
     });
 
     const aggregated = new Map<number, number>();
@@ -113,26 +120,10 @@ export class HistoryChartComponent {
   barChartData = computed(() => {
     const entries = this.historyService.entries;
     const tf = this.timeframe();
-    const now = new Date();
-
-    const today = new Date(now);
-    today.setHours(0, 0, 0, 0);
-    const startOfDay = today.getTime();
-
-    const dayOfWeek = now.getDay() || 7;
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - dayOfWeek + 1);
-    const startOfWeek = weekStart.getTime();
-
-    const monthStart = new Date(today);
-    monthStart.setDate(1);
-    const startOfMonth = monthStart.getTime();
+    const range = this.periodRange();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
-      if (tf === 'day') return entry.startTime >= startOfDay;
-      if (tf === 'week') return entry.startTime >= startOfWeek;
-      if (tf === 'month') return entry.startTime >= startOfMonth;
-      return true;
+      return entry.startTime >= range.start && entry.startTime < range.end;
     });
 
     const buckets: {
@@ -145,7 +136,7 @@ export class HistoryChartComponent {
     let totalSeconds = 0;
     let averageLabel = 'Daily average';
     let averageValue = 0;
-    const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+    const daysInMonth = new Date(range.targetDate.getFullYear(), range.targetDate.getMonth() + 1, 0).getDate();
 
     const dayXTicks = [
       {label: '00:00', position: 0},
@@ -264,35 +255,52 @@ export class HistoryChartComponent {
       return {id: b.id, displayLabel: b.displayLabel, titleStr, stacks};
     });
 
+    let dateRangeStr = 'This Period';
+    let titleStr = 'Current Period';
+
+    const offset = this.periodOffset();
+
     if (tf === 'week') {
-      const endOfWeekDate = new Date(startOfWeek + 6 * 24 * 60 * 60 * 1000);
-      dateRange = `${monthNames[weekStart.getMonth()]} ${weekStart.getDate()} – ${monthNames[endOfWeekDate.getMonth()]} ${endOfWeekDate.getDate()}`;
-      title = 'Current Week';
+      const weekStart = range.targetDate;
+      const endOfWeekDate = new Date(range.end - 1);
+      dateRangeStr = `${monthNames[weekStart.getMonth()]} ${weekStart.getDate()} – ${monthNames[endOfWeekDate.getMonth()]} ${endOfWeekDate.getDate()}`;
+      titleStr = offset === 0 ? 'Current Week' : offset === -1 ? 'Last Week' : `${offset > 0 ? '+' : ''}${offset} Weeks`;
     } else if (tf === 'day') {
-      dateRange = `Today, ${monthNames[today.getMonth()]} ${today.getDate()}`;
-      title = 'Today';
+      const dayDate = range.targetDate;
+      dateRangeStr = `${monthNames[dayDate.getMonth()]} ${dayDate.getDate()}, ${dayDate.getFullYear()}`;
+      titleStr = offset === 0 ? 'Today' : offset === -1 ? 'Yesterday' : `${monthNames[dayDate.getMonth()]} ${dayDate.getDate()}`;
     } else if (tf === 'month') {
-      dateRange = `${monthNames[monthStart.getMonth()]} ${monthStart.getFullYear()}`;
-      title = 'This Month';
+      const monthStart = range.targetDate;
+      dateRangeStr = `${monthNames[monthStart.getMonth()]} ${monthStart.getFullYear()}`;
+      titleStr = offset === 0 ? 'This Month' : offset === -1 ? 'Last Month' : `${monthNames[monthStart.getMonth()]} ${monthStart.getFullYear()}`;
     }
 
     return {
-      title,
+      title: titleStr,
       buckets: bucketsView,
       dayXTicks,
       yLabels,
       averageLabel,
       averageValue,
-      dateRange
+      dateRange: dateRangeStr
     };
   });
 
   setTimeframe(tf: Timeframe) {
     this.timeframe.set(tf);
+    this.periodOffset.set(0);
   }
 
   setChartType(type: ChartType) {
     this.chartType.set(type);
+  }
+
+  navigatePrevious() {
+    this.periodOffset.update(val => val - 1);
+  }
+
+  navigateNext() {
+    this.periodOffset.update(val => val + 1);
   }
 
   private formatTime(totalSeconds: number): string {
