@@ -49,6 +49,7 @@
 
 .view-toggles {
   display: flex;
+  margin-left: auto;
   background: #1a1a1a;
   border-radius: 12px;
   padding: 4px;

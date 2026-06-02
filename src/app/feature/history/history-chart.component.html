@@ -1,18 +1,35 @@
 <div class="chart-container">
   <div class="chart-header">
-    <div class="timeframe-toggles">
-      <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
-              (click)="setTimeframe('day')">Today
-      </button>
-      <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
-              (click)="setTimeframe('week')">Week
-      </button>
-      <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
-              (click)="setTimeframe('month')">Month
-      </button>
-      <button class="btn toggle-btn" [class.active]="timeframe() === 'all'"
-              (click)="setTimeframe('all')">All
-      </button>
+
+    <div class="timeframe-wrapper">
+      @if (chartType() === 'pie') {
+        <div class="timeframe-toggles">
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
+                  (click)="setTimeframe('day')">Today
+          </button>
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
+                  (click)="setTimeframe('week')">Week
+          </button>
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
+                  (click)="setTimeframe('month')">Month
+          </button>
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'all'"
+                  (click)="setTimeframe('all')">All
+          </button>
+        </div>
+      } @else if (chartType() === 'bar') {
+        <div class="timeframe-toggles">
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
+                  (click)="setTimeframe('day')">Today
+          </button>
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
+                  (click)="setTimeframe('week')">Week
+          </button>
+          <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
+                  (click)="setTimeframe('month')">Month
+          </button>
+        </div>
+      }
     </div>
 
     <div class="view-toggles">
