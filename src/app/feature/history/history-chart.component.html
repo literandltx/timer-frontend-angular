@@ -52,10 +52,10 @@
     </div>
   </div>
 
-  @if (chartData().hasData) {
-    <div class="chart-content">
+  <div class="chart-content">
 
-      @if (chartType() === 'pie') {
+    @if (chartType() === 'pie') {
+      @if (chartData().hasData) {
         <div class="pie-chart-wrapper">
           <div class="pie-chart" [style.background]="chartData().conicStyle">
             <div class="donut-hole">
@@ -81,32 +81,38 @@
           }
         </div>
       } @else {
+        <div class="empty-chart">
+          <p>No activity logged for this period.</p>
+        </div>
+      }
+    } @else {
 
-        <div class="bar-chart-view">
+      <div class="bar-chart-view">
 
-          <div class="bar-header">
-            <div class="bar-header-info">
-              <h3>{{ barChartData().title }}</h3>
-              <p>{{ barChartData().dateRange }} <span
-                class="dot">•</span> {{ barChartData().averageLabel }}: <span
-                class="highlight">{{ barChartData().averageValue }} min</span></p>
-            </div>
-            <div class="bar-header-controls">
-              <button class="nav-btn" (click)="navigatePrevious()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-              <button class="nav-btn" (click)="navigateNext()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
+        <div class="bar-header">
+          <div class="bar-header-info">
+            <h3>{{ barChartData().title }}</h3>
+            <p>{{ barChartData().dateRange }} <span
+              class="dot">•</span> {{ barChartData().averageLabel }}: <span
+              class="highlight">{{ barChartData().averageValue }} min</span></p>
           </div>
+          <div class="bar-header-controls">
+            <button class="nav-btn" (click)="navigatePrevious()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="nav-btn" (click)="navigateNext()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
 
+        @if (barChartData().hasData) {
           <div class="bar-plot-container">
             <div class="y-axis">
               @for (val of barChartData().yLabels; track val) {
@@ -150,13 +156,12 @@
               }
             </div>
           </div>
-        </div>
-      }
-
-    </div>
-  } @else {
-    <div class="empty-chart">
-      <p>No activity logged for this period.</p>
-    </div>
-  }
+        } @else {
+          <div class="empty-chart">
+            <p>No activity logged for this period.</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>

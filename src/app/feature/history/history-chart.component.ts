@@ -42,7 +42,7 @@ export class HistoryChartComponent {
       start.setHours(0, 0, 0, 0);
       const end = new Date(start);
       end.setDate(end.getDate() + 1);
-      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+      return { start: start.getTime(), end: end.getTime(), targetDate: start };
     } else if (tf === 'week') {
       targetDate.setDate(targetDate.getDate() + offset * 7);
       const start = new Date(targetDate);
@@ -51,14 +51,14 @@ export class HistoryChartComponent {
       start.setDate(start.getDate() - dayOfWeek + 1);
       const end = new Date(start);
       end.setDate(end.getDate() + 7);
-      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+      return { start: start.getTime(), end: end.getTime(), targetDate: start };
     } else if (tf === 'month') {
       targetDate.setMonth(targetDate.getMonth() + offset);
       const start = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
       const end = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 1);
-      return {start: start.getTime(), end: end.getTime(), targetDate: start};
+      return { start: start.getTime(), end: end.getTime(), targetDate: start };
     } else {
-      return {start: 0, end: Infinity, targetDate: new Date()};
+      return { start: 0, end: Infinity, targetDate: new Date() };
     }
   });
 
@@ -282,7 +282,8 @@ export class HistoryChartComponent {
       yLabels,
       averageLabel,
       averageValue,
-      dateRange: dateRangeStr
+      dateRange: dateRangeStr,
+      hasData: totalSeconds > 0
     };
   });
 
