@@ -1,8 +1,8 @@
 .chart-container {
   background: var(--card-bg);
-  color: #ffffff;
+  color: var(--text-color);
   border-radius: 12px;
-  padding: 32px 24px;
+  padding: 24px 24px;
   margin-bottom: 24px;
   font-family: system-ui, -apple-system, sans-serif;
   width: 100%;
@@ -21,36 +21,40 @@
 
 .timeframe-toggles {
   display: flex;
-  background: transparent;
-  border-radius: 8px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
   padding: 4px;
   margin: 0;
-  max-width: 500px;
+  gap: 4px;
 }
 
 .toggle-btn {
-  flex: 1;
-  background: var(--card-bg);
-  border-color: var(--border-input);
-  color: var(--text-color);
+  background: transparent;
   border: none;
-  padding: 10px 12px;
+  color: var(--text-muted);
+  padding: 8px 16px;
   font-size: 0.95rem;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toggle-btn.active {
-  background: var(--bg-color);
+  background: var(--card-bg);
   color: var(--text-color);
+  box-shadow: var(--shadow-md);
 }
 
 .view-toggles {
   display: flex;
   margin-left: auto;
-  background: #1a1a1a;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 4px;
   gap: 4px;
@@ -59,7 +63,7 @@
 .icon-btn {
   background: transparent;
   border: none;
-  color: #888888;
+  color: var(--text-muted);
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
@@ -70,8 +74,9 @@
 }
 
 .icon-btn.active {
-  background: #2a2a2a;
-  color: #ffffff;
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-md);
 }
 
 .icon-btn svg {
@@ -123,13 +128,13 @@
 .total-time {
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text-heading);
   letter-spacing: -0.5px;
 }
 
 .total-label {
   font-size: 0.75rem;
-  color: #888888;
+  color: var(--text-muted);
   font-weight: 600;
   letter-spacing: 1.5px;
   margin-top: 6px;
@@ -157,7 +162,7 @@
 }
 
 .chart-legend::-webkit-scrollbar-thumb {
-  background-color: var(--border-input, #555);
+  background-color: var(--border-input);
   border-radius: 10px;
 }
 
@@ -194,12 +199,12 @@
 
 .item-time {
   font-size: 0.95rem;
-  color: #a0a0a0;
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .item-badge {
-  color: #a0a0a0;
+  color: var(--text-muted);
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -211,7 +216,7 @@
 .empty-chart {
   text-align: center;
   padding: 40px 0;
-  color: #888888;
+  color: var(--text-muted);
   font-style: italic;
   width: 100%;
 }
@@ -233,22 +238,22 @@
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 10px 0;
-  color: #ffffff;
+  color: var(--text-heading);
 }
 
 .bar-header-info p {
   font-size: 0.95rem;
-  color: #888888;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .bar-header-info .dot {
   margin: 0 8px;
-  color: #555;
+  color: var(--text-muted);
 }
 
 .bar-header-info .highlight {
-  color: #ffffff;
+  color: var(--text-heading);
   font-weight: 500;
 }
 
@@ -258,21 +263,21 @@
 }
 
 .nav-btn {
-  background: #2a2a2a;
-  border: none;
+  background: var(--bg-color);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: var(--text-color);
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .nav-btn:hover {
-  background: #333333;
+  background: var(--bg-subtle);
 }
 
 .nav-btn svg {
@@ -294,7 +299,7 @@
   justify-content: space-between;
   padding-right: 16px;
   padding-bottom: 32px;
-  color: #666666;
+  color: var(--text-muted);
   font-size: 0.8rem;
   text-align: right;
   width: 45px;
@@ -325,11 +330,11 @@
 .grid-line {
   height: 1px;
   width: 100%;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  border-top: 1px dashed var(--border-light);
 }
 
 .grid-line:last-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-input);
 }
 
 .bars-wrapper {
@@ -356,7 +361,7 @@
 }
 
 .bar-column:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-subtle);
 }
 
 .bar-stack {
@@ -395,7 +400,7 @@
 }
 
 .x-label {
-  color: #666666;
+  color: var(--text-muted);
   font-size: 0.8rem;
   height: 20px;
   white-space: nowrap;
@@ -412,7 +417,7 @@
 
 .x-label-day {
   position: absolute;
-  color: #666666;
+  color: var(--text-muted);
   font-size: 0.8rem;
   transform: translateX(-50%);
   white-space: nowrap;

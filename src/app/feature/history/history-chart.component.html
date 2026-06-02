@@ -4,28 +4,28 @@
     <div class="timeframe-wrapper">
       @if (chartType() === 'pie') {
         <div class="timeframe-toggles">
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
                   (click)="setTimeframe('day')">Today
           </button>
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
                   (click)="setTimeframe('week')">Week
           </button>
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
                   (click)="setTimeframe('month')">Month
           </button>
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'all'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'all'"
                   (click)="setTimeframe('all')">All
           </button>
         </div>
       } @else if (chartType() === 'bar') {
         <div class="timeframe-toggles">
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
                   (click)="setTimeframe('day')">Today
           </button>
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
                   (click)="setTimeframe('week')">Week
           </button>
-          <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
+          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
                   (click)="setTimeframe('month')">Month
           </button>
         </div>
@@ -53,7 +53,6 @@
   </div>
 
   <div class="chart-content">
-
     @if (chartType() === 'pie') {
       @if (chartData().hasData) {
         <div class="pie-chart-wrapper">
@@ -86,9 +85,7 @@
         </div>
       }
     } @else {
-
       <div class="bar-chart-view">
-
         <div class="bar-header">
           <div class="bar-header-info">
             <h3>{{ barChartData().title }}</h3>
