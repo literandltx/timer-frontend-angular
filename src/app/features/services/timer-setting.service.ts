@@ -1,7 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {TimerOption, TimerSetting} from './timer-setting.model';
-import {BaseOfflineSyncService} from '../../../core/utils/base-offline-sync.service';
+import {TimerOption, TimerSetting} from '../models/timer-setting.model';
+import {BaseOfflineSyncService} from '../../core/services/base-offline-sync.service';
 import {HttpErrorResponse} from '@angular/common/http';
 
 interface SyncAction {

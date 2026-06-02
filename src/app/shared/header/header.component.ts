@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TimerEntryService } from '../timer/entry/timer-entry.service';
-import {ThemeService} from '../../core/theme.service';
+import { TimerEntryService } from '../../features/services/timer-entry.service';
+import {ThemeService} from '../../core/services/theme.service';
 
 @Component({
   selector: 'ns-app-header',
