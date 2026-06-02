@@ -37,7 +37,9 @@ export class HomeComponent implements OnInit {
     const activeSetting = this.settingService.activeSetting();
     const options = this.settingService.options();
 
-    if (!activeSetting || !options) return 25 * 60;
+    if (!activeSetting || !options) {
+      return 25 * 60;
+    }
 
     const option = options.find(o => o.id == activeSetting.timerOptionId);
     return option ? option.value * 60 : 25 * 60;

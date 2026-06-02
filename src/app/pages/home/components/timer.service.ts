@@ -1,6 +1,8 @@
 import {Injectable, signal, computed, WritableSignal, Signal} from '@angular/core';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TimerService {
   timeLeft: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
@@ -8,6 +10,7 @@ export class TimerService {
   private initialTime = 0;
   private endTime: number | null = null;
   private intervalId: number | null = null;
+  private onFinishCallback: (() => void) | null = null;
 
   formattedTime: Signal<string> = computed(() => {
     const total_second: number = this.timeLeft();
@@ -21,21 +24,29 @@ export class TimerService {
     this.timeLeft.set(time);
   }
 
+  getInitialTime(): number {
+    return this.initialTime;
+  }
+
   getDurationUsed(): number {
     return this.initialTime - this.timeLeft();
   }
 
-  toggle(onFinish: () => void) {
+  setCallback(onFinish: () => void) {
+    this.onFinishCallback = onFinish;
+  }
+
+  toggle() {
     if (this.timeLeft() > 0) {
       if (!this.isRunning()) {
-        this.start(onFinish);
+        this.start();
       } else {
         this.pause();
       }
     }
   }
 
-  private start(onFinish: () => void) {
+  private start() {
     this.endTime = Date.now() + this.timeLeft() * 1000;
     this.isRunning.set(true);
 
@@ -47,7 +58,9 @@ export class TimerService {
       if (remaining <= 0) {
         this.pause();
         this.timeLeft.set(this.initialTime);
-        onFinish();
+        if (this.onFinishCallback) {
+          this.onFinishCallback();
+        }
       } else {
         this.timeLeft.set(remaining);
       }
@@ -69,9 +82,5 @@ export class TimerService {
       this.initialTime = newTime;
     }
     this.timeLeft.set(this.initialTime);
-  }
-
-  destroy() {
-    this.pause();
   }
 }
