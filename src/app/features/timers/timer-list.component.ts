@@ -1,8 +1,8 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TimerSettingService} from '../settings/timer-setting.service';
-import {TimerOption} from '../settings/timer-setting.model';
+import {TimerSettingService} from './timer-setting.service';
+import {TimerOption} from './timer-setting.model';
 
 @Component({
   selector: 'ns-app-timer-list',

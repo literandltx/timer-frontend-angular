@@ -2,7 +2,7 @@ import {inject, signal, OnDestroy, Injectable, PLATFORM_ID} from '@angular/core'
 import {isPlatformBrowser} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {Subscription} from 'rxjs';
-import {AuthService} from '../../feature/auth/auth.service';
+import {AuthService} from './auth.service';
 
 @Injectable()
 export abstract class BaseOfflineSyncService<TAction> implements OnDestroy {

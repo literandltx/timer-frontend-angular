@@ -2,12 +2,12 @@ import {Component, OnInit, inject, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {TimerComponent} from './timer/timer.component';
+import {TimerComponent} from './components/timer.component';
 
 import {LabelService} from '../labels/label.service';
-import {TimerSettingService} from '../timer/settings/timer-setting.service';
-import {TimerEntryService} from '../timer/entry/timer-entry.service';
-import {TitleBlinkerService} from './title-blinker.service';
+import {TimerSettingService} from '../timers/timer-setting.service';
+import {TimerEntryService} from './timer-entry.service';
+import {TitleBlinkerService} from '../../core/service/title-blinker.service';
 import {HomeService} from './home.service';
 
 @Component({

@@ -1,7 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {Label, CreateLabelRequest} from './label.model';
-import {BaseOfflineSyncService} from '../../core/utils/base-offline-sync.service';
+import {BaseOfflineSyncService} from '../../core/service/base-offline-sync.service';
 import {HttpErrorResponse} from '@angular/common/http';
 
 interface SyncAction {
