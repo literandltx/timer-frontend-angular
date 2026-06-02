@@ -9,7 +9,7 @@ import {
   SimpleChanges,
   inject
 } from '@angular/core';
-import {TimerService} from '../../services/timer.service';
+import {TimerService} from './timer.service';
 
 @Component({
   selector: 'ns-app-timer',

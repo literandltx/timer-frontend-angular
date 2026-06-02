@@ -15,7 +15,9 @@ interface SyncAction {
 
 const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
-@Injectable({providedIn: 'root'})
+@Injectable({
+  providedIn: 'root'
+})
 export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/timer-entries';
   protected queueKey = 'timer_entry_sync_queue';

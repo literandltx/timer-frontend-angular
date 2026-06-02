@@ -1,8 +1,8 @@
 import {Injectable, inject, Signal} from '@angular/core';
-import {TimerEntryService} from './timer-entry.service';
-import {LabelService} from './label.service';
-import {TimerEntry} from '../models/timer-entry.model';
-import {Label} from '../models/label.model';
+import {TimerEntryService} from '../../features/services/timer-entry.service';
+import {LabelService} from '../../features/services/label.service';
+import {TimerEntry} from '../../features/models/timer-entry.model';
+import {Label} from '../../features/models/label.model';
 
 export interface TimerEntryRequest {
   labelId: number;

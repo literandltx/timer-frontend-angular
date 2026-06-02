@@ -18,7 +18,9 @@ const DEFAULT_LABELS: Label[] = [
   {id: 3, userId: 0, name: 'Chill', color: '#10b981'},
 ];
 
-@Injectable({providedIn: 'root'})
+@Injectable({
+  providedIn: 'root'
+})
 export class LabelService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/labels';
   protected queueKey = 'label_sync_queue';

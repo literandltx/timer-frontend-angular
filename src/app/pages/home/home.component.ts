@@ -2,13 +2,13 @@ import {Component, OnInit, inject, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {TimerComponent} from '../../features/components/timer/timer.component';
+import {TimerComponent} from './components/timer.component';
 
 import {LabelService} from '../../features/services/label.service';
 import {TimerSettingService} from '../../features/services/timer-setting.service';
 import {TimerEntryService} from '../../features/services/timer-entry.service';
 import {TitleBlinkerService} from '../../core/services/title-blinker.service';
-import {HomeService} from '../../features/services/home.service';
+import {HomeService} from './home.service';
 
 @Component({
   selector: 'ns-app-home',

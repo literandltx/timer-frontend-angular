@@ -18,7 +18,9 @@ const STORAGE_KEYS = {
   ACTIVE_SETTING: 'active_timer_setting'
 } as const;
 
-@Injectable({providedIn: 'root'})
+@Injectable({
+  providedIn: 'root'
+})
 export class TimerSettingService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/timer-options';
   protected queueKey = 'timer_queue';
