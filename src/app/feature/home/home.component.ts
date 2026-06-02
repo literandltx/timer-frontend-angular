@@ -2,7 +2,7 @@ import {Component, OnInit, inject, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {TimerComponent} from '../timer/timer/timer.component';
+import {TimerComponent} from './timer/timer.component';
 
 import {LabelService} from '../labels/label.service';
 import {TimerSettingService} from '../timer/settings/timer-setting.service';
