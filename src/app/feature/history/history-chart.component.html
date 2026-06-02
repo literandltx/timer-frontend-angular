@@ -1,51 +1,164 @@
 <div class="chart-container">
-  <div class="timeframe-toggles">
-    <button class="btn toggle-btn" [class.active]="timeframe() === 'day'"
-            (click)="setTimeframe('day')">Today
-    </button>
-    <button class="btn toggle-btn" [class.active]="timeframe() === 'week'"
-            (click)="setTimeframe('week')">Week
-    </button>
-    <button class="btn toggle-btn" [class.active]="timeframe() === 'month'"
-            (click)="setTimeframe('month')">Month
-    </button>
-    <button class="btn toggle-btn" [class.active]="timeframe() === 'all'"
-            (click)="setTimeframe('all')">All
-    </button>
+  <div class="chart-header">
+
+    <div class="timeframe-wrapper">
+      @if (chartType() === 'pie') {
+        <div class="timeframe-toggles">
+          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
+                  (click)="setTimeframe('day')">Today
+          </button>
+          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
+                  (click)="setTimeframe('week')">Week
+          </button>
+          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
+                  (click)="setTimeframe('month')">Month
+          </button>
+          <button class="toggle-btn" [class.active]="timeframe() === 'all'"
+                  (click)="setTimeframe('all')">All
+          </button>
+        </div>
+      } @else if (chartType() === 'bar') {
+        <div class="timeframe-toggles">
+          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
+                  (click)="setTimeframe('day')">Today
+          </button>
+          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
+                  (click)="setTimeframe('week')">Week
+          </button>
+          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
+                  (click)="setTimeframe('month')">Month
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="view-toggles">
+      <button class="icon-btn" [class.active]="chartType() === 'pie'" (click)="setChartType('pie')"
+              aria-label="Pie Chart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path>
+        </svg>
+      </button>
+      <button class="icon-btn" [class.active]="chartType() === 'bar'" (click)="setChartType('bar')"
+              aria-label="Bar Chart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </button>
+    </div>
   </div>
 
-  @if (chartData().hasData) {
-    <div class="chart-content">
-
-      <div class="pie-chart-wrapper">
-        <div class="pie-chart" [style.background]="chartData().conicStyle">
-          <div class="donut-hole">
-            <span class="total-time">{{ chartData().formattedTotal }}</span>
-            <span class="total-label">TOTAL</span>
+  <div class="chart-content">
+    @if (chartType() === 'pie') {
+      @if (chartData().hasData) {
+        <div class="pie-chart-wrapper">
+          <div class="pie-chart" [style.background]="chartData().conicStyle">
+            <div class="donut-hole">
+              <span class="total-time">{{ chartData().formattedTotal }}</span>
+              <span class="total-label">TOTAL</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="chart-legend">
-        @for (item of chartData().legend; track item.name) {
-          <div class="legend-row">
-            <div class="legend-left">
-              <span class="color-dot" [style.background-color]="item.color"></span>
-              <span class="item-name">{{ item.name }}</span>
+        <div class="chart-legend">
+          @for (item of chartData().legend; track item.name) {
+            <div class="legend-row">
+              <div class="legend-left">
+                <span class="color-dot" [style.background-color]="item.color"></span>
+                <span class="item-name">{{ item.name }}</span>
+              </div>
+
+              <div class="legend-right">
+                <span class="item-time">{{ item.formattedTime }}</span>
+                <span class="item-badge">{{ item.percentage }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-chart">
+          <p>No activity logged for this period.</p>
+        </div>
+      }
+    } @else {
+      <div class="bar-chart-view">
+        <div class="bar-header">
+          <div class="bar-header-info">
+            <h3>{{ barChartData().title }}</h3>
+            <p>{{ barChartData().dateRange }} <span
+              class="dot">•</span> {{ barChartData().averageLabel }}: <span
+              class="highlight">{{ barChartData().averageValue }} min</span></p>
+          </div>
+          <div class="bar-header-controls">
+            <button class="nav-btn" (click)="navigatePrevious()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="nav-btn" (click)="navigateNext()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        @if (barChartData().hasData) {
+          <div class="bar-plot-container">
+            <div class="y-axis">
+              @for (val of barChartData().yLabels; track val) {
+                <span class="y-label">{{ val === 0 ? '' : val }}</span>
+              }
             </div>
 
-            <div class="legend-right">
-              <span class="item-time">{{ item.formattedTime }}</span>
-              <span class="item-badge">{{ item.percentage }}%</span>
+            <div class="plot-area">
+              <div class="grid-lines">
+                @for (val of barChartData().yLabels; track val) {
+                  <div class="grid-line"></div>
+                }
+              </div>
+
+              <div class="bars-wrapper">
+                @for (bucket of barChartData().buckets; track bucket.id) {
+                  <div class="bar-column" [title]="bucket.titleStr">
+                    <div class="bar-stack">
+                      @for (stack of bucket.stacks; track stack.color) {
+                        <div class="bar-segment"
+                             [style.background-color]="stack.color"
+                             [style.height.%]="stack.heightPct">
+                        </div>
+                      }
+                    </div>
+                    <span class="x-label">
+                      @if (timeframe() !== 'day') {
+                        {{ bucket.displayLabel || '&nbsp;' }}
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
+
+              @if (timeframe() === 'day') {
+                <div class="x-axis-day">
+                  @for (tick of barChartData().dayXTicks; track tick.label) {
+                    <span class="x-label-day" [style.left.%]="tick.position">{{ tick.label }}</span>
+                  }
+                </div>
+              }
             </div>
+          </div>
+        } @else {
+          <div class="empty-chart">
+            <p>No activity logged for this period.</p>
           </div>
         }
       </div>
-
-    </div>
-  } @else {
-    <div class="empty-chart">
-      <p>No activity logged for this period.</p>
-    </div>
-  }
+    }
+  </div>
 </div>
