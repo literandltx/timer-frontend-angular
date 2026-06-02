@@ -81,8 +81,62 @@
           }
         </div>
       } @else {
-        <div>
+
+        <div class="bar-chart-view">
+
+          <div class="bar-header">
+            <div class="bar-header-info">
+              <h3>{{ barChartData().title }}</h3>
+              <p>{{ barChartData().dateRange }} <span class="dot">•</span> Daily average: <span class="highlight">{{ barChartData().dailyAverage }} min</span></p>
+            </div>
+            <div class="bar-header-controls">
+              <button class="nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button class="nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="bar-plot-container">
+            <div class="y-axis">
+              @for (val of barChartData().yLabels; track val) {
+                <span class="y-label">{{ val === 0 ? '' : val }}</span>
+              }
+            </div>
+
+            <div class="plot-area">
+              <div class="grid-lines">
+                @for (val of barChartData().yLabels; track val) {
+                  <div class="grid-line"></div>
+                }
+              </div>
+
+              <div class="bars-wrapper">
+                @for (day of barChartData().days; track day.name) {
+                  <div class="bar-column">
+                    <div class="bar-stack">
+                      @for (stack of day.stacks; track stack.color) {
+                        <div class="bar-segment"
+                             [style.background-color]="stack.color"
+                             [style.height.%]="stack.heightPct">
+                        </div>
+                      }
+                    </div>
+                    <span class="x-label">{{ day.name }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
         </div>
+
       }
 
     </div>
