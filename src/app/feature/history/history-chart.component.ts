@@ -4,6 +4,7 @@ import {HistoryService} from './history.service';
 import {TimerEntry} from '../timer/entry/timer-entry.model';
 
 type Timeframe = 'day' | 'week' | 'month' | 'all';
+type ChartType = 'pie' | 'bar';
 
 interface ChartLegendItem {
   name: string;
@@ -24,6 +25,7 @@ export class HistoryChartComponent {
   public historyService = inject(HistoryService);
 
   timeframe = signal<Timeframe>('day');
+  chartType = signal<ChartType>('pie');
 
   chartData = computed(() => {
     const entries = this.historyService.entries;
@@ -72,11 +74,16 @@ export class HistoryChartComponent {
     let currentPercentage = 0;
     const slices: string[] = [];
     const legend: ChartLegendItem[] = [];
+    let maxRawSeconds = 0;
 
     for (const [labelId, duration] of sortedData) {
       const percentage = totalSeconds > 0 ? (duration / totalSeconds) * 100 : 0;
       const labelName = this.historyService.getLabelName(labelId);
       const color = this.historyService.getLabelColor(labelId);
+
+      if (duration > maxRawSeconds) {
+        maxRawSeconds = duration;
+      }
 
       slices.push(`${color} ${currentPercentage}% ${currentPercentage + percentage}%`);
 
@@ -95,12 +102,17 @@ export class HistoryChartComponent {
       hasData: totalSeconds > 0,
       formattedTotal: this.formatTime(totalSeconds),
       conicStyle: slices.length > 0 ? `conic-gradient(${slices.join(', ')})` : 'none',
-      legend: legend
+      legend: legend,
+      maxRawSeconds: maxRawSeconds
     };
   });
 
   setTimeframe(tf: Timeframe) {
     this.timeframe.set(tf);
+  }
+
+  setChartType(type: ChartType) {
+    this.chartType.set(type);
   }
 
   private formatTime(totalSeconds: number): string {
