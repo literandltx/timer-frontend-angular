@@ -32,7 +32,6 @@ export class HistoryChartComponent {
     const tf = this.timeframe();
 
     const now = new Date();
-
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
     const startOfDay = today.getTime();
@@ -62,8 +61,7 @@ export class HistoryChartComponent {
       totalSeconds += entry.durationSeconds;
     }
 
-    const sortedData = Array.from(aggregated.entries())
-      .sort((a, b) => b[1] - a[1]);
+    const sortedData = Array.from(aggregated.entries()).sort((a, b) => b[1] - a[1]);
 
     let currentPercentage = 0;
     const slices: string[] = [];
@@ -75,9 +73,7 @@ export class HistoryChartComponent {
       const labelName = this.historyService.getLabelName(labelId);
       const color = this.historyService.getLabelColor(labelId);
 
-      if (duration > maxRawSeconds) {
-        maxRawSeconds = duration;
-      }
+      if (duration > maxRawSeconds) maxRawSeconds = duration;
 
       slices.push(`${color} ${currentPercentage}% ${currentPercentage + percentage}%`);
 
@@ -126,63 +122,114 @@ export class HistoryChartComponent {
       return true;
     });
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const dayData = days.map(name => ({
-      name,
-      totalSeconds: 0,
-      entries: [] as { color: string, seconds: number }[]
-    }));
-
+    const buckets: { label: string, totalSeconds: number, entries: { color: string, seconds: number }[] }[] = [];
     let totalSeconds = 0;
+    let averageLabel = 'Daily average';
+    let averageValue = 0;
+    const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
 
-    for (const entry of filteredEntries) {
-      const entryDate = new Date(entry.startTime);
-      const entryDayIdx = (entryDate.getDay() || 7) - 1; // 0 for Mon, 6 for Sun
+    if (tf === 'day') {
+      averageLabel = 'Hourly average';
+      for (let i = 0; i < 24; i++) {
+        buckets.push({
+          label: i % 4 === 0 ? `${i.toString().padStart(2, '0')}:00` : '',
+          totalSeconds: 0,
+          entries: []
+        });
+      }
+      for (const entry of filteredEntries) {
+        const hour = new Date(entry.startTime).getHours();
+        const color = this.historyService.getLabelColor(entry.labelId);
+        buckets[hour].totalSeconds += entry.durationSeconds;
+        buckets[hour].entries.push({ color, seconds: entry.durationSeconds });
+        totalSeconds += entry.durationSeconds;
+      }
+      averageValue = Math.round((totalSeconds / 60) / 24);
 
-      const color = this.historyService.getLabelColor(entry.labelId);
-      dayData[entryDayIdx].totalSeconds += entry.durationSeconds;
-      dayData[entryDayIdx].entries.push({ color, seconds: entry.durationSeconds });
-      totalSeconds += entry.durationSeconds;
+    } else if (tf === 'week') {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      for (const day of days) {
+        buckets.push({ label: day, totalSeconds: 0, entries: [] });
+      }
+      for (const entry of filteredEntries) {
+        const entryDate = new Date(entry.startTime);
+        const dayIdx = (entryDate.getDay() || 7) - 1;
+        const color = this.historyService.getLabelColor(entry.labelId);
+        buckets[dayIdx].totalSeconds += entry.durationSeconds;
+        buckets[dayIdx].entries.push({ color, seconds: entry.durationSeconds });
+        totalSeconds += entry.durationSeconds;
+      }
+      averageValue = Math.round((totalSeconds / 60) / 7);
+
+    } else if (tf === 'month') {
+      for (let i = 1; i <= daysInMonth; i++) {
+        buckets.push({
+          label: (i === 1 || i % 5 === 0) ? i.toString() : '',
+          totalSeconds: 0,
+          entries: []
+        });
+      }
+      for (const entry of filteredEntries) {
+        const date = new Date(entry.startTime).getDate();
+        const color = this.historyService.getLabelColor(entry.labelId);
+        buckets[date - 1].totalSeconds += entry.durationSeconds;
+        buckets[date - 1].entries.push({ color, seconds: entry.durationSeconds });
+        totalSeconds += entry.durationSeconds;
+      }
+      averageValue = Math.round((totalSeconds / 60) / daysInMonth);
     }
 
-    // Consolidate identical colors per day into single stacks
-    for (const day of dayData) {
+    for (const bucket of buckets) {
       const colorMap = new Map<string, number>();
-      for (const e of day.entries) {
+      for (const e of bucket.entries) {
         colorMap.set(e.color, (colorMap.get(e.color) || 0) + e.seconds);
       }
-      day.entries = Array.from(colorMap.entries()).map(([color, seconds]) => ({ color, seconds }));
+      bucket.entries = Array.from(colorMap.entries()).map(([color, seconds]) => ({ color, seconds }));
     }
 
-    const maxDailySeconds = Math.max(...dayData.map(d => d.totalSeconds), 1);
-    const maxMinutes = Math.max(Math.ceil(maxDailySeconds / 60), 10);
+    const maxBucketSeconds = Math.max(...buckets.map(d => d.totalSeconds), 1);
+    const maxMinutes = Math.max(Math.ceil(maxBucketSeconds / 60), 10);
 
-    // Calculate Y-axis scaling logic (e.g., matching the 120, 240, 360 intervals)
-    let stepMinutes = 120;
-    if (maxMinutes > 600) stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
-    else if (maxMinutes <= 60) stepMinutes = 15;
-    else stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
+    let stepMinutes = 15;
+    if (tf === 'day' && maxMinutes <= 60) {
+      if (maxMinutes <= 10) {
+        stepMinutes = 2;
+      }
+      else if (maxMinutes <= 25) {
+        stepMinutes = 5;
+      }
+      else if (maxMinutes <= 50) {
+        stepMinutes = 10;
+      }
+      else {
+        stepMinutes = 15;
+      }
+    } else {
+      if (maxMinutes > 600) {
+        stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
+      }
+      else if (maxMinutes <= 60) {
+        stepMinutes = 15;
+      }
+      else {
+        stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
+      }
+    }
 
     const yMaxMinutes = stepMinutes * 5;
-    // Creates 6 lines: [100%, 80%, 60%, 40%, 20%, 0%]
     const yLabels = [5, 4, 3, 2, 1, 0].map(i => i * stepMinutes);
 
-    const daysView = dayData.map(d => {
-      const stacks = d.entries.map(e => ({
+    const bucketsView = buckets.map((b, index) => {
+      const stacks = b.entries.map(e => ({
         color: e.color,
         heightPct: (e.seconds / 60 / yMaxMinutes) * 100
       }));
 
-      return {
-        name: d.name,
-        stacks
-      };
+      return { id: index, label: b.label, stacks };
     });
 
-    const dailyAverageMinutes = Math.round((totalSeconds / 60) / (tf === 'day' ? 1 : 7));
-
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    let dateRange = 'This Week';
+    let dateRange = 'This Period';
     let title = 'Current Period';
 
     if (tf === 'week') {
@@ -199,9 +246,10 @@ export class HistoryChartComponent {
 
     return {
       title,
-      days: daysView,
+      buckets: bucketsView,
       yLabels,
-      dailyAverage: dailyAverageMinutes,
+      averageLabel,
+      averageValue,
       dateRange
     };
   });
