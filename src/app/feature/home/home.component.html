@@ -27,8 +27,8 @@
     </svg>
 
     <select
-      [ngModel]="activeLabelId()"
-      (ngModelChange)="activeLabelId.set($event)"
+      [ngModel]="homeService.activeLabelId()"
+      (ngModelChange)="homeService.setActiveLabel($event)"
       class="label-select">
 
       <option [ngValue]="undefined" disabled class="label-option-disabled">
