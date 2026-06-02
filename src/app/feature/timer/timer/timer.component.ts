@@ -15,8 +15,7 @@ import {TimerService} from './timer.service';
   selector: 'ns-app-timer',
   standalone: true,
   templateUrl: './timer.component.html',
-  styleUrls: ['./timer.component.css'],
-  providers: [TimerService]
+  styleUrls: ['./timer.component.css']
 })
 export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   @Input({required: true}) timeAmount!: number;
@@ -26,24 +25,28 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   timerService = inject(TimerService);
 
   ngOnInit() {
-    this.timerService.setInitialTime(this.timeAmount);
+    if (this.timerService.getInitialTime() !== this.timeAmount) {
+      this.timerService.reset(this.timeAmount);
+    }
+    this.timerService.setCallback(() => {
+      this.timerFinish.emit({durationUsed: this.timeAmount});
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['timeAmount'] && !changes['timeAmount'].isFirstChange()) {
       this.handleDoubleClick();
-      this.timerService.setInitialTime(this.timeAmount);
+      this.timerService.reset(this.timeAmount);
     }
   }
 
   ngOnDestroy() {
-    this.timerService.destroy();
+    this.timerService.setCallback(() => {
+    });
   }
 
   handleClick() {
-    this.timerService.toggle(() => {
-      this.timerFinish.emit({durationUsed: this.timeAmount});
-    });
+    this.timerService.toggle();
   }
 
   handleDoubleClick() {

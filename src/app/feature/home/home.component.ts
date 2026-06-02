@@ -1,14 +1,14 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { TimerComponent } from '../timer/timer/timer.component';
+import {Component, OnInit, inject, computed} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
+import {TimerComponent} from '../timer/timer/timer.component';
 
-import { LabelService } from '../labels/label.service';
-import { TimerSettingService } from '../timer/settings/timer-setting.service';
-import { TimerEntryService } from '../timer/entry/timer-entry.service';
-import { TitleBlinkerService } from './title-blinker.service';
-import { HomeService } from './home.service';
+import {LabelService} from '../labels/label.service';
+import {TimerSettingService} from '../timer/settings/timer-setting.service';
+import {TimerEntryService} from '../timer/entry/timer-entry.service';
+import {TitleBlinkerService} from './title-blinker.service';
+import {HomeService} from './home.service';
 
 @Component({
   selector: 'ns-app-home',
@@ -37,7 +37,9 @@ export class HomeComponent implements OnInit {
     const activeSetting = this.settingService.activeSetting();
     const options = this.settingService.options();
 
-    if (!activeSetting || !options) return 25 * 60;
+    if (!activeSetting || !options) {
+      return 25 * 60;
+    }
 
     const option = options.find(o => o.id == activeSetting.timerOptionId);
     return option ? option.value * 60 : 25 * 60;
