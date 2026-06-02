@@ -25,10 +25,29 @@ export class HomeComponent implements OnInit {
   activeLabelId = signal<number | undefined>(undefined);
 
   constructor() {
+    const savedLabelId = localStorage.getItem('activeLabelId');
+
+    if (savedLabelId) {
+      this.activeLabelId.set(Number(savedLabelId));
+    }
+
     effect(() => {
       const labels = this.labelService.labels();
-      if (labels.length > 0 && this.activeLabelId() === undefined) {
-        this.activeLabelId.set(labels[0].id);
+      const currentId = this.activeLabelId();
+
+      if (labels.length > 0) {
+        const labelExists = labels.some(l => l.id === currentId);
+
+        if (currentId === undefined || !labelExists) {
+          this.activeLabelId.set(labels[0].id);
+        }
+      }
+    }, {allowSignalWrites: true});
+
+    effect(() => {
+      const currentId = this.activeLabelId();
+      if (currentId !== undefined) {
+        localStorage.setItem('activeLabelId', currentId.toString());
       }
     });
   }
@@ -37,10 +56,10 @@ export class HomeComponent implements OnInit {
     const labels = this.labelService.labels();
     if (labels.length === 0) return '#000000';
 
-    const id = this.activeLabelId() ?? labels[0].id;
+    const id = this.activeLabelId();
     const activeLabel = labels.find(l => l.id === id);
 
-    return activeLabel ? activeLabel.color : '#000000';
+    return activeLabel ? activeLabel.color : labels[0].color;
   });
 
   currentTimerSeconds = computed(() => {
@@ -74,7 +93,10 @@ export class HomeComponent implements OnInit {
   private saveHistory(durationSeconds: number) {
     const labels = this.labelService.labels();
     const fallbackLabel = labels.length > 0 ? labels[0].id : undefined;
+    const currentId = this.activeLabelId();
+    const labelExists = labels.some(l => l.id === currentId);
+    const finalLabelId = labelExists ? currentId : fallbackLabel;
 
-    this.entryService.recordTimerFinish(durationSeconds, this.activeLabelId(), fallbackLabel);
+    this.entryService.recordTimerFinish(durationSeconds, finalLabelId, fallbackLabel);
   }
 }
