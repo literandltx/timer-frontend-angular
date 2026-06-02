@@ -6,6 +6,11 @@ import {TimerEntry} from '../timer/entry/timer-entry.model';
 type Timeframe = 'day' | 'week' | 'month' | 'all';
 type ChartType = 'pie' | 'bar';
 
+const days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+let dateRange = 'This Period';
+let title = 'Current Period';
+
 interface ChartLegendItem {
   name: string;
   color: string;
@@ -46,9 +51,15 @@ export class HistoryChartComponent {
     const startOfMonth = monthStart.getTime();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
-      if (tf === 'day') return entry.startTime >= startOfDay;
-      if (tf === 'week') return entry.startTime >= startOfWeek;
-      if (tf === 'month') return entry.startTime >= startOfMonth;
+      if (tf === 'day') {
+        return entry.startTime >= startOfDay;
+      }
+      if (tf === 'week') {
+        return entry.startTime >= startOfWeek;
+      }
+      if (tf === 'month') {
+        return entry.startTime >= startOfMonth;
+      }
       return true;
     });
 
@@ -73,7 +84,9 @@ export class HistoryChartComponent {
       const labelName = this.historyService.getLabelName(labelId);
       const color = this.historyService.getLabelColor(labelId);
 
-      if (duration > maxRawSeconds) maxRawSeconds = duration;
+      if (duration > maxRawSeconds) {
+        maxRawSeconds = duration;
+      }
 
       slices.push(`${color} ${currentPercentage}% ${currentPercentage + percentage}%`);
 
@@ -122,20 +135,26 @@ export class HistoryChartComponent {
       return true;
     });
 
-    const buckets: { id: number, label: string, totalSeconds: number, entries: { color: string, seconds: number }[] }[] = [];
+    const buckets: {
+      id: number,
+      titleLabel: string,
+      displayLabel: string,
+      totalSeconds: number,
+      entries: { color: string, seconds: number }[]
+    }[] = [];
     let totalSeconds = 0;
     let averageLabel = 'Daily average';
     let averageValue = 0;
     const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
 
     const dayXTicks = [
-      { label: '00:00', position: 0 },
-      { label: '04:00', position: 16.666 },
-      { label: '08:00', position: 33.333 },
-      { label: '12:00', position: 50 },
-      { label: '16:00', position: 66.666 },
-      { label: '20:00', position: 83.333 },
-      { label: '24:00', position: 100 }
+      {label: '00:00', position: 0},
+      {label: '04:00', position: 16.666},
+      {label: '08:00', position: 33.333},
+      {label: '12:00', position: 50},
+      {label: '16:00', position: 66.666},
+      {label: '20:00', position: 83.333},
+      {label: '24:00', position: 100}
     ];
 
     if (tf === 'day') {
@@ -143,7 +162,8 @@ export class HistoryChartComponent {
       for (let i = 0; i < 24; i++) {
         buckets.push({
           id: i,
-          label: '',
+          titleLabel: `${i.toString().padStart(2, '0')}:00`,
+          displayLabel: '',
           totalSeconds: 0,
           entries: []
         });
@@ -152,22 +172,27 @@ export class HistoryChartComponent {
         const hour = new Date(entry.startTime).getHours();
         const color = this.historyService.getLabelColor(entry.labelId);
         buckets[hour].totalSeconds += entry.durationSeconds;
-        buckets[hour].entries.push({ color, seconds: entry.durationSeconds });
+        buckets[hour].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
       }
       averageValue = Math.round((totalSeconds / 60) / 24);
 
     } else if (tf === 'week') {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       for (let i = 0; i < days.length; i++) {
-        buckets.push({ id: i, label: days[i], totalSeconds: 0, entries: [] });
+        buckets.push({
+          id: i,
+          titleLabel: days[i],
+          displayLabel: days[i],
+          totalSeconds: 0,
+          entries: []
+        });
       }
       for (const entry of filteredEntries) {
         const entryDate = new Date(entry.startTime);
         const dayIdx = (entryDate.getDay() || 7) - 1;
         const color = this.historyService.getLabelColor(entry.labelId);
         buckets[dayIdx].totalSeconds += entry.durationSeconds;
-        buckets[dayIdx].entries.push({ color, seconds: entry.durationSeconds });
+        buckets[dayIdx].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
       }
       averageValue = Math.round((totalSeconds / 60) / 7);
@@ -176,7 +201,8 @@ export class HistoryChartComponent {
       for (let i = 1; i <= daysInMonth; i++) {
         buckets.push({
           id: i,
-          label: (i === 1 || i % 5 === 0) ? i.toString() : '',
+          titleLabel: `Day ${i}`,
+          displayLabel: (i === 1 || i % 5 === 0) ? i.toString() : '',
           totalSeconds: 0,
           entries: []
         });
@@ -185,7 +211,7 @@ export class HistoryChartComponent {
         const date = new Date(entry.startTime).getDate();
         const color = this.historyService.getLabelColor(entry.labelId);
         buckets[date - 1].totalSeconds += entry.durationSeconds;
-        buckets[date - 1].entries.push({ color, seconds: entry.durationSeconds });
+        buckets[date - 1].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
       }
       averageValue = Math.round((totalSeconds / 60) / daysInMonth);
@@ -196,7 +222,7 @@ export class HistoryChartComponent {
       for (const e of bucket.entries) {
         colorMap.set(e.color, (colorMap.get(e.color) || 0) + e.seconds);
       }
-      bucket.entries = Array.from(colorMap.entries()).map(([color, seconds]) => ({ color, seconds }));
+      bucket.entries = Array.from(colorMap.entries()).map(([color, seconds]) => ({color, seconds}));
     }
 
     const maxBucketSeconds = Math.max(...buckets.map(d => d.totalSeconds), 1);
@@ -204,14 +230,23 @@ export class HistoryChartComponent {
 
     let stepMinutes = 15;
     if (tf === 'day' && maxMinutes <= 60) {
-      if (maxMinutes <= 10) stepMinutes = 2;
-      else if (maxMinutes <= 25) stepMinutes = 5;
-      else if (maxMinutes <= 50) stepMinutes = 10;
-      else stepMinutes = 15;
+      if (maxMinutes <= 10) {
+        stepMinutes = 2;
+      } else if (maxMinutes <= 25) {
+        stepMinutes = 5;
+      } else if (maxMinutes <= 50) {
+        stepMinutes = 10;
+      } else {
+        stepMinutes = 15;
+      }
     } else {
-      if (maxMinutes > 600) stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
-      else if (maxMinutes <= 60) stepMinutes = 15;
-      else stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
+      if (maxMinutes > 600) {
+        stepMinutes = Math.ceil(maxMinutes / 5 / 60) * 60;
+      } else if (maxMinutes <= 60) {
+        stepMinutes = 15;
+      } else {
+        stepMinutes = Math.ceil(maxMinutes / 5 / 30) * 30;
+      }
     }
 
     const yMaxMinutes = stepMinutes * 5;
@@ -223,12 +258,11 @@ export class HistoryChartComponent {
         heightPct: (e.seconds / 60 / yMaxMinutes) * 100
       }));
 
-      return { id: b.id, label: b.label, stacks };
-    });
+      const totalMins = Math.round(b.totalSeconds / 60);
+      const titleStr = `${b.titleLabel}: ${totalMins} min`;
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    let dateRange = 'This Period';
-    let title = 'Current Period';
+      return {id: b.id, displayLabel: b.displayLabel, titleStr, stacks};
+    });
 
     if (tf === 'week') {
       const endOfWeekDate = new Date(startOfWeek + 6 * 24 * 60 * 60 * 1000);

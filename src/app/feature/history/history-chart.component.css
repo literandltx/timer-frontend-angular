@@ -349,6 +349,13 @@
   height: 100%;
   flex: 1;
   min-width: 0;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.bar-column:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .bar-stack {
@@ -359,6 +366,14 @@
   flex-direction: column-reverse;
   justify-content: flex-start;
   margin-bottom: 12px;
+  gap: 1px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.bar-column:hover .bar-stack {
+  filter: brightness(1.2);
+  transform: scaleY(1.02);
+  transform-origin: bottom;
 }
 
 .bar-segment {
@@ -368,6 +383,14 @@
 
 .bar-segment:last-child {
   border-radius: 4px 4px 0 0;
+}
+
+.bar-segment:first-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.bar-segment:only-child {
+  border-radius: 4px;
 }
 
 .x-label {

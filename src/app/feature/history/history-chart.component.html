@@ -123,7 +123,7 @@
 
               <div class="bars-wrapper">
                 @for (bucket of barChartData().buckets; track bucket.id) {
-                  <div class="bar-column">
+                  <div class="bar-column" [title]="bucket.titleStr">
                     <div class="bar-stack">
                       @for (stack of bucket.stacks; track stack.color) {
                         <div class="bar-segment"
@@ -134,7 +134,7 @@
                     </div>
                     <span class="x-label">
                       @if (timeframe() !== 'day') {
-                        {{ bucket.label || '&nbsp;' }}
+                        {{ bucket.displayLabel || '&nbsp;' }}
                       }
                     </span>
                   </div>
