@@ -1,7 +1,7 @@
 .timer-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 60px);
+  height: calc(100dvh - 60px);
   background: var(--bg-color);
   color: var(--text-color);
   overflow: hidden;
@@ -10,7 +10,7 @@
 
 .timer-options-wrapper {
   position: absolute;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   left: 24px;
   background: var(--bg-subtle);
   padding: 8px 16px;
@@ -24,7 +24,7 @@
 
 .label-selector-wrapper {
   position: absolute;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   right: 24px;
   background: var(--bg-subtle);
   padding: 8px 16px;
