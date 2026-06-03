@@ -31,7 +31,7 @@ export class HistoryChartComponent {
   public historyService = inject(HistoryService);
 
   timeframe = signal<Timeframe>('day');
-  chartType = signal<ChartType>('pie');
+  chartType = signal<ChartType>((localStorage.getItem('preferredChartType') as ChartType) || 'pie');
   periodOffset = signal<number>(0);
 
   periodRange = computed(() => {
@@ -297,6 +297,7 @@ export class HistoryChartComponent {
 
   setChartType(type: ChartType) {
     this.chartType.set(type);
+    localStorage.setItem('preferredChartType', type);
   }
 
   navigatePrevious() {
