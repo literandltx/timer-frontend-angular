@@ -6,9 +6,9 @@
       <div class="header-actions">
         <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
                style="display: none;"/>
-        <button class="btn outline-btn" (click)="triggerImport()">Import CSV</button>
-        <button class="btn outline-btn" (click)="exportCSV()">Export CSV</button>
-        <button class="btn primary-btn" (click)="startAdd()">+ Add Session</button>
+        <app-button variant="outline-btn" (click)="triggerImport()">Import CSV</app-button>
+        <app-button variant="outline-btn" (click)="exportCSV()">Export CSV</app-button>
+        <app-button variant="primary-btn" (click)="startAdd()">+ Add Session</app-button>
       </div>
     </div>
 
@@ -30,8 +30,8 @@
                  placeholder="Duration (mins)"/>
 
           <div class="edit-actions">
-            <button class="btn primary-btn" (click)="save()">Save</button>
-            <button class="btn ghost-btn" (click)="cancel()">Cancel</button>
+            <app-button variant="primary-btn" (click)="save()">Save</app-button>
+            <app-button variant="ghost-btn" (click)="cancel()">Cancel</app-button>
           </div>
         </div>
       </div>
@@ -62,8 +62,8 @@
 
         <div class="item-actions">
           <div class="action-group">
-            <button class="btn text-btn edit-btn" (click)="startEdit(entry)">Edit</button>
-            <button class="btn text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</button>
+            <app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</app-button>
+            <app-button variant="text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</app-button>
           </div>
         </div>
       </div>
@@ -76,19 +76,19 @@
 
   @if (pageViewEntries.length > 0 || currentPage > 0) {
     <div class="pagination-controls">
-      <button class="btn outline-btn"
-              [disabled]="currentPage === 0"
-              (click)="prevPage()">
+      <app-button variant="outline-btn"
+                  [disabled]="currentPage === 0"
+                  (click)="prevPage()">
         Previous
-      </button>
+      </app-button>
 
       <span class="page-info">Page {{ currentPage + 1 }}</span>
 
-      <button class="btn outline-btn"
-              [disabled]="pageViewEntries.length < pageSize"
-              (click)="nextPage()">
+      <app-button variant="outline-btn"
+                  [disabled]="pageViewEntries.length < pageSize"
+                  (click)="nextPage()">
         Next
-      </button>
+      </app-button>
     </div>
   }
 </div>

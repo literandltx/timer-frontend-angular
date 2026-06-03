@@ -2,7 +2,7 @@
   <div class="top-section">
     <div class="header-row">
       <h2 class="page-title">Timer Options</h2>
-      <button class="btn primary-btn" (click)="startAdd()">+ Add Option</button>
+      <app-button variant="primary-btn" (click)="startAdd()">+ Add Option</app-button>
     </div>
 
     @if (editingOption) {
@@ -12,8 +12,8 @@
           <input class="modern-input" type="number" [(ngModel)]="editingOption.value"
                  placeholder="Duration (e.g., 25)"/>
           <div class="edit-actions">
-            <button class="btn primary-btn" (click)="save()">Save</button>
-            <button class="btn ghost-btn" (click)="cancel()">Cancel</button>
+            <app-button variant="primary-btn" (click)="save()">Save</app-button>
+            <app-button variant="ghost-btn" (click)="cancel()">Cancel</app-button>
           </div>
         </div>
       </div>
@@ -36,17 +36,17 @@
           @if (option.id === timerService.activeSetting()?.timerOptionId) {
             <span class="badge active-badge">✓ Active</span>
           } @else {
-            <button class="btn outline-btn" (click)="timerService.setActiveOption(option.id)">
-              Set Active
-            </button>
+            <app-button variant="outline-btn" (click)="timerService.setActiveOption(option.id)">Set
+              Active
+            </app-button>
           }
 
           <div class="action-group">
-            <button class="btn text-btn edit-btn" (click)="startEdit(option)">Edit</button>
-            <button class="btn text-btn delete-btn" (click)="deleteOption(option.id)"
-                    [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
+            <app-button variant="text-btn edit-btn" (click)="startEdit(option)">Edit</app-button>
+            <app-button variant="text-btn delete-btn" (click)="deleteOption(option.id)"
+                        [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
               Delete
-            </button>
+            </app-button>
           </div>
         </div>
       </div>

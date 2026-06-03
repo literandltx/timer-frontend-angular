@@ -2,7 +2,7 @@
   <div class="top-section">
     <div class="header-row">
       <h2 class="page-title">Label Options</h2>
-      <button class="btn primary-btn" (click)="startAdd()">+ Add Label</button>
+      <app-button variant="primary-btn" (click)="startAdd()">+ Add Label</app-button>
     </div>
 
     @if (editingLabel) {
@@ -17,8 +17,8 @@
                  title="Choose label color"/>
 
           <div class="edit-actions">
-            <button class="btn primary-btn" (click)="save()">Save</button>
-            <button class="btn ghost-btn" (click)="cancel()">Cancel</button>
+            <app-button variant="primary-btn" (click)="save()">Save</app-button>
+            <app-button variant="ghost-btn" (click)="cancel()">Cancel</app-button>
           </div>
         </div>
       </div>
@@ -40,10 +40,8 @@
 
         <div class="item-actions">
           <div class="action-group">
-            <button class="btn text-btn edit-btn" (click)="startEdit(label)">Edit</button>
-            <button class="btn text-btn delete-btn" (click)="deleteLabel(label.id)">
-              Delete
-            </button>
+            <app-button variant="text-btn edit-btn" (click)="startEdit(label)">Edit</app-button>
+            <app-button variant="text-btn delete-btn" (click)="deleteLabel(label.id)">Delete</app-button>
           </div>
         </div>
       </div>

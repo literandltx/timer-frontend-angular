@@ -94,18 +94,18 @@
               class="highlight">{{ barChartData().averageValue }} min</span></p>
           </div>
           <div class="bar-header-controls">
-            <button class="nav-btn" (click)="navigatePrevious()">
+            <app-button variant="outline-btn" (click)="navigatePrevious()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
+                   stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
-            </button>
-            <button class="nav-btn" (click)="navigateNext()">
+            </app-button>
+            <app-button variant="outline-btn" (click)="navigateNext()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
+                   stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
-            </button>
+            </app-button>
           </div>
         </div>
 
