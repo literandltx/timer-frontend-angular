@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-toggle-group',
+  selector: 'ns-app-toggle-group',
   standalone: true,
   imports: [CommonModule],
   template: `

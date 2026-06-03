@@ -9,16 +9,16 @@
   }
 
   <div class="timer-options-wrapper">
-    <app-toggle-group variant="transparent">
+    <ns-app-toggle-group variant="transparent">
       @for (option of settingService.options(); track option.id) {
-        <app-toggle-button
+        <ns-app-toggle-button
           variant="solid"
           [active]="settingService.activeSetting()?.timerOptionId === option.id"
           (toggled)="settingService.setActiveOption(option.id)">
           {{ option.value }}m
-        </app-toggle-button>
+        </ns-app-toggle-button>
       }
-    </app-toggle-group>
+    </ns-app-toggle-group>
   </div>
 
   <div class="label-selector-wrapper">

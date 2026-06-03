@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-toggle-button',
+  selector: 'ns-app-toggle-button',
   standalone: true,
   imports: [CommonModule],
   template: `

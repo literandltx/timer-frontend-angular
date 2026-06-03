@@ -6,9 +6,9 @@
       <div class="header-actions">
         <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
                style="display: none;"/>
-        <app-button variant="outline-btn" (click)="triggerImport()">Import CSV</app-button>
-        <app-button variant="outline-btn" (click)="exportCSV()">Export CSV</app-button>
-        <app-button variant="primary-btn" (click)="startAdd()">+ Add Session</app-button>
+        <ns-app-button variant="outline-btn" (click)="triggerImport()">Import CSV</ns-app-button>
+        <ns-app-button variant="outline-btn" (click)="exportCSV()">Export CSV</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Session</ns-app-button>
       </div>
     </div>
 
@@ -30,8 +30,8 @@
                  placeholder="Duration (mins)"/>
 
           <div class="edit-actions">
-            <app-button variant="primary-btn" (click)="save()">Save</app-button>
-            <app-button variant="ghost-btn" (click)="cancel()">Cancel</app-button>
+            <ns-app-button variant="primary-btn" (click)="save()">Save</ns-app-button>
+            <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@
 
   <div class="options-list">
     @for (entry of pageViewEntries; track entry.id) {
-      <app-list-item>
+      <ns-app-list-item>
         <ng-container info>
           <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }} mins</span>
 
@@ -61,11 +61,11 @@
 
         <ng-container actions>
           <div class="action-group">
-            <app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</app-button>
-            <app-button variant="text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</app-button>
+            <ns-app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</ns-app-button>
           </div>
         </ng-container>
-      </app-list-item>
+      </ns-app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No timer history found. Complete a session or log one manually!</p>
@@ -75,19 +75,19 @@
 
   @if (pageViewEntries.length > 0 || currentPage > 0) {
     <div class="pagination-controls">
-      <app-button variant="outline-btn"
+      <ns-app-button variant="outline-btn"
                   [disabled]="currentPage === 0"
                   (click)="prevPage()">
         Previous
-      </app-button>
+      </ns-app-button>
 
       <span class="page-info">Page {{ currentPage + 1 }}</span>
 
-      <app-button variant="outline-btn"
+      <ns-app-button variant="outline-btn"
                   [disabled]="pageViewEntries.length < pageSize"
                   (click)="nextPage()">
         Next
-      </app-button>
+      </ns-app-button>
     </div>
   }
 </div>

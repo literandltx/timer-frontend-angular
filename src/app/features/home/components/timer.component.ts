@@ -9,6 +9,7 @@ import {
   SimpleChanges,
   inject
 } from '@angular/core';
+import {noop} from 'rxjs';
 import {TimerService} from './timer.service';
 
 @Component({
@@ -41,8 +42,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy() {
-    this.timerService.setCallback(() => {
-    });
+    this.timerService.setCallback(noop);
   }
 
   handleClick() {

@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-list-item',
+  selector: 'ns-app-list-item',
   standalone: true,
   imports: [CommonModule],
   template: `
