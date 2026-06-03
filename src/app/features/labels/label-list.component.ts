@@ -4,11 +4,12 @@ import {FormsModule} from '@angular/forms';
 import {LabelService} from './services/label.service';
 import {Label} from './models/label.model';
 import {ButtonComponent} from '../../shared/components/button/button.component';
+import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 
 @Component({
   selector: 'ns-app-label-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
   templateUrl: './label-list.component.html',
   styleUrls: ['./label-list.component.css']
 })

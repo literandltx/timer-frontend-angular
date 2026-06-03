@@ -27,24 +27,25 @@
 
   <div class="options-list">
     @for (label of labelService.labels(); track label.id) {
-      <div class="list-item">
+      <app-list-item>
 
-        <div class="item-info">
+        <ng-container info>
           <span class="label-pill" [style.background-color]="label.color">
             {{ label.name }}
           </span>
           @if (label.id < 0 && labelService.isOnline()) {
             <span class="badge pending-badge">Pending</span>
           }
-        </div>
+        </ng-container>
 
-        <div class="item-actions">
+        <ng-container actions>
           <div class="action-group">
             <app-button variant="text-btn edit-btn" (click)="startEdit(label)">Edit</app-button>
             <app-button variant="text-btn delete-btn" (click)="deleteLabel(label.id)">Delete</app-button>
           </div>
-        </div>
-      </div>
+        </ng-container>
+
+      </app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No labels found. Add one above!</p>

@@ -42,10 +42,9 @@
 
   <div class="options-list">
     @for (entry of pageViewEntries; track entry.id) {
-      <div class="list-item">
-        <div class="item-info">
-          <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}
-            mins</span>
+      <app-list-item>
+        <ng-container info>
+          <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }} mins</span>
 
           <div class="label-wrapper">
             <span class="label-pill" [style.background-color]="getLabelColor(entry.labelId)">
@@ -58,15 +57,15 @@
           @if (entry.id < 0) {
             <span class="badge pending-badge">Syncing</span>
           }
-        </div>
+        </ng-container>
 
-        <div class="item-actions">
+        <ng-container actions>
           <div class="action-group">
             <app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</app-button>
             <app-button variant="text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</app-button>
           </div>
-        </div>
-      </div>
+        </ng-container>
+      </app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No timer history found. Complete a session or log one manually!</p>

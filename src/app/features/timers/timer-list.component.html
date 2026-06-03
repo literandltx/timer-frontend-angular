@@ -22,23 +22,19 @@
 
   <div class="options-list">
     @for (option of timerService.options(); track option.id) {
-      <div class="list-item"
-           [class.is-active]="option.id === timerService.activeSetting()?.timerOptionId">
-
-        <div class="item-info">
+      <app-list-item [isActive]="option.id === timerService.activeSetting()?.timerOptionId">
+        <ng-container info>
           <span class="duration-text">{{ option.value }} mins</span>
           @if (option.id < 0 && timerService.isOnline()) {
             <span class="badge pending-badge">Pending</span>
           }
-        </div>
+        </ng-container>
 
-        <div class="item-actions">
+        <ng-container actions>
           @if (option.id === timerService.activeSetting()?.timerOptionId) {
             <span class="badge active-badge">✓ Active</span>
           } @else {
-            <app-button variant="outline-btn" (click)="timerService.setActiveOption(option.id)">Set
-              Active
-            </app-button>
+            <app-button variant="outline-btn" (click)="timerService.setActiveOption(option.id)">Set Active</app-button>
           }
 
           <div class="action-group">
@@ -48,8 +44,8 @@
               Delete
             </app-button>
           </div>
-        </div>
-      </div>
+        </ng-container>
+      </app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No timers found. Add one above!</p>
