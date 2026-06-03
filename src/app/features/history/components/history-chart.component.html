@@ -3,52 +3,36 @@
 
     <div class="timeframe-wrapper">
       @if (chartType() === 'pie') {
-        <div class="timeframe-toggles">
-          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
-                  (click)="setTimeframe('day')">Today
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
-                  (click)="setTimeframe('week')">Week
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
-                  (click)="setTimeframe('month')">Month
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'all'"
-                  (click)="setTimeframe('all')">All
-          </button>
-        </div>
+        <app-toggle-group variant="standard">
+          <app-toggle-button [active]="timeframe() === 'day'" (toggled)="setTimeframe('day')">Today</app-toggle-button>
+          <app-toggle-button [active]="timeframe() === 'week'" (toggled)="setTimeframe('week')">Week</app-toggle-button>
+          <app-toggle-button [active]="timeframe() === 'month'" (toggled)="setTimeframe('month')">Month</app-toggle-button>
+          <app-toggle-button [active]="timeframe() === 'all'" (toggled)="setTimeframe('all')">All</app-toggle-button>
+        </app-toggle-group>
       } @else if (chartType() === 'bar') {
-        <div class="timeframe-toggles">
-          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
-                  (click)="setTimeframe('day')">Today
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
-                  (click)="setTimeframe('week')">Week
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
-                  (click)="setTimeframe('month')">Month
-          </button>
-        </div>
+        <app-toggle-group variant="standard">
+          <app-toggle-button [active]="timeframe() === 'day'" (toggled)="setTimeframe('day')">Today</app-toggle-button>
+          <app-toggle-button [active]="timeframe() === 'week'" (toggled)="setTimeframe('week')">Week</app-toggle-button>
+          <app-toggle-button [active]="timeframe() === 'month'" (toggled)="setTimeframe('month')">Month</app-toggle-button>
+        </app-toggle-group>
       }
     </div>
 
-    <div class="view-toggles">
-      <button class="icon-btn" [class.active]="chartType() === 'pie'" (click)="setChartType('pie')"
-              aria-label="Pie Chart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path>
-        </svg>
-      </button>
-      <button class="icon-btn" [class.active]="chartType() === 'bar'" (click)="setChartType('bar')"
-              aria-label="Bar Chart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"></line>
-          <line x1="12" y1="20" x2="12" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="14"></line>
-        </svg>
-      </button>
+    <div class="view-toggles-wrapper">
+      <app-toggle-group variant="standard">
+        <app-toggle-button variant="icon" [active]="chartType() === 'pie'" (toggled)="setChartType('pie')" aria-label="Pie Chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path>
+          </svg>
+        </app-toggle-button>
+        <app-toggle-button variant="icon" [active]="chartType() === 'bar'" (toggled)="setChartType('bar')" aria-label="Bar Chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </app-toggle-button>
+      </app-toggle-group>
     </div>
   </div>
 
