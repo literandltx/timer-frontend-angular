@@ -1,8 +1,8 @@
 import {Component, OnInit, inject, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {HistoryService, TimerEntryRequest} from './history.service';
-import {TimerEntry} from '../home/timer-entry.model';
+import {HistoryService, TimerEntryRequest} from './service/history.service';
+import {TimerEntry} from '../home/model/timer-entry.model';
 import {HistoryChartComponent} from './components/history-chart.component';
 
 const INITIAL_PAGE = 0;

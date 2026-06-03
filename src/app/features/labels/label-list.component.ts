@@ -1,8 +1,8 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {LabelService} from './label.service';
-import {Label} from './label.model';
+import {LabelService} from './service/label.service';
+import {Label} from './model/label.model';
 
 @Component({
   selector: 'ns-app-label-list',

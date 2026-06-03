@@ -1,9 +1,9 @@
 import {Injectable, signal, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {TimerEntry, TimerEntryRequest} from './timer-entry.model';
-import {BaseOfflineSyncService} from '../../core/service/base-offline-sync.service';
+import {TimerEntry, TimerEntryRequest} from '../model/timer-entry.model';
+import {BaseOfflineSyncService} from '../../../shared/services/base-offline-sync.service';
 import {HttpErrorResponse} from '@angular/common/http';
-import {LabelService} from '../labels/label.service';
+import {LabelService} from '../../labels/service/label.service';
 
 interface SyncAction {
   id: string;

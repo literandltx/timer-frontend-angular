@@ -4,11 +4,11 @@ import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
 
-import {LabelService} from '../labels/label.service';
-import {TimerSettingService} from '../timers/timer-setting.service';
-import {TimerEntryService} from './timer-entry.service';
+import {LabelService} from '../labels/service/label.service';
+import {TimerSettingService} from '../timers/service/timer-setting.service';
+import {TimerEntryService} from './service/timer-entry.service';
 import {TitleBlinkerService} from '../../core/service/title-blinker.service';
-import {HomeService} from './home.service';
+import {HomeService} from './service/home.service';
 
 @Component({
   selector: 'ns-app-home',
