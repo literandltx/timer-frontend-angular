@@ -98,32 +98,6 @@
   gap: 8px;
 }
 
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--card-bg);
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  flex-wrap: wrap;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.list-item:hover {
-  background: var(--bg-subtle);
-}
-
-.item-info {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex: 1;
-  flex-wrap: wrap;
-}
-
 .label-pill {
   padding: 6px 14px;
   color: #ffffff;
@@ -136,75 +110,9 @@
   display: inline-block;
 }
 
-.item-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .action-group {
   display: flex;
   gap: 4px;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.primary-btn {
-  background: var(--btn-dark-bg);
-  color: var(--btn-dark-text);
-}
-
-.primary-btn:hover:not(:disabled) {
-  background: var(--btn-dark-hover);
-}
-
-.ghost-btn {
-  background: transparent;
-  color: var(--text-muted);
-}
-
-.ghost-btn:hover:not(:disabled) {
-  background: var(--bg-subtle);
-}
-
-.text-btn {
-  background: transparent;
-  padding: 6px 8px;
-}
-
-.edit-btn {
-  color: var(--text-muted);
-}
-
-.edit-btn:hover:not(:disabled) {
-  color: var(--text-heading);
-  background: var(--border-light);
-}
-
-.delete-btn {
-  color: var(--danger-color);
-}
-
-.delete-btn:hover:not(:disabled) {
-  background: var(--danger-bg);
-  color: var(--danger-hover);
 }
 
 .badge {
@@ -240,9 +148,6 @@
 }
 
 @media (max-width: 640px) {
-  .item-info {
-    gap: 12px;
-  }
   .edit-label {
     width: auto;
     margin-bottom: 0;

@@ -2,7 +2,7 @@
   <div class="top-section">
     <div class="header-row">
       <h2 class="page-title">Timer Options</h2>
-      <button class="btn primary-btn" (click)="startAdd()">+ Add Option</button>
+      <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Option</ns-app-button>
     </div>
 
     @if (editingOption) {
@@ -12,8 +12,8 @@
           <input class="modern-input" type="number" [(ngModel)]="editingOption.value"
                  placeholder="Duration (e.g., 25)"/>
           <div class="edit-actions">
-            <button class="btn primary-btn" (click)="save()">Save</button>
-            <button class="btn ghost-btn" (click)="cancel()">Cancel</button>
+            <ns-app-button variant="primary-btn" (click)="save()">Save</ns-app-button>
+            <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
           </div>
         </div>
       </div>
@@ -22,34 +22,30 @@
 
   <div class="options-list">
     @for (option of timerService.options(); track option.id) {
-      <div class="list-item"
-           [class.is-active]="option.id === timerService.activeSetting()?.timerOptionId">
-
-        <div class="item-info">
+      <ns-app-list-item [isActive]="option.id === timerService.activeSetting()?.timerOptionId">
+        <ng-container info>
           <span class="duration-text">{{ option.value }} mins</span>
           @if (option.id < 0 && timerService.isOnline()) {
             <span class="badge pending-badge">Pending</span>
           }
-        </div>
+        </ng-container>
 
-        <div class="item-actions">
+        <ng-container actions>
           @if (option.id === timerService.activeSetting()?.timerOptionId) {
             <span class="badge active-badge">✓ Active</span>
           } @else {
-            <button class="btn outline-btn" (click)="timerService.setActiveOption(option.id)">
-              Set Active
-            </button>
+            <ns-app-button variant="outline-btn" (click)="timerService.setActiveOption(option.id)">Set Active</ns-app-button>
           }
 
           <div class="action-group">
-            <button class="btn text-btn edit-btn" (click)="startEdit(option)">Edit</button>
-            <button class="btn text-btn delete-btn" (click)="deleteOption(option.id)"
-                    [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
+            <ns-app-button variant="text-btn edit-btn" (click)="startEdit(option)">Edit</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteOption(option.id)"
+                        [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
               Delete
-            </button>
+            </ns-app-button>
           </div>
-        </div>
-      </div>
+        </ng-container>
+      </ns-app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No timers found. Add one above!</p>

@@ -2,7 +2,7 @@
   <div class="top-section">
     <div class="header-row">
       <h2 class="page-title">Label Options</h2>
-      <button class="btn primary-btn" (click)="startAdd()">+ Add Label</button>
+      <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Label</ns-app-button>
     </div>
 
     @if (editingLabel) {
@@ -17,8 +17,8 @@
                  title="Choose label color"/>
 
           <div class="edit-actions">
-            <button class="btn primary-btn" (click)="save()">Save</button>
-            <button class="btn ghost-btn" (click)="cancel()">Cancel</button>
+            <ns-app-button variant="primary-btn" (click)="save()">Save</ns-app-button>
+            <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
           </div>
         </div>
       </div>
@@ -27,26 +27,25 @@
 
   <div class="options-list">
     @for (label of labelService.labels(); track label.id) {
-      <div class="list-item">
+      <ns-app-list-item>
 
-        <div class="item-info">
+        <ng-container info>
           <span class="label-pill" [style.background-color]="label.color">
             {{ label.name }}
           </span>
           @if (label.id < 0 && labelService.isOnline()) {
             <span class="badge pending-badge">Pending</span>
           }
-        </div>
+        </ng-container>
 
-        <div class="item-actions">
+        <ng-container actions>
           <div class="action-group">
-            <button class="btn text-btn edit-btn" (click)="startEdit(label)">Edit</button>
-            <button class="btn text-btn delete-btn" (click)="deleteLabel(label.id)">
-              Delete
-            </button>
+            <ns-app-button variant="text-btn edit-btn" (click)="startEdit(label)">Edit</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel(label.id)">Delete</ns-app-button>
           </div>
-        </div>
-      </div>
+        </ng-container>
+
+      </ns-app-list-item>
     } @empty {
       <div class="empty-state">
         <p class="empty-text">No labels found. Add one above!</p>

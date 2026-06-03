@@ -2,6 +2,9 @@ import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../services/history.service';
 import {TimerEntry} from '../../home/models/timer-entry.model';
+import {ButtonComponent} from '../../../shared/components/button/button.component';
+import {ToggleGroupComponent} from '../../../shared/components/toggle/toggle-group.component';
+import {ToggleButtonComponent} from '../../../shared/components/toggle/toggle-button.component';
 
 type Timeframe = 'day' | 'week' | 'month' | 'all';
 type ChartType = 'pie' | 'bar';
@@ -20,7 +23,7 @@ interface ChartLegendItem {
 @Component({
   selector: 'ns-history-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent, ToggleGroupComponent, ToggleButtonComponent],
   templateUrl: './history-chart.component.html',
   styleUrl: './history-chart.component.css'
 })

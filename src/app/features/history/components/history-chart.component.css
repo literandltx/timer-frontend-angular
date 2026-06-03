@@ -19,67 +19,15 @@
   gap: 16px;
 }
 
-.timeframe-toggles {
-  display: flex;
-  background: var(--bg-color);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 4px;
+.timeframe-wrapper {
   margin: 0;
-  gap: 4px;
 }
 
-.toggle-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 8px 16px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toggle-btn.active {
-  background: var(--card-bg);
-  color: var(--text-color);
-  box-shadow: var(--shadow-md);
-}
-
-.view-toggles {
-  display: flex;
+.view-toggles-wrapper {
   margin-left: auto;
-  background: var(--bg-color);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 4px;
-  gap: 4px;
 }
 
-.icon-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.icon-btn.active {
-  background: var(--card-bg);
-  color: var(--text-color);
-  box-shadow: var(--shadow-md);
-}
-
-.icon-btn svg {
+.view-toggles-wrapper svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
@@ -260,30 +208,6 @@
 .bar-header-controls {
   display: flex;
   gap: 8px;
-}
-
-.nav-btn {
-  background: var(--bg-color);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-color);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.nav-btn:hover {
-  background: var(--bg-subtle);
-}
-
-.nav-btn svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
 }
 
 .bar-plot-container {

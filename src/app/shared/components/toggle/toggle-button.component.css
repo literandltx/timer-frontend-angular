@@ -1,0 +1,46 @@
+:host {
+  display: contents;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-btn:hover:not(.is-active) {
+  background: var(--link-hover-bg);
+}
+
+.toggle-standard.is-active {
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-md);
+}
+
+.toggle-icon {
+  padding: 8px 12px;
+}
+.toggle-icon.is-active {
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-md);
+}
+
+.toggle-solid {
+  font-weight: bold;
+  color: var(--text-color);
+}
+.toggle-solid.is-active {
+  background: var(--btn-dark-bg);
+  color: var(--btn-dark-text);
+}

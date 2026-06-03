@@ -3,6 +3,8 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
+import {ToggleGroupComponent} from '../../shared/components/toggle/toggle-group.component';
+import {ToggleButtonComponent} from '../../shared/components/toggle/toggle-button.component';
 
 import {LabelService} from '../labels/services/label.service';
 import {TimerSettingService} from '../timers/services/timer-setting.service';
@@ -13,7 +15,7 @@ import {HomeService} from './services/home.service';
 @Component({
   selector: 'ns-app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TimerComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TimerComponent, ToggleGroupComponent, ToggleButtonComponent],
   providers: [HomeService],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']

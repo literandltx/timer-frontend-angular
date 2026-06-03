@@ -3,52 +3,36 @@
 
     <div class="timeframe-wrapper">
       @if (chartType() === 'pie') {
-        <div class="timeframe-toggles">
-          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
-                  (click)="setTimeframe('day')">Today
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
-                  (click)="setTimeframe('week')">Week
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
-                  (click)="setTimeframe('month')">Month
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'all'"
-                  (click)="setTimeframe('all')">All
-          </button>
-        </div>
+        <ns-app-toggle-group variant="standard">
+          <ns-app-toggle-button [active]="timeframe() === 'day'" (toggled)="setTimeframe('day')">Today</ns-app-toggle-button>
+          <ns-app-toggle-button [active]="timeframe() === 'week'" (toggled)="setTimeframe('week')">Week</ns-app-toggle-button>
+          <ns-app-toggle-button [active]="timeframe() === 'month'" (toggled)="setTimeframe('month')">Month</ns-app-toggle-button>
+          <ns-app-toggle-button [active]="timeframe() === 'all'" (toggled)="setTimeframe('all')">All</ns-app-toggle-button>
+        </ns-app-toggle-group>
       } @else if (chartType() === 'bar') {
-        <div class="timeframe-toggles">
-          <button class="toggle-btn" [class.active]="timeframe() === 'day'"
-                  (click)="setTimeframe('day')">Today
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'week'"
-                  (click)="setTimeframe('week')">Week
-          </button>
-          <button class="toggle-btn" [class.active]="timeframe() === 'month'"
-                  (click)="setTimeframe('month')">Month
-          </button>
-        </div>
+        <ns-app-toggle-group variant="standard">
+          <ns-app-toggle-button [active]="timeframe() === 'day'" (toggled)="setTimeframe('day')">Today</ns-app-toggle-button>
+          <ns-app-toggle-button [active]="timeframe() === 'week'" (toggled)="setTimeframe('week')">Week</ns-app-toggle-button>
+          <ns-app-toggle-button [active]="timeframe() === 'month'" (toggled)="setTimeframe('month')">Month</ns-app-toggle-button>
+        </ns-app-toggle-group>
       }
     </div>
 
-    <div class="view-toggles">
-      <button class="icon-btn" [class.active]="chartType() === 'pie'" (click)="setChartType('pie')"
-              aria-label="Pie Chart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path>
-        </svg>
-      </button>
-      <button class="icon-btn" [class.active]="chartType() === 'bar'" (click)="setChartType('bar')"
-              aria-label="Bar Chart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"></line>
-          <line x1="12" y1="20" x2="12" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="14"></line>
-        </svg>
-      </button>
+    <div class="view-toggles-wrapper">
+      <ns-app-toggle-group variant="standard">
+        <ns-app-toggle-button variant="icon" [active]="chartType() === 'pie'" (toggled)="setChartType('pie')" aria-label="Pie Chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path>
+          </svg>
+        </ns-app-toggle-button>
+        <ns-app-toggle-button variant="icon" [active]="chartType() === 'bar'" (toggled)="setChartType('bar')" aria-label="Bar Chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </ns-app-toggle-button>
+      </ns-app-toggle-group>
     </div>
   </div>
 
@@ -94,18 +78,18 @@
               class="highlight">{{ barChartData().averageValue }} min</span></p>
           </div>
           <div class="bar-header-controls">
-            <button class="nav-btn" (click)="navigatePrevious()">
+            <ns-app-button variant="outline-btn" (click)="navigatePrevious()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
+                   stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
-            </button>
-            <button class="nav-btn" (click)="navigateNext()">
+            </ns-app-button>
+            <ns-app-button variant="outline-btn" (click)="navigateNext()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
+                   stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
-            </button>
+            </ns-app-button>
           </div>
         </div>
 

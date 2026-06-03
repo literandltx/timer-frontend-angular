@@ -3,11 +3,13 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TimerSettingService} from './services/timer-setting.service';
 import {TimerOption} from './models/timer-setting.model';
+import {ButtonComponent} from '../../shared/components/button/button.component';
+import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 
 @Component({
   selector: 'ns-app-timer-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
   templateUrl: './timer-list.component.html',
   styleUrl: './timer-list.component.css'
 })
