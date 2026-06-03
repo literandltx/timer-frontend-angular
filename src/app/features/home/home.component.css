@@ -1,7 +1,7 @@
 .timer-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 60px);
+  height: calc(100dvh - 60px);
   background: var(--bg-color);
   color: var(--text-color);
   overflow: hidden;
@@ -10,40 +10,50 @@
 
 .timer-options-wrapper {
   position: absolute;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   left: 24px;
   background: var(--bg-subtle);
-  padding: 8px;
-  border-radius: 12px;
+  padding: 8px 16px;
+  height: 48px;
+  box-sizing: border-box;
   display: flex;
+  align-items: center;
   gap: 8px;
+  border-radius: 12px;
 }
 
 .label-selector-wrapper {
   position: absolute;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   right: 24px;
   background: var(--bg-subtle);
   padding: 8px 16px;
-  border-radius: 12px;
+  height: 48px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 10px;
+  border-radius: 12px;
 }
 
 .label-icon {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 .label-select {
   background: transparent;
   color: var(--text-color);
   border: none;
-  font-size: 16px;
+  font-size: 18px;
   outline: none;
   cursor: pointer;
   appearance: none;
+  width: 140px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .label-option-disabled {
