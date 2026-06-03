@@ -144,7 +144,6 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   }
 
   private exportLocal() {
-    console.log('Exporting CSV from local storage...');
     const entries = this.getLocalEntries();
     const localLabels = this.labelService.labels();
     const headers = ['labelName', 'color', 'durationSeconds', 'startTime'];

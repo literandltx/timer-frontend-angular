@@ -35,7 +35,7 @@ export class LoginComponent {
       this.authService.login({username: email, password}).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/home']);
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
@@ -54,7 +54,5 @@ export class LoginComponent {
     this.authService.logout();
     localStorage.clear();
     this.loginForm.reset();
-
-    console.log('User logged out successfully');
   }
 }
