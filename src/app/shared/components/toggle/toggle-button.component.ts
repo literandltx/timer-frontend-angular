@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./toggle-button.component.css']
 })
 export class ToggleButtonComponent {
-  @Input() active: boolean = false;
+  @Input() active = false;
   @Input() variant: 'standard' | 'icon' | 'solid' = 'standard';
   @Output() toggled = new EventEmitter<void>();
 }

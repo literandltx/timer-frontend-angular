@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./button.component.css']
 })
 export class ButtonComponent {
-  @Input() variant: string = 'primary-btn';
-  @Input() disabled: boolean = false;
+  @Input() variant = 'primary-btn';
+  @Input() disabled = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
 }

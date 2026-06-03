@@ -19,5 +19,5 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./list-item.component.css']
 })
 export class ListItemComponent {
-  @Input() isActive: boolean = false;
+  @Input() isActive = false;
 }
