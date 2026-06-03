@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import {Injectable, inject} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class TitleBlinkerService {
   private titleService = inject(Title);
   private blinkInterval: number | undefined;

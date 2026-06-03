@@ -1,7 +1,7 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HistoryService} from '../service/history.service';
-import {TimerEntry} from '../../home/model/timer-entry.model';
+import {HistoryService} from '../services/history.service';
+import {TimerEntry} from '../../home/models/timer-entry.model';
 
 type Timeframe = 'day' | 'week' | 'month' | 'all';
 type ChartType = 'pie' | 'bar';

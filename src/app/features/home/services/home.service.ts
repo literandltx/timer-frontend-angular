@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { LabelService } from '../../labels/service/label.service';
-import { Label } from "../../labels/model/label.model";
+import { LabelService } from '../../labels/services/label.service';
+import { Label } from "../../labels/models/label.model";
 
 @Injectable()
 export class HomeService {
