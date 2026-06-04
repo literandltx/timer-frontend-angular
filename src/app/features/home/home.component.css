@@ -8,10 +8,20 @@
   font-family: sans-serif;
 }
 
-.timer-options-wrapper {
+.bottom-controls-wrapper {
   position: absolute;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  left: 24px;
+  left: 0;
+  width: 100%;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.timer-options-wrapper {
   background: var(--bg-subtle);
   padding: 8px 16px;
   height: 48px;
@@ -20,12 +30,20 @@
   align-items: center;
   gap: 8px;
   border-radius: 12px;
+  max-width: 320px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  overscroll-behavior-x: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.timer-options-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .label-selector-wrapper {
-  position: absolute;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  right: 24px;
   background: var(--bg-subtle);
   padding: 8px 16px;
   height: 48px;
@@ -63,4 +81,50 @@
 .label-option {
   color: var(--text-color);
   background: var(--card-bg);
+}
+
+@media (max-width: 768px) {
+  .timer-options-wrapper, .label-selector-wrapper {
+    height: 44px;
+    padding: 6px 12px;
+  }
+
+  .label-select {
+    width: 120px;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottom-controls-wrapper {
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .timer-options-wrapper,
+  .label-selector-wrapper {
+    height: 40px;
+    max-width: 230px;
+    padding: 4px 10px;
+    border-radius: 10px;
+  }
+
+  .label-select {
+    width: 100px;
+  }
+
+  .label-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .bottom-controls-wrapper {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .label-select {
+    width: 75px;
+  }
 }

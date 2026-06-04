@@ -2,14 +2,22 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-color);
   max-width: 700px;
-  margin: 40px auto;
+  margin: 16px auto;
   padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 100px);
 }
 
 .top-section {
   margin-bottom: 16px;
   padding-bottom: 20px;
   border-bottom: 2px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+ns-history-chart {
+  flex-shrink: 0;
 }
 
 .header-row {
@@ -35,18 +43,17 @@
 }
 
 .pagination-controls {
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;
   background-color: var(--bg-color);
   z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  margin-top: 24px;
-  padding-top: 16px;
-  padding-bottom: 24px;
+  margin-top: 4px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-light);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 .page-info {
@@ -113,7 +120,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 40vh;
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
@@ -213,6 +220,13 @@ app-list-item:last-child {
 @media (max-width: 640px) {
   .date-text, .label-wrapper, .duration-text {
     min-width: auto;
+  }
+
+  .pagination-controls {
+    gap: 20px;
+    margin-top: 4px;
+    padding-top: 8px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px));
   }
 
   .edit-label {

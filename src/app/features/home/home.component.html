@@ -8,41 +8,42 @@
     </ns-app-timer>
   }
 
-  <div class="timer-options-wrapper">
-    <ns-app-toggle-group variant="transparent">
-      @for (option of settingService.options(); track option.id) {
-        <ns-app-toggle-button
-          variant="solid"
-          [active]="settingService.activeSetting()?.timerOptionId === option.id"
-          (toggled)="settingService.setActiveOption(option.id)">
-          {{ option.value }}m
-        </ns-app-toggle-button>
-      }
-    </ns-app-toggle-group>
-  </div>
+  <div class="bottom-controls-wrapper">
+    <div class="timer-options-wrapper">
+      <ns-app-toggle-group variant="transparent">
+        @for (option of settingService.options(); track option.id) {
+          <ns-app-toggle-button
+            variant="solid"
+            [active]="settingService.activeSetting()?.timerOptionId === option.id"
+            (toggled)="settingService.setActiveOption(option.id)">
+            {{ option.value }}m
+          </ns-app-toggle-button>
+        }
+      </ns-app-toggle-group>
+    </div>
 
-  <div class="label-selector-wrapper">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-         [attr.stroke]="activeLabelColor()" class="label-icon">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
-    </svg>
+    <div class="label-selector-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+           [attr.stroke]="activeLabelColor()" class="label-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+      </svg>
 
-    <select
-      [ngModel]="homeService.activeLabelId()"
-      (ngModelChange)="homeService.setActiveLabel($event)"
-      class="label-select">
+      <select
+        [ngModel]="homeService.activeLabelId()"
+        (ngModelChange)="homeService.setActiveLabel($event)"
+        class="label-select">
 
-      <option [ngValue]="undefined" disabled class="label-option-disabled">
-        Select a Label...
-      </option>
-
-      @for (label of labelService.labels(); track label.id) {
-        <option [ngValue]="label.id" class="label-option">
-          {{ label.name }}
+        <option [ngValue]="undefined" disabled class="label-option-disabled">
+          Select a Label...
         </option>
-      }
-    </select>
-  </div>
 
+        @for (label of labelService.labels(); track label.id) {
+          <option [ngValue]="label.id" class="label-option">
+            {{ label.name }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
 </div>

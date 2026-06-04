@@ -54,9 +54,10 @@
 
           <span class="date-text">{{ entry.startTime | date:'medium' }}</span>
 
-          @if (entry.id < 0) {
-            <span class="badge pending-badge">Syncing</span>
-          }
+          <!-- todo: add indicator later -->
+<!--          @if (entry.id < 0) {-->
+<!--            <span class="badge pending-badge">Syncing</span>-->
+<!--          }-->
         </ng-container>
 
         <ng-container actions>

@@ -21,6 +21,28 @@
 
 .timeframe-wrapper {
   margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  overscroll-behavior-x: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  min-width: 0;
+}
+
+.timeframe-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.timeframe-wrapper ns-app-toggle-group {
+  display: inline-flex;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.timeframe-wrapper ns-app-toggle-group::after {
+  content: '';
+  padding-right: 4px;
 }
 
 .view-toggles-wrapper {
@@ -60,6 +82,7 @@
   align-items: center;
   justify-content: center;
   transition: background 0.4s ease;
+  container-type: inline-size;
 }
 
 .donut-hole {
@@ -74,18 +97,19 @@
 }
 
 .total-time {
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 15cqi, 1.6rem);
   font-weight: 700;
   color: var(--text-heading);
   letter-spacing: -0.5px;
+  line-height: 1;
 }
 
 .total-label {
-  font-size: 0.75rem;
+  font-size: clamp(0.5rem, 6cqi, 0.75rem);
   color: var(--text-muted);
   font-weight: 600;
-  letter-spacing: 1.5px;
-  margin-top: 6px;
+  letter-spacing: 1px;
+  margin-top: 4px;
   text-transform: uppercase;
 }
 
@@ -146,7 +170,7 @@
 }
 
 .item-time {
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -182,6 +206,10 @@
   margin-bottom: 40px;
 }
 
+.bar-header-info {
+  min-width: 0;
+}
+
 .bar-header-info h3 {
   font-size: 1.3rem;
   font-weight: 600;
@@ -190,9 +218,12 @@
 }
 
 .bar-header-info p {
-  font-size: 0.95rem;
+  font-size: clamp(0.75rem, 3.5vw, 0.95rem);
   color: var(--text-muted);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-header-info .dot {
@@ -208,6 +239,7 @@
 .bar-header-controls {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .bar-plot-container {
@@ -237,6 +269,18 @@
 .plot-area {
   flex: 1;
   position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: none;
+}
+
+.plot-area::-webkit-scrollbar {
+  display: none;
+}
+
+.bars-wrapper, .grid-lines, .x-axis-day {
+  min-width: 500px;
 }
 
 .grid-lines {
@@ -357,9 +401,99 @@
 
 @media (max-width: 650px) {
   .chart-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 0;
+  }
+
+  .pie-chart-wrapper {
+    flex: 0 0 140px;
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .pie-chart {
+    width: 100%;
+    max-width: 140px;
+  }
+
+  .chart-legend {
+    flex: 1;
+    margin-right: 0;
+    max-height: 105px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-header {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .timeframe-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .view-toggles-wrapper {
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .chart-container {
+    padding: 12px 12px;
+    margin-bottom: 12px;
+  }
+
+  .chart-header {
+    margin-bottom: 12px;
+  }
+
+  .chart-content {
     flex-direction: column;
     gap: 32px;
     padding: 0;
+  }
+
+  .bar-plot-container {
+    height: 220px;
+  }
+
+  .bar-header-info {
+    margin-top: 2px;
+  }
+
+  .bar-header {
+    display: block;
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .bar-header-controls {
+    position: absolute;
+    top: -4px;
+    right: 0;
+  }
+
+  .bar-header-info h3 {
+    padding-right: 90px;
+  }
+
+  .bar-header-info p {
+    white-space: nowrap;
+    overflow: visible;
+    margin-top: 6px;
+  }
+
+  .pie-chart-wrapper {
+    width: 100%;
+    margin: 0;
+    padding-top: 4px;
+    justify-content: center;
   }
 
   .chart-header {
@@ -369,5 +503,27 @@
   .chart-legend {
     width: 100%;
     margin-right: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .chart-header {
+    gap: 8px;
+  }
+
+  ::ng-deep ns-app-toggle-group {
+    gap: 4px !important;
+  }
+
+  ::ng-deep ns-app-toggle-button button,
+  ::ng-deep ns-app-toggle-button div,
+  ::ng-deep ns-app-toggle-button a {
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .view-toggles-wrapper svg {
+    width: 16px;
+    height: 16px;
   }
 }
