@@ -8,9 +8,9 @@
   </div>
 
   <div class="right-section">
-    <button class="theme-toggle" (click)="themeService.toggleTheme()">
+    <ns-app-button variant="outline-btn" (click)="themeService.toggleTheme()">
       {{ themeService.isDarkMode() ? 'Light' : 'Dark' }}
-    </button>
+    </ns-app-button>
 
     <div class="status-badge"
          [style.color]="entryService.isOnline() ? '#2b8a3e' : '#c92a2a'"
