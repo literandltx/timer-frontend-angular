@@ -30,6 +30,17 @@
   align-items: center;
   gap: 8px;
   border-radius: 12px;
+  max-width: 300px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  overscroll-behavior-x: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.timer-options-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .label-selector-wrapper {
@@ -92,6 +103,7 @@
   .timer-options-wrapper,
   .label-selector-wrapper {
     height: 40px;
+    max-width: 230px;
     padding: 4px 10px;
     border-radius: 10px;
   }
