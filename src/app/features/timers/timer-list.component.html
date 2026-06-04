@@ -39,7 +39,7 @@
 
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(option)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteOption(option.id)"
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteOption($event, option.id)"
                         [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
               Delete
             </ns-app-button>
