@@ -21,6 +21,28 @@
 
 .timeframe-wrapper {
   margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  overscroll-behavior-x: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  min-width: 0;
+}
+
+.timeframe-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.timeframe-wrapper ns-app-toggle-group {
+  display: inline-flex;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.timeframe-wrapper ns-app-toggle-group::after {
+  content: '';
+  padding-right: 4px;
 }
 
 .view-toggles-wrapper {
@@ -237,6 +259,18 @@
 .plot-area {
   flex: 1;
   position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: none;
+}
+
+.plot-area::-webkit-scrollbar {
+  display: none;
+}
+
+.bars-wrapper, .grid-lines, .x-axis-day {
+  min-width: 500px;
 }
 
 .grid-lines {
@@ -369,5 +403,58 @@
   .chart-legend {
     width: 100%;
     margin-right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-header {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .timeframe-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .view-toggles-wrapper {
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .chart-content {
+    flex-direction: column;
+    gap: 32px;
+    padding: 0;
+  }
+
+  .chart-legend {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .chart-header {
+    gap: 8px;
+  }
+
+  ::ng-deep ns-app-toggle-group {
+    gap: 4px !important;
+  }
+
+  ::ng-deep ns-app-toggle-button button,
+  ::ng-deep ns-app-toggle-button div,
+  ::ng-deep ns-app-toggle-button a {
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .view-toggles-wrapper svg {
+    width: 16px;
+    height: 16px;
   }
 }
