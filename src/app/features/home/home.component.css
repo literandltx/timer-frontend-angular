@@ -71,3 +71,48 @@
   color: var(--text-color);
   background: var(--card-bg);
 }
+
+@media (max-width: 768px) {
+  .timer-options-wrapper, .label-selector-wrapper {
+    height: 44px;
+    padding: 6px 12px;
+  }
+
+  .label-select {
+    width: 120px;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottom-controls-wrapper {
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .timer-options-wrapper,
+  .label-selector-wrapper {
+    height: 40px;
+    padding: 4px 10px;
+    border-radius: 10px;
+  }
+
+  .label-select {
+    width: 100px;
+  }
+
+  .label-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .bottom-controls-wrapper {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .label-select {
+    width: 75px;
+  }
+}
