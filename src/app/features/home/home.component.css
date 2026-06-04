@@ -8,10 +8,20 @@
   font-family: sans-serif;
 }
 
-.timer-options-wrapper {
+.bottom-controls-wrapper {
   position: absolute;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  left: 24px;
+  left: 0;
+  width: 100%;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.timer-options-wrapper {
   background: var(--bg-subtle);
   padding: 8px 16px;
   height: 48px;
@@ -23,9 +33,6 @@
 }
 
 .label-selector-wrapper {
-  position: absolute;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  right: 24px;
   background: var(--bg-subtle);
   padding: 8px 16px;
   height: 48px;
