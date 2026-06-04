@@ -444,6 +444,15 @@
 }
 
 @media (max-width: 650px) {
+  .chart-container {
+    padding: 12px 12px;
+    margin-bottom: 12px;
+  }
+
+  .chart-header {
+    margin-bottom: 12px;
+  }
+
   .chart-content {
     flex-direction: column;
     gap: 32px;
@@ -482,7 +491,8 @@
 
   .pie-chart-wrapper {
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
+    padding-top: 4px;
     justify-content: center;
   }
 
