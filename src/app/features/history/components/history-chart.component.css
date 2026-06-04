@@ -82,6 +82,7 @@
   align-items: center;
   justify-content: center;
   transition: background 0.4s ease;
+  container-type: inline-size;
 }
 
 .donut-hole {
@@ -96,18 +97,19 @@
 }
 
 .total-time {
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 15cqi, 1.6rem);
   font-weight: 700;
   color: var(--text-heading);
   letter-spacing: -0.5px;
+  line-height: 1;
 }
 
 .total-label {
-  font-size: 0.75rem;
+  font-size: clamp(0.5rem, 6cqi, 0.75rem);
   color: var(--text-muted);
   font-weight: 600;
-  letter-spacing: 1.5px;
-  margin-top: 6px;
+  letter-spacing: 1px;
+  margin-top: 4px;
   text-transform: uppercase;
 }
 
@@ -168,7 +170,7 @@
 }
 
 .item-time {
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -429,6 +431,16 @@
     flex-direction: column;
     gap: 32px;
     padding: 0;
+  }
+
+  .pie-chart-wrapper {
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+  }
+
+  .chart-header {
+    justify-content: center;
   }
 
   .chart-legend {
