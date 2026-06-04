@@ -206,6 +206,10 @@
   margin-bottom: 40px;
 }
 
+.bar-header-info {
+  min-width: 0;
+}
+
 .bar-header-info h3 {
   font-size: 1.3rem;
   font-weight: 600;
@@ -214,9 +218,12 @@
 }
 
 .bar-header-info p {
-  font-size: 0.95rem;
+  font-size: clamp(0.75rem, 3.5vw, 0.95rem);
   color: var(--text-muted);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-header-info .dot {
@@ -232,6 +239,7 @@
 .bar-header-controls {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .bar-plot-container {
@@ -440,6 +448,36 @@
     flex-direction: column;
     gap: 32px;
     padding: 0;
+  }
+
+  .bar-plot-container {
+    height: 220px;
+  }
+
+  .bar-header-info {
+    margin-top: 2px;
+  }
+
+  .bar-header {
+    display: block;
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .bar-header-controls {
+    position: absolute;
+    top: -4px;
+    right: 0;
+  }
+
+  .bar-header-info h3 {
+    padding-right: 90px;
+  }
+
+  .bar-header-info p {
+    white-space: nowrap;
+    overflow: visible;
+    margin-top: 6px;
   }
 
   .pie-chart-wrapper {
