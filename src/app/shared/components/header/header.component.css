@@ -111,15 +111,15 @@
   }
 
   .nav-icon {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 1.15rem;
+    height: 1.15rem;
   }
 }
 
 @media (max-width: 400px) {
   .nav-icon {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.125rem;
+    height: 1.125rem;
   }
 
   .main-nav a {
