@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit {
   public entryService = inject(TimerEntryService);
   public homeService = inject(HomeService);
   private blinkerService = inject(TitleBlinkerService);
+  private isTimerFinished = false;
 
   activeLabelColor = computed(() => {
     const labels = this.labelService.labels();
@@ -54,11 +55,17 @@ export class HomeComponent implements OnInit {
   }
 
   onTimerFinish(event: { durationUsed: number }) {
+    if (this.isTimerFinished) {
+      return;
+    }
+    this.isTimerFinished = true;
+
     this.saveHistory(event.durationUsed);
     this.blinkerService.startBlinking('Finished!');
   }
 
   onTimerReset(event: { durationUsed: number }) {
+    this.isTimerFinished = false;
     this.blinkerService.stopBlinking();
     if (event.durationUsed > 0) {
       this.saveHistory(event.durationUsed);
