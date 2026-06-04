@@ -393,31 +393,27 @@
 
 @media (max-width: 650px) {
   .chart-content {
-    flex-direction: column;
-    gap: 24px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
     padding: 0;
   }
 
   .pie-chart-wrapper {
-    width: 100%;
-    margin: 0 auto;
+    flex: 0 0 140px;
+    margin-left: 0;
     justify-content: center;
   }
 
   .pie-chart {
-    max-width: 180px;
-    max-height: 180px;
-  }
-
-  .chart-header {
-    justify-content: center;
+    width: 100%;
+    max-width: 140px;
   }
 
   .chart-legend {
-    width: 100%;
+    flex: 1;
     margin-right: 0;
-    max-height: 200px;
-    overflow-y: auto;
+    max-height: 105px;
   }
 }
 
