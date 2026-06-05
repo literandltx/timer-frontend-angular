@@ -63,7 +63,7 @@
         <ng-container actions>
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry(entry.id)">Delete</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry($event, entry.id)">Delete</ns-app-button>
           </div>
         </ng-container>
       </ns-app-list-item>

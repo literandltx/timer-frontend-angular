@@ -54,13 +54,11 @@ export class TimerListComponent implements OnInit {
   }
 
   async deleteOption(event: Event, id: number) {
-    event.stopPropagation();
     event.preventDefault();
+    event.stopPropagation();
 
-    setTimeout(async () => {
-      if (confirm('Delete this option?')) {
-        await this.timerService.deleteOption(id);
-      }
-    }, 10);
+    if (confirm('Delete this option?')) {
+      await this.timerService.deleteOption(id);
+    }
   }
 }

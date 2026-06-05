@@ -41,7 +41,7 @@
         <ng-container actions>
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(label)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel(label.id)">Delete</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.id)">Delete</ns-app-button>
           </div>
         </ng-container>
 
