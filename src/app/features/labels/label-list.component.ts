@@ -58,8 +58,8 @@ export class LabelListComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    if (confirm('Delete this label?')) {
-      await this.labelService.delete(id);
-    }
+    // if (confirm('Delete this label?')) {
+    await this.labelService.delete(id);
+    // }
   }
 }
