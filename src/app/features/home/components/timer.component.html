@@ -2,10 +2,9 @@
   class="timer-wrapper"
   role="button"
   tabindex="0"
-  (click)="handleClick()"
+  (click)="onUserClick()"
   (keyup.enter)="handleClick()"
   (keyup.space)="handleClick()"
-  (dblclick)="handleDoubleClick()"
 >
   <h1 class="timer-display">
     {{ timerService.formattedTime() }}
