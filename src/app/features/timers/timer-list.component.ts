@@ -57,8 +57,8 @@ export class TimerListComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    if (confirm('Delete this option?')) {
-      await this.timerService.deleteOption(id);
-    }
+    // if (confirm('Delete this option?')) {
+    await this.timerService.deleteOption(id);
+    // }
   }
 }

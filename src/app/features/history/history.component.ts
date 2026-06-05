@@ -97,9 +97,9 @@ export class HistoryComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    if (confirm('Delete this history record?')) {
-      await this.historyService.deleteEntry(id);
-    }
+    // if (confirm('Delete this history record?')) {
+    await this.historyService.deleteEntry(id);
+    // }
   }
 
   triggerImport() {
