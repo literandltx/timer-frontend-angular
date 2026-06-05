@@ -24,6 +24,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   @Output() timerReset = new EventEmitter<{ durationUsed: number }>();
 
   timerService = inject(TimerService);
+  private lastClickTime = 0;
 
   ngOnInit() {
     if (this.timerService.getInitialTime() !== this.timeAmount) {
@@ -43,6 +44,19 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     this.timerService.setCallback(noop);
+  }
+
+  onUserClick() {
+    const currentTime = Date.now();
+    const timeSinceLastClick = currentTime - this.lastClickTime;
+
+    if (timeSinceLastClick > 0 && timeSinceLastClick < 300) {
+      this.handleDoubleClick();
+      this.lastClickTime = 0;
+    } else {
+      this.handleClick();
+      this.lastClickTime = currentTime;
+    }
   }
 
   handleClick() {
