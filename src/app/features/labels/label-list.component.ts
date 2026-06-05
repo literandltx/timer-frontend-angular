@@ -54,7 +54,10 @@ export class LabelListComponent implements OnInit {
     this.editingLabel = null;
   }
 
-  async deleteLabel(id: number) {
+  async deleteLabel(event: Event, id: number) {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (confirm('Delete this label?')) {
       await this.labelService.delete(id);
     }

@@ -93,7 +93,10 @@ export class HistoryComponent implements OnInit {
     this.editingEntry = null;
   }
 
-  async deleteEntry(id: number) {
+  async deleteEntry(event: Event, id: number) {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (confirm('Delete this history record?')) {
       await this.historyService.deleteEntry(id);
     }
