@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TimerEntryService } from '../../../features/home/services/timer-entry.service';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
+import {HealthCheckService} from '../../../core/netwrok/health.service';
 
 @Component({
   selector: 'ns-app-header',
@@ -12,6 +13,6 @@ import {ButtonComponent} from '../button/button.component';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  public entryService = inject(TimerEntryService);
+  public healthService = inject(HealthCheckService);
   public themeService = inject(ThemeService);
 }
