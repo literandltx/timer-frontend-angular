@@ -30,8 +30,8 @@ export class HomeComponent implements OnInit {
 
   activeLabelColor = computed(() => {
     const labels = this.labelService.labels();
-    const id = this.homeService.activeLabelId();
-    const activeLabel = labels.find(l => l.id === id);
+    const id = this.homeService.activeLabelUuid();
+    const activeLabel = labels.find(l => l.uuid === id);
 
     return activeLabel ? activeLabel.color : '#000000';
   });
@@ -74,8 +74,8 @@ export class HomeComponent implements OnInit {
 
   private saveHistory(durationSeconds: number) {
     const labels = this.labelService.labels();
-    const fallbackLabel = labels.length > 0 ? labels[0].id : undefined;
-    const currentId = this.homeService.activeLabelId();
+    const fallbackLabel = labels.length > 0 ? labels[0].uuid : undefined;
+    const currentId = this.homeService.activeLabelUuid();
 
     this.entryService.recordTimerFinish(durationSeconds, currentId, fallbackLabel);
   }

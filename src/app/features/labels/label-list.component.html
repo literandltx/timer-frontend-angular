@@ -8,7 +8,7 @@
     @if (editingLabel) {
       <div class="edit-section">
         <div class="input-group">
-          <span class="edit-label">{{ editingLabel.id ? 'Edit Label:' : 'New Label:' }}</span>
+          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>
 
           <input class="modern-input" type="text" [(ngModel)]="editingLabel.name"
                  placeholder="Label Name"/>
@@ -26,22 +26,19 @@
   </div>
 
   <div class="options-list">
-    @for (label of labelService.labels(); track label.id) {
+    @for (label of labelService.labels(); track label.uuid) {
       <ns-app-list-item>
 
         <ng-container info>
           <span class="label-pill" [style.background-color]="label.color">
             {{ label.name }}
           </span>
-          @if (label.id < 0 && labelService.isOnline()) {
-            <span class="badge pending-badge">Pending</span>
-          }
         </ng-container>
 
         <ng-container actions>
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(label)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.id)">Delete</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.uuid)">Delete</ns-app-button>
           </div>
         </ng-container>
 

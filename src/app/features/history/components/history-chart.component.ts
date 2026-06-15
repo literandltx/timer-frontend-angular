@@ -73,12 +73,12 @@ export class HistoryChartComponent {
       return entry.startTime >= range.start && entry.startTime < range.end;
     });
 
-    const aggregated = new Map<number, number>();
+    const aggregated = new Map<string, number>();
     let totalSeconds = 0;
 
     for (const entry of filteredEntries) {
-      const current = aggregated.get(entry.labelId) || 0;
-      aggregated.set(entry.labelId, current + entry.durationSeconds);
+      const current = aggregated.get(entry.labelUuid) || 0;
+      aggregated.set(entry.labelUuid, current + entry.durationSeconds);
       totalSeconds += entry.durationSeconds;
     }
 
@@ -89,10 +89,10 @@ export class HistoryChartComponent {
     const legend: ChartLegendItem[] = [];
     let maxRawSeconds = 0;
 
-    for (const [labelId, duration] of sortedData) {
+    for (const [labelUuid, duration] of sortedData) {
       const percentage = totalSeconds > 0 ? (duration / totalSeconds) * 100 : 0;
-      const labelName = this.historyService.getLabelName(labelId);
-      const color = this.historyService.getLabelColor(labelId);
+      const labelName = this.historyService.getLabelName(labelUuid);
+      const color = this.historyService.getLabelColor(labelUuid);
 
       if (duration > maxRawSeconds) {
         maxRawSeconds = duration;
@@ -164,7 +164,7 @@ export class HistoryChartComponent {
       }
       for (const entry of filteredEntries) {
         const hour = new Date(entry.startTime).getHours();
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = this.historyService.getLabelColor(entry.labelUuid);
         buckets[hour].totalSeconds += entry.durationSeconds;
         buckets[hour].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
@@ -184,7 +184,7 @@ export class HistoryChartComponent {
       for (const entry of filteredEntries) {
         const entryDate = new Date(entry.startTime);
         const dayIdx = (entryDate.getDay() || 7) - 1;
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = this.historyService.getLabelColor(entry.labelUuid);
         buckets[dayIdx].totalSeconds += entry.durationSeconds;
         buckets[dayIdx].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
@@ -203,7 +203,7 @@ export class HistoryChartComponent {
       }
       for (const entry of filteredEntries) {
         const date = new Date(entry.startTime).getDate();
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = this.historyService.getLabelColor(entry.labelUuid);
         buckets[date - 1].totalSeconds += entry.durationSeconds;
         buckets[date - 1].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;

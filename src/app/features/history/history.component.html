@@ -17,10 +17,10 @@
         <div class="input-group">
           <span class="edit-label">{{ editingEntry.id ? 'Edit Session:' : 'New Session:' }}</span>
 
-          <select class="modern-input" [(ngModel)]="editingEntry.labelId">
+          <select class="modern-input" [(ngModel)]="editingEntry.labelUuid">
             <option [ngValue]="undefined" disabled>Select Label...</option>
-            @for (label of historyService.labels(); track label.id) {
-              <option [ngValue]="label.id">{{ label.name }}</option>
+            @for (label of historyService.labels(); track label.uuid) {
+              <option [ngValue]="label.uuid">{{ label.name }}</option>
             }
           </select>
 
@@ -44,20 +44,16 @@
     @for (entry of pageViewEntries; track entry.id) {
       <ns-app-list-item>
         <ng-container info>
-          <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }} mins</span>
+          <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}mins</span>
 
           <div class="label-wrapper">
-            <span class="label-pill" [style.background-color]="getLabelColor(entry.labelId)">
-              {{ getLabelName(entry.labelId) }}
+            <span class="label-pill" [style.background-color]="getLabelColor(entry.labelUuid)">
+              {{ getLabelName(entry.labelUuid) }}
             </span>
           </div>
 
           <span class="date-text">{{ entry.startTime | date:'medium' }}</span>
 
-          <!-- todo: add indicator later -->
-<!--          @if (entry.id < 0) {-->
-<!--            <span class="badge pending-badge">Syncing</span>-->
-<!--          }-->
         </ng-container>
 
         <ng-container actions>
@@ -77,16 +73,16 @@
   @if (pageViewEntries.length > 0 || currentPage > 0) {
     <div class="pagination-controls">
       <ns-app-button variant="outline-btn"
-                  [disabled]="currentPage === 0"
-                  (click)="prevPage()">
+                     [disabled]="currentPage === 0"
+                     (click)="prevPage()">
         Previous
       </ns-app-button>
 
       <span class="page-info">Page {{ currentPage + 1 }}</span>
 
       <ns-app-button variant="outline-btn"
-                  [disabled]="pageViewEntries.length < pageSize"
-                  (click)="nextPage()">
+                     [disabled]="pageViewEntries.length < pageSize"
+                     (click)="nextPage()">
         Next
       </ns-app-button>
     </div>

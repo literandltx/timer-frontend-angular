@@ -57,7 +57,7 @@ export class HistoryComponent implements OnInit {
     if (this.editingEntry && !this.editingEntry.id) {
       this.editingEntry = null;
     } else {
-      this.editingEntry = {labelId: undefined, durationSeconds: 0};
+      this.editingEntry = {labelUuid: undefined, durationSeconds: 0};
       this.formDateStr = this.formatDateForInput(Date.now());
       this.formDurationMins = 25;
     }
@@ -78,13 +78,13 @@ export class HistoryComponent implements OnInit {
   }
 
   async save() {
-    if (!this.editingEntry || !this.editingEntry.labelId) {
+    if (!this.editingEntry || !this.editingEntry.labelUuid) {
       alert("Please select a label.");
       return;
     }
 
     const request: TimerEntryRequest = {
-      labelId: this.editingEntry.labelId,
+      labelUuid: this.editingEntry.labelUuid,
       durationSeconds: this.formDurationMins * 60,
       startTime: new Date(this.formDateStr).getTime()
     };
@@ -97,9 +97,7 @@ export class HistoryComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    // if (confirm('Delete this history record?')) {
     await this.historyService.deleteEntry(id);
-    // }
   }
 
   triggerImport() {
@@ -128,12 +126,12 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-  getLabelName(labelId: number): string {
-    return this.historyService.getLabelName(labelId);
+  getLabelName(labelUuid: string): string {
+    return this.historyService.getLabelName(labelUuid);
   }
 
-  getLabelColor(labelId: number): string {
-    return this.historyService.getLabelColor(labelId);
+  getLabelColor(labelUuid: string): string {
+    return this.historyService.getLabelColor(labelUuid);
   }
 
   private formatDateForInput(epoch: number): string {

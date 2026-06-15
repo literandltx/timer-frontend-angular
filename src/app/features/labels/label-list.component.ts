@@ -1,8 +1,9 @@
+// label-list.component.ts
 import {Component, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {LabelService} from './services/label.service';
-import {Label} from './models/label.model';
+import {Label, CreateLabelRequest, UpdateLabelRequest} from './models/label.model';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 
@@ -23,7 +24,7 @@ export class LabelListComponent implements OnInit {
   }
 
   startAdd() {
-    if (this.editingLabel && !this.editingLabel.id) {
+    if (this.editingLabel && !this.editingLabel.uuid) {
       this.editingLabel = null;
     } else {
       this.editingLabel = {name: '', color: '#3b82f6'};
@@ -31,7 +32,7 @@ export class LabelListComponent implements OnInit {
   }
 
   startEdit(label: Label) {
-    if (this.editingLabel?.id === label.id) {
+    if (this.editingLabel?.uuid === label.uuid) {
       this.editingLabel = null;
     } else {
       this.editingLabel = {...label};
@@ -43,23 +44,36 @@ export class LabelListComponent implements OnInit {
   }
 
   async save() {
-    if (!this.editingLabel) return;
-    const request = {name: this.editingLabel.name!, color: this.editingLabel.color!};
+    if (!this.editingLabel || !this.editingLabel.name || !this.editingLabel.color) {
+      return;
+    }
 
-    if (this.editingLabel.id) {
-      await this.labelService.update(this.editingLabel.id, request);
+    const now = new Date().toISOString();
+
+    if (this.editingLabel.uuid) {
+      const request: UpdateLabelRequest = {
+        name: this.editingLabel.name,
+        color: this.editingLabel.color,
+        updatedAt: now
+      };
+      await this.labelService.update(this.editingLabel.uuid, request);
     } else {
+      const request: CreateLabelRequest = {
+        uuid: crypto.randomUUID(),
+        name: this.editingLabel.name,
+        color: this.editingLabel.color,
+        createdAt: now,
+        updatedAt: now
+      };
       await this.labelService.save(request);
     }
     this.editingLabel = null;
   }
 
-  async deleteLabel(event: Event, id: number) {
+  async deleteLabel(event: Event, uuid: string) {
     event.preventDefault();
     event.stopPropagation();
 
-    // if (confirm('Delete this label?')) {
-    await this.labelService.delete(id);
-    // }
+    await this.labelService.delete(uuid);
   }
 }

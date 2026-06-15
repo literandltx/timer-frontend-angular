@@ -1,6 +1,6 @@
 export interface TimerEntry {
   id: number;
-  labelId: number;
+  labelUuid: string;
   durationSeconds: number;
   startTime: number;
   label?: {
@@ -10,7 +10,7 @@ export interface TimerEntry {
 }
 
 export interface TimerEntryRequest {
-  labelId: number;
+  labelUuid: string;
   durationSeconds: number;
   startTime: number;
 }

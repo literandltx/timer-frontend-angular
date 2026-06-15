@@ -30,7 +30,7 @@
       </svg>
 
       <select
-        [ngModel]="homeService.activeLabelId()"
+        [ngModel]="homeService.activeLabelUuid()"
         (ngModelChange)="homeService.setActiveLabel($event)"
         class="label-select">
 
@@ -38,8 +38,8 @@
           Select a Label...
         </option>
 
-        @for (label of labelService.labels(); track label.id) {
-          <option [ngValue]="label.id" class="label-option">
+        @for (label of labelService.labels(); track label.uuid) {
+          <option [ngValue]="label.uuid" class="label-option">
             {{ label.name }}
           </option>
         }

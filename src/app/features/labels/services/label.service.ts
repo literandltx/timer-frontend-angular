@@ -1,22 +1,47 @@
 import {Injectable, signal, inject} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {Label, CreateLabelRequest} from '../models/label.model';
+import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
 import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 
 interface SyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: CreateLabelRequest;
-  labelId?: number;
-  tempId?: number;
+  payload?: any;
+  labelUuid?: string;
 }
 
+const NOW = new Date().toISOString();
+
 const DEFAULT_LABELS: Label[] = [
-  {id: 1, userId: 0, name: 'Work', color: '#ef4444'},
-  {id: 2, userId: 0, name: 'Study', color: '#3b82f6'},
-  {id: 3, userId: 0, name: 'Chill', color: '#10b981'},
+  {
+    uuid: 'default-1',
+    userId: 0,
+    name: 'Work',
+    color: '#ef4444',
+    createdAt: NOW,
+    updatedAt: NOW,
+    deleted: false
+  },
+  {
+    uuid: 'default-2',
+    userId: 0,
+    name: 'Study',
+    color: '#3b82f6',
+    createdAt: NOW,
+    updatedAt: NOW,
+    deleted: false
+  },
+  {
+    uuid: 'default-3',
+    userId: 0,
+    name: 'Chill',
+    color: '#10b981',
+    createdAt: NOW,
+    updatedAt: NOW,
+    deleted: false
+  },
 ];
 
 @Injectable({providedIn: 'root'})
@@ -40,7 +65,7 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
       const token: string | null = this.authService.getToken();
 
       if (!token) {
-        console.log('[LabelService] Auth token is null')
+        console.log('[LabelService] Auth token is null');
         return;
       }
 
@@ -49,7 +74,6 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
         next: (message) => {
           try {
             const incomingChange = JSON.parse(message.body);
-            // this.applyIncomingChange(incomingChange);
           } catch (e) {
             console.error('[LabelService] Failed to parse incoming WebSocket message:', e);
           }
@@ -72,38 +96,39 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
     }
   }
 
-  async save(label: CreateLabelRequest) {
-    const tempId = -Date.now();
-    const newLabel: Label = {...label, id: tempId, userId: 0};
+  async save(request: CreateLabelRequest) {
+    const newLabel: Label = {...request, userId: 0, deleted: false};
 
     this.updateLocalState(labels => [...labels, newLabel]);
-    this.enqueueAction({type: 'CREATE', payload: label, tempId});
+    this.enqueueAction({type: 'CREATE', payload: newLabel, labelUuid: request.uuid});
   }
 
-  async update(id: number, request: CreateLabelRequest) {
+  async update(uuid: string, request: UpdateLabelRequest) {
     this.updateLocalState(labels =>
-      labels.map(l => l.id === id ? {...l, ...request} : l)
+      labels.map(l => l.uuid === uuid ? {...l, ...request} : l)
     );
 
     const queue = this.getQueue();
-    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.tempId === id);
+    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.labelUuid === uuid);
 
     if (pendingCreate) {
-      pendingCreate.payload = request;
+      pendingCreate.payload = {...pendingCreate.payload, ...request};
       this.setQueue(queue);
     } else {
-      this.enqueueAction({type: 'UPDATE', labelId: id, payload: request});
+      this.enqueueAction({type: 'UPDATE', labelUuid: uuid, payload: request});
     }
   }
 
-  async delete(id: number) {
-    this.updateLocalState(labels => labels.filter(l => l.id !== id));
+  async delete(uuid: string) {
+    this.updateLocalState(labels => labels.filter(l => l.uuid !== uuid));
 
     const queue = this.getQueue();
-    if (id < 0) {
-      this.setQueue(queue.filter(a => !(a.tempId === id || a.labelId === id)));
+    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.labelUuid === uuid);
+
+    if (pendingCreate) {
+      this.setQueue(queue.filter(a => a.labelUuid !== uuid));
     } else {
-      this.enqueueAction({type: 'DELETE', labelId: id});
+      this.enqueueAction({type: 'DELETE', labelUuid: uuid});
     }
   }
 
@@ -121,13 +146,11 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
 
         try {
           if (action.type === 'CREATE') {
-            const saved = await firstValueFrom(this.http.post<Label>(this.pingUrl, action.payload));
-            this.replaceLocalId(action.tempId!, saved.id);
-            this.updateQueueIds(action.tempId!, saved.id);
+            await firstValueFrom(this.http.post<Label>(this.pingUrl, action.payload));
           } else if (action.type === 'UPDATE') {
-            await firstValueFrom(this.http.put<Label>(`${this.pingUrl}/${action.labelId}`, action.payload));
+            await firstValueFrom(this.http.put<Label>(`${this.pingUrl}/${action.labelUuid}`, action.payload));
           } else if (action.type === 'DELETE') {
-            await firstValueFrom(this.http.delete<void>(`${this.pingUrl}/${action.labelId}`));
+            await firstValueFrom(this.http.delete<void>(`${this.pingUrl}/${action.labelUuid}`));
           }
 
           this.setQueue(this.getQueue().filter(a => a.id !== action.id));
@@ -172,19 +195,5 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
 
   private setLocalLabels(labels: Label[]) {
     localStorage.setItem('labels', JSON.stringify(labels));
-  }
-
-  private replaceLocalId(oldId: number, newId: number) {
-    this.updateLocalState(labels =>
-      labels.map(l => l.id === oldId ? {...l, id: newId} : l)
-    );
-  }
-
-  private updateQueueIds(oldId: number, newId: number) {
-    const queue = this.getQueue();
-    queue.forEach(action => {
-      if (action.labelId === oldId) action.labelId = newId;
-    });
-    this.setQueue(queue);
   }
 }

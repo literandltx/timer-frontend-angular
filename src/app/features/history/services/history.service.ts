@@ -51,13 +51,13 @@ export class HistoryService {
     this.entryService.exportCSV();
   }
 
-  getLabelName(labelId: number): string {
-    const label = this.labelService.labels().find(l => l.id === labelId);
+  getLabelName(labelUuid: string): string {
+    const label = this.labelService.labels().find(l => l.uuid === labelUuid);
     return label ? label.name : 'Unknown Label';
   }
 
-  getLabelColor(labelId: number): string {
-    const label = this.labelService.labels().find(l => l.id === labelId);
+  getLabelColor(labelUuid: string): string {
+    const label = this.labelService.labels().find(l => l.uuid === labelUuid);
     return label ? label.color : '#ccc';
   }
 }

@@ -53,10 +53,10 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     }
   }
 
-  recordTimerFinish(durationSeconds: number, activeLabelId?: number, fallbackLabelId?: number) {
-    const finalLabelId = activeLabelId || fallbackLabelId;
+  recordTimerFinish(durationSeconds: number, activeLabelUuid?: string, fallbackLabelUuid?: string) {
+    const finalLabelUuid = activeLabelUuid || fallbackLabelUuid;
 
-    if (!finalLabelId) {
+    if (!finalLabelUuid) {
       console.warn("No label selected, cannot save timer history.");
       return;
     }
@@ -64,7 +64,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     const finalDuration = Math.max(durationSeconds, DEFAULT_MINIMUM_TIMER_DURATION);
     const startTime = Date.now() - (finalDuration * 1000);
     const request: TimerEntryRequest = {
-      labelId: finalLabelId,
+      labelUuid: finalLabelUuid,
       durationSeconds: finalDuration,
       startTime: startTime
     };
@@ -148,7 +148,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     const localLabels = this.labelService.labels();
     const headers = ['labelName', 'color', 'durationSeconds', 'startTime'];
     const rows = entries.map(e => {
-      const matchedLabel = localLabels.find(l => l.id === e.labelId);
+      const matchedLabel = localLabels.find(l => l.uuid === e.labelUuid);
       const finalLabelName = matchedLabel?.name || e.label?.name || '';
       const finalColor = matchedLabel?.color || e.label?.color || '';
 
@@ -237,13 +237,20 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
             let label = localLabels.find(l => l.name === labelName);
 
             if (!label && labelName) {
-              await this.labelService.save({name: labelName, color: color});
+              const now = new Date().toISOString();
+              await this.labelService.save({
+                uuid: crypto.randomUUID(),
+                name: labelName,
+                color: color,
+                createdAt: now,
+                updatedAt: now
+              });
               localLabels = this.labelService.labels();
               label = localLabels.find(l => l.name === labelName);
             }
 
-            const labelId = label?.id || 0;
-            const request: TimerEntryRequest = {labelId, durationSeconds, startTime};
+            const labelUuid = label?.uuid || 'default-1';
+            const request: TimerEntryRequest = {labelUuid, durationSeconds, startTime};
             const tempId = -(Date.now() + i);
 
             const newEntry: TimerEntry = {
