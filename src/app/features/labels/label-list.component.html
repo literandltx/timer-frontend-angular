@@ -17,7 +17,7 @@
                  title="Choose label color"/>
 
           <div class="edit-actions">
-            <ns-app-button variant="primary-btn" (click)="save()">Save</ns-app-button>
+            <ns-app-button variant="primary-btn" (click)="editingLabel.uuid ? updateLabel() : createLabel()">Save</ns-app-button>
             <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
           </div>
         </div>
@@ -26,7 +26,7 @@
   </div>
 
   <div class="options-list">
-    @for (label of labelService.labels(); track label.uuid) {
+    @for (label of labels(); track label.uuid) {
       <ns-app-list-item>
 
         <ng-container info>
