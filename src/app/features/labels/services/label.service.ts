@@ -32,14 +32,12 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
       }
 
       this.webSocket.connect(baseUrl, token);
-      this.webSocket.watch('/user/queue/labels').subscribe({
-        next: (message) => {
-          try {
-            const incomingChange = JSON.parse(message.body);
-          } catch (e) {
-            console.error('[LabelService] Failed to parse incoming WebSocket message:', e);
-          }
-        }
+      this.webSocket.watch<Label>('/user/queue/labels').subscribe({
+        next: (incomingMessage: Label) => {
+          console.log('[LabelService] Received WebSocket update:', incomingMessage);
+          // this.handleIncomingSync(incomingMessage);
+        },
+        error: (err) => console.error('[LabelService] WebSocket watch error:', err)
       });
     }
   }
