@@ -22,7 +22,7 @@ export interface UpdateLabelRequest {
   updatedAt: string;
 }
 
-export interface SyncAction {
+export interface LabelSyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
   payload?: any;

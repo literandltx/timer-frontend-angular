@@ -1,17 +1,19 @@
 import {Injectable, signal, inject} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {Label, CreateLabelRequest, UpdateLabelRequest, SyncAction} from '../models/label.model';
+import {Label, CreateLabelRequest, UpdateLabelRequest, LabelSyncAction} from '../models/label.model';
 import {DEFAULT_LABELS} from '../models/label.constants';
 import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
+import {AppDB} from '../../../core/db/app.db';
 
 @Injectable({providedIn: 'root'})
-export class LabelService extends BaseOfflineSyncService<SyncAction> {
+export class LabelService extends BaseOfflineSyncService<LabelSyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/labels';
   protected queueKey = 'label_sync_queue';
 
   private webSocket = inject(WebSocketCoreService);
+  private db = inject(AppDB);
 
   labels = signal<Label[]>([]);
 
