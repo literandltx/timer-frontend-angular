@@ -21,3 +21,10 @@ export interface UpdateLabelRequest {
   color: string;
   updatedAt: string;
 }
+
+export interface SyncAction {
+  id: string;
+  type: 'CREATE' | 'UPDATE' | 'DELETE';
+  payload?: any;
+  labelUuid?: string;
+}

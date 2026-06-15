@@ -1,48 +1,10 @@
 import {Injectable, signal, inject} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
+import {Label, CreateLabelRequest, UpdateLabelRequest, SyncAction} from '../models/label.model';
+import {DEFAULT_LABELS} from '../models/label.constants';
 import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
-
-interface SyncAction {
-  id: string;
-  type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: any;
-  labelUuid?: string;
-}
-
-const NOW = new Date().toISOString();
-
-const DEFAULT_LABELS: Label[] = [
-  {
-    uuid: 'default-1',
-    userId: 0,
-    name: 'Work',
-    color: '#ef4444',
-    createdAt: NOW,
-    updatedAt: NOW,
-    deleted: false
-  },
-  {
-    uuid: 'default-2',
-    userId: 0,
-    name: 'Study',
-    color: '#3b82f6',
-    createdAt: NOW,
-    updatedAt: NOW,
-    deleted: false
-  },
-  {
-    uuid: 'default-3',
-    userId: 0,
-    name: 'Chill',
-    color: '#10b981',
-    createdAt: NOW,
-    updatedAt: NOW,
-    deleted: false
-  },
-];
 
 @Injectable({providedIn: 'root'})
 export class LabelService extends BaseOfflineSyncService<SyncAction> {
