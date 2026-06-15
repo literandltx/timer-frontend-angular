@@ -40,13 +40,21 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
       const token: string | null = this.authService.getToken();
 
       if (!token) {
-        console.log(`auth token is null`)
+        console.log('[LabelService] Auth token is null')
         return;
       }
 
       this.webSocket.connect(baseUrl, token);
-    } else {
-      console.warn('WebSocket init skipped: User is not authenticated.');
+      this.webSocket.watch('/user/queue/labels').subscribe({
+        next: (message) => {
+          try {
+            const incomingChange = JSON.parse(message.body);
+            // this.applyIncomingChange(incomingChange);
+          } catch (e) {
+            console.error('[LabelService] Failed to parse incoming WebSocket message:', e);
+          }
+        }
+      });
     }
   }
 
