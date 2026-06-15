@@ -1,8 +1,9 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, signal, inject} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {Label, CreateLabelRequest} from '../models/label.model';
 import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
-import {HttpErrorResponse} from '@angular/common/http';
+import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 
 interface SyncAction {
   id: string;
@@ -23,7 +24,31 @@ export class LabelService extends BaseOfflineSyncService<SyncAction> {
   protected pingUrl = 'http://localhost:8080/api/v1/labels';
   protected queueKey = 'label_sync_queue';
 
+  private webSocket = inject(WebSocketCoreService);
+
   labels = signal<Label[]>([]);
+
+  constructor() {
+    super();
+    this.initWebSocketConnection();
+  }
+
+  private initWebSocketConnection() {
+    const baseUrl = 'http://localhost:8080';
+
+    if (this.authService.isAuthenticated()) {
+      const token: string | null = this.authService.getToken();
+
+      if (!token) {
+        console.log(`auth token is null`)
+        return;
+      }
+
+      this.webSocket.connect(baseUrl, token);
+    } else {
+      console.warn('WebSocket init skipped: User is not authenticated.');
+    }
+  }
 
   loadLabels() {
     this.labels.set(this.getLocalLabels());
