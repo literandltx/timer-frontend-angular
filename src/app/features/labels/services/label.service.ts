@@ -1,24 +1,33 @@
 import {Injectable, signal, inject} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {Label, CreateLabelRequest, UpdateLabelRequest, LabelSyncAction} from '../models/label.model';
+import {
+  Label,
+  CreateLabelRequest,
+  UpdateLabelRequest,
+  LabelSyncAction
+} from '../models/label.model';
 import {DEFAULT_LABELS} from '../models/label.constants';
 import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
+import {SyncMessage, SyncAction} from '../../../core/netwrok/sync-message.model';
 import {AppDB} from '../../../core/db/app.db';
+import {AuthService} from '../../../core/auth/auth.service';
+import {LabelApiService} from './label-api.service';
 
 @Injectable({providedIn: 'root'})
-export class LabelService extends BaseOfflineSyncService<LabelSyncAction> {
-  protected pingUrl = 'http://localhost:8080/api/v1/labels';
+export class LabelService {
   protected queueKey = 'label_sync_queue';
 
+  private authService = inject(AuthService);
   private webSocket = inject(WebSocketCoreService);
+  private labelsApi = inject(LabelApiService)
   private db = inject(AppDB);
 
   labels = signal<Label[]>([]);
 
   constructor() {
-    super();
+    this.loadLabels()
     this.initWebSocketConnection();
   }
 
@@ -34,128 +43,146 @@ export class LabelService extends BaseOfflineSyncService<LabelSyncAction> {
       }
 
       this.webSocket.connect(baseUrl, token);
-      this.webSocket.watch<Label>('/user/queue/labels').subscribe({
-        next: (incomingMessage: Label) => {
+      this.webSocket.watch<SyncMessage<Label>>('/user/queue/labels').subscribe({
+        next: (incomingMessage: SyncMessage<Label>) => {
           console.log('[LabelService] Received WebSocket update:', incomingMessage);
-          // this.handleIncomingSync(incomingMessage);
+          this.handleIncomingSync(incomingMessage);
         },
         error: (err) => console.error('[LabelService] WebSocket watch error:', err)
       });
     }
   }
 
-  loadLabels() {
-    this.labels.set(this.getLocalLabels());
+  async handleIncomingSync(incomingMessage: SyncMessage<Label>) {
+    const action = incomingMessage.action;
+    const payload = incomingMessage.payload;
 
-    if (this.isOnline() && this.getQueue().length === 0 && this.authService.isAuthenticated()) {
-      this.http.get<Label[]>(this.pingUrl).subscribe({
-        next: (data) => {
-          this.setLocalLabels(data);
-          this.labels.set(data);
-        },
-        error: (err) => console.error('Background fetch failed', err)
-      });
+    try {
+      switch (action) {
+        case SyncAction.CREATE:
+        case SyncAction.UPDATE:
+          console.log(`Label ${action.toLowerCase()}d:`, payload);
+          await this.db.labels.put(payload);
+          break;
+        case SyncAction.DELETE:
+          console.log('Label deleted:', payload);
+          await this.db.labels.delete(payload.uuid);
+          break;
+        default:
+          console.warn(`[LabelService] Unknown sync action: ${action}`);
+          return;
+      }
+      await this.loadLabels();
+    } catch (error) {
+      console.error('[LabelService] Error applying incoming sync to local DB:', error);
+    }
+  }
+
+  async loadLabels() {
+    try {
+      const allLabels = await this.db.labels.toArray();
+      this.labels.set(allLabels);
+    } catch (error) {
+      console.error('[LabelService] Error loading labels from DB:', error);
     }
   }
 
   async save(request: CreateLabelRequest) {
-    const newLabel: Label = {...request, userId: 0, deleted: false};
+    const uuid = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const newLabel: Label = {
+      ...request,
+      deleted: false
+    };
 
-    this.updateLocalState(labels => [...labels, newLabel]);
-    this.enqueueAction({type: 'CREATE', payload: newLabel, labelUuid: request.uuid});
+    await this.db.labels.add(newLabel);
+    await this.loadLabels();
+
+    try {
+      await firstValueFrom(
+        this.labelsApi.create("http://localhost:8080/api/v1/labels", request)
+      );
+
+      console.log(`[LabelService] Successfully synced new label ${uuid} to server.`);
+    } catch (error) {
+      console.warn('[LabelService] Server unreachable. Queuing CREATE sync action.');
+
+      await this.db.syncQueue.add({
+        entityId: uuid,
+        entityType: 'LABEL',
+        action: 'CREATE',
+        payload: request,
+        timestamp: Date.now(),
+        status: 'PENDING'
+      });
+    }
   }
 
   async update(uuid: string, request: UpdateLabelRequest) {
-    this.updateLocalState(labels =>
-      labels.map(l => l.uuid === uuid ? {...l, ...request} : l)
-    );
+    try {
+      const existingLabel = await this.db.labels.get(uuid);
 
-    const queue = this.getQueue();
-    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.labelUuid === uuid);
+      if (!existingLabel) {
+        console.warn(`[LabelService] Cannot update: Label ${uuid} not found locally.`);
+        return;
+      }
 
-    if (pendingCreate) {
-      pendingCreate.payload = {...pendingCreate.payload, ...request};
-      this.setQueue(queue);
-    } else {
-      this.enqueueAction({type: 'UPDATE', labelUuid: uuid, payload: request});
+      const updatedLabel: Label = {
+        ...existingLabel,
+        ...request
+      };
+
+      await this.db.labels.put(updatedLabel);
+      await this.loadLabels();
+
+      try {
+        await firstValueFrom(
+          this.labelsApi.update("http://localhost:8080/api/v1/labels", uuid, request)
+        );
+
+        console.log(`[LabelService] Successfully synced updated label ${uuid} to server.`);
+      } catch (error) {
+        console.warn(`[LabelService] Server unreachable. Queuing UPDATE sync action for label ${uuid}.`);
+
+        await this.db.syncQueue.add({
+          entityId: uuid,
+          entityType: 'LABEL',
+          action: 'UPDATE',
+          payload: request,
+          timestamp: Date.now(),
+          status: 'PENDING'
+        });
+      }
+    } catch (error) {
+      console.error(`[LabelService] Error updating label ${uuid}:`, error);
     }
   }
 
   async delete(uuid: string) {
-    this.updateLocalState(labels => labels.filter(l => l.uuid !== uuid));
-
-    const queue = this.getQueue();
-    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.labelUuid === uuid);
-
-    if (pendingCreate) {
-      this.setQueue(queue.filter(a => a.labelUuid !== uuid));
-    } else {
-      this.enqueueAction({type: 'DELETE', labelUuid: uuid});
-    }
-  }
-
-  protected async syncQueue() {
-    if (!this.isOnline() || this.isSyncing() || !this.authService.isAuthenticated()) return;
-
-    const queue = this.getQueue();
-    if (queue.length === 0) return;
-
-    this.isSyncing.set(true);
-
     try {
-      for (let i = 0; i < queue.length; i++) {
-        const action = queue[i];
+      await this.db.labels.delete(uuid);
+      await this.loadLabels();
 
-        try {
-          if (action.type === 'CREATE') {
-            await firstValueFrom(this.http.post<Label>(this.pingUrl, action.payload));
-          } else if (action.type === 'UPDATE') {
-            await firstValueFrom(this.http.put<Label>(`${this.pingUrl}/${action.labelUuid}`, action.payload));
-          } else if (action.type === 'DELETE') {
-            await firstValueFrom(this.http.delete<void>(`${this.pingUrl}/${action.labelUuid}`));
-          }
+      try {
+        await firstValueFrom(
+          this.labelsApi.delete("http://localhost:8080/api/v1/labels", uuid)
+        );
 
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
+        console.log(`[LabelService] Successfully synced deletion of label ${uuid} to server.`);
+      } catch (error) {
+        console.warn(`[LabelService] Server unreachable. Queuing DELETE sync action for label ${uuid}.`);
 
-          if (i < queue.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1100));
-          }
-
-        } catch (err: unknown) {
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 0 || err.status === 429 || err.status >= 500) {
-              if (err.status !== 429) this.isOnline.set(false);
-              break;
-            }
-          }
-
-          console.error(`Permanent error on action ${action.id}, dropping.`, err);
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
-        }
+        await this.db.syncQueue.add({
+          entityId: uuid,
+          entityType: 'LABEL',
+          action: 'DELETE',
+          payload: {uuid},
+          timestamp: Date.now(),
+          status: 'PENDING'
+        });
       }
-    } finally {
-      this.isSyncing.set(false);
+    } catch (error) {
+      console.error(`[LabelService] Error deleting label ${uuid}:`, error);
     }
-  }
-
-  private updateLocalState(updateFn: (labels: Label[]) => Label[]) {
-    const current = this.getLocalLabels();
-    const updated = updateFn(current);
-    this.setLocalLabels(updated);
-    this.labels.set(updated);
-  }
-
-  private getLocalLabels(): Label[] {
-    const stored: string | null = localStorage.getItem('labels');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-
-    this.setLocalLabels(DEFAULT_LABELS);
-    return DEFAULT_LABELS;
-  }
-
-  private setLocalLabels(labels: Label[]) {
-    localStorage.setItem('labels', JSON.stringify(labels));
   }
 }

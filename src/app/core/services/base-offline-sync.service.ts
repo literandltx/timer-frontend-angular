@@ -33,7 +33,7 @@ export abstract class BaseOfflineSyncService<TAction> implements OnDestroy {
         if (!this.isOnline() || this.getQueue().length > 0) {
           this.checkBackendStatus();
         }
-      }, 10_000);
+      }, 1000_000);
 
       setTimeout(() => this.checkBackendStatus(), 0);
     } else {
