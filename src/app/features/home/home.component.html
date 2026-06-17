@@ -1,6 +1,6 @@
 <div class="timer-container">
 
-  @for (key of [settingService.activeSetting()?.timerOptionId]; track key) {
+  @for (key of [settingService.activeSetting()?.timerOptionUuid]; track key) {
     <ns-app-timer
       [timeAmount]="currentTimerSeconds()"
       (timerFinish)="onTimerFinish($event)"
@@ -11,11 +11,11 @@
   <div class="bottom-controls-wrapper">
     <div class="timer-options-wrapper">
       <ns-app-toggle-group variant="transparent">
-        @for (option of settingService.options(); track option.id) {
+        @for (option of optionsService.options(); track option.uuid) {
           <ns-app-toggle-button
             variant="solid"
-            [active]="settingService.activeSetting()?.timerOptionId === option.id"
-            (toggled)="settingService.setActiveOption(option.id)">
+            [active]="settingService.activeSetting()?.timerOptionUuid === option.uuid"
+            (toggled)="settingService.setActiveOption(option.uuid)">
             {{ option.value }}m
           </ns-app-toggle-button>
         }
