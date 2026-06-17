@@ -1,14 +1,11 @@
-import {Injectable, signal, inject} from '@angular/core';
+import {Injectable, signal, inject, OnDestroy} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, Subscription} from 'rxjs';
 import {
   Label,
   CreateLabelRequest,
-  UpdateLabelRequest,
-  LabelSyncAction
+  UpdateLabelRequest
 } from '../models/label.model';
-import {DEFAULT_LABELS} from '../models/label.constants';
-import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 import {SyncMessage, SyncAction} from '../../../core/netwrok/sync-message.model';
 import {AppDB} from '../../../core/db/app.db';
@@ -17,40 +14,45 @@ import {LabelApiService} from './label-api.service';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
 
 @Injectable({providedIn: 'root'})
-export class LabelService {
+export class LabelService implements OnDestroy {
   private baseUrl = 'http://localhost:8080';
   private labelApiUrl = 'http://localhost:8080/api/v1/labels';
-  protected queueKey = 'label_sync_queue';
 
   private db: AppDB = inject(AppDB);
   private authService: AuthService = inject(AuthService);
-  private labelsApi: LabelApiService = inject(LabelApiService)
+  private labelsApi: LabelApiService = inject(LabelApiService);
   private webSocket: WebSocketCoreService = inject(WebSocketCoreService);
   private healthCheckService: HealthCheckService = inject(HealthCheckService);
 
-  labels = signal<Label[]>([]);
+  private isSyncing = false;
+  private wsSubscription?: Subscription;
+
+  public labels = signal<Label[]>([]);
 
   constructor() {
-    this.loadLabels()
+    this.loadLabels();
     this.initWebSocketConnection();
+  }
+
+  ngOnDestroy() {
+    this.wsSubscription?.unsubscribe();
+    this.webSocket.disconnect();
   }
 
   private initWebSocketConnection() {
     if (this.authService.isAuthenticated()) {
-      const token: string | null = this.authService.getToken();
-
-      if (!token) {
-        console.log('[LabelService] Auth token is null');
-        return;
-      }
+      const token = this.authService.getToken();
+      if (!token) return;
 
       this.webSocket.connect(this.baseUrl, token);
-      this.webSocket.watch<SyncMessage<Label>>('/user/queue/labels').subscribe({
-        next: (incomingMessage: SyncMessage<Label>) => {
-          console.log('[LabelService] Received WebSocket update:', incomingMessage);
-          this.handleIncomingSync(incomingMessage);
-        },
-        error: (err) => console.error('[LabelService] WebSocket watch error:', err)
+
+      this.wsSubscription = this.webSocket.watch<SyncMessage<Label>>('/user/queue/labels').subscribe({
+        next: (incomingMessage: SyncMessage<Label>) => this.handleIncomingSync(incomingMessage),
+        error: (err) => console.error(err)
+      });
+
+      this.webSocket.onConnected$.subscribe(() => {
+        this.processSyncQueue();
       });
     }
   }
@@ -63,20 +65,17 @@ export class LabelService {
       switch (action) {
         case SyncAction.CREATE:
         case SyncAction.UPDATE:
-          console.log(`Label ${action.toLowerCase()}d:`, payload);
           await this.db.labels.put(payload);
           break;
         case SyncAction.DELETE:
-          console.log('Label deleted:', payload);
           await this.db.labels.delete(payload.uuid);
           break;
         default:
-          console.warn(`[LabelService] Unknown sync action: ${action}`);
           return;
       }
       await this.loadLabels();
     } catch (error) {
-      console.error('[LabelService] Error applying incoming sync to local DB:', error);
+      console.error(error);
     }
   }
 
@@ -85,36 +84,29 @@ export class LabelService {
       const allLabels = await this.db.labels.toArray();
       this.labels.set(allLabels);
     } catch (error) {
-      console.error('[LabelService] Error loading labels from DB:', error);
+      console.error(error);
     }
   }
 
   async save(request: CreateLabelRequest) {
     const uuid = crypto.randomUUID();
-    const newLabel: Label = {
-      ...request,
-      deleted: false
-    };
+    const newLabel: Label = {...request, uuid, deleted: false};
 
-    await this.db.labels.add(newLabel);
-    await this.loadLabels();
-
-    if (this.healthCheckService.isHealthy()) {
-      await firstValueFrom(
-        this.labelsApi.create(this.labelApiUrl, request)
-      );
-      console.log(`[LabelService] Successfully synced new label ${uuid} to server.`);
-    } else {
-      console.warn('[LabelService] Server unreachable. Queuing CREATE sync action.');
+    await this.db.transaction('rw', this.db.labels, this.db.syncQueue, async () => {
+      await this.db.labels.add(newLabel);
       await this.db.syncQueue.add({
         entityId: uuid,
         entityType: 'LABEL',
         action: 'CREATE',
         payload: request,
         timestamp: Date.now(),
-        status: 'PENDING'
+        status: 'PENDING',
+        retries: 0
       });
-    }
+    });
+
+    await this.loadLabels();
+    this.processSyncQueue();
   }
 
   async update(uuid: string, request: UpdateLabelRequest) {
@@ -130,46 +122,87 @@ export class LabelService {
       ...request
     };
 
-    await this.db.labels.put(updatedLabel);
-    await this.loadLabels();
-
-    if (this.healthCheckService.isHealthy()) {
-      await firstValueFrom(
-        this.labelsApi.update(this.labelApiUrl, uuid, request)
-      );
-      console.log(`[LabelService] Successfully synced updated label ${uuid} to server.`);
-    } else {
-      console.warn(`[LabelService] Server unreachable. Queuing UPDATE sync action for label ${uuid}.`);
+    await this.db.transaction('rw', this.db.labels, this.db.syncQueue, async () => {
+      await this.db.labels.put(updatedLabel);
       await this.db.syncQueue.add({
         entityId: uuid,
         entityType: 'LABEL',
         action: 'UPDATE',
         payload: request,
         timestamp: Date.now(),
-        status: 'PENDING'
+        status: 'PENDING',
+        retries: 0
       });
-    }
+    });
+
+    await this.loadLabels();
+    this.processSyncQueue();
   }
 
   async delete(uuid: string) {
-    await this.db.labels.delete(uuid);
-    await this.loadLabels();
-
-    if (this.healthCheckService.isHealthy()) {
-      await firstValueFrom(
-        this.labelsApi.delete(this.labelApiUrl, uuid)
-      );
-      console.log(`[LabelService] Successfully synced deletion of label ${uuid} to server.`);
-    } else {
-      console.warn(`[LabelService] Server unreachable. Queuing DELETE sync action for label ${uuid}.`);
+    await this.db.transaction('rw', this.db.labels, this.db.syncQueue, async () => {
+      await this.db.labels.delete(uuid);
       await this.db.syncQueue.add({
         entityId: uuid,
         entityType: 'LABEL',
         action: 'DELETE',
         payload: {uuid},
         timestamp: Date.now(),
-        status: 'PENDING'
+        status: 'PENDING',
+        retries: 0
       });
+    });
+
+    await this.loadLabels();
+    this.processSyncQueue();
+  }
+
+  private async processSyncQueue() {
+    if (!this.healthCheckService.isHealthy() || this.isSyncing) {
+      return;
     }
+    this.isSyncing = true;
+
+    try {
+      const queue = await this.db.syncQueue.orderBy('id').toArray();
+
+      for (const item of queue) {
+        try {
+          if (item.action === 'CREATE') {
+            await firstValueFrom(this.labelsApi.create(this.labelApiUrl, item.payload));
+          } else if (item.action === 'UPDATE') {
+            await firstValueFrom(this.labelsApi.update(this.labelApiUrl, item.entityId, item.payload));
+          } else if (item.action === 'DELETE') {
+            await firstValueFrom(this.labelsApi.delete(this.labelApiUrl, item.entityId));
+          }
+          await this.db.syncQueue.delete(item.id!);
+        } catch (error: any) {
+          const shouldBreak = await this.handleSyncError(item, error);
+          if (shouldBreak) {
+            break;
+          }
+        }
+      }
+    } finally {
+      this.isSyncing = false;
+    }
+  }
+
+  private async handleSyncError(item: any, error: any): Promise<boolean> {
+    if (error instanceof HttpErrorResponse) {
+      const isRecoverable = error.status === 429 || error.status >= 500 || error.status === 0;
+
+      if (isRecoverable) {
+        await this.db.syncQueue.update(item.id!, {
+          status: 'ERROR',
+          retries: (item.retries || 0) + 1,
+          lastError: `HTTP ${error.status}: ${error.message}`
+        });
+        return true;
+      }
+    }
+
+    await this.db.syncQueue.delete(item.id!);
+    return false;
   }
 }
