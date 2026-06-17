@@ -66,7 +66,7 @@ export class HistoryChartComponent {
   });
 
   chartData = computed(() => {
-    const entries = this.historyService.entries;
+    const entries = this.historyService.entries();
     const range = this.periodRange();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
@@ -121,7 +121,7 @@ export class HistoryChartComponent {
   });
 
   barChartData = computed(() => {
-    const entries = this.historyService.entries;
+    const entries = this.historyService.entries();
     const tf = this.timeframe();
     const range = this.periodRange();
 

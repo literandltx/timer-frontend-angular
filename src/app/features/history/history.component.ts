@@ -2,7 +2,7 @@ import {Component, OnInit, inject, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HistoryService} from './services/history.service';
-import {TimerEntry, TimerEntryRequest} from '../home/models/timer-entry.model';
+import { TimerEntry, CreateTimerEntryRequest, UpdateTimerEntryRequest } from '../home/models/timer-entry.model';
 import {HistoryChartComponent} from './components/history-chart.component';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
@@ -54,7 +54,7 @@ export class HistoryComponent implements OnInit {
   }
 
   startAdd() {
-    if (this.editingEntry && !this.editingEntry.id) {
+    if (this.editingEntry && !this.editingEntry.uuid) {
       this.editingEntry = null;
     } else {
       this.editingEntry = {labelUuid: undefined, durationSeconds: 0};
@@ -64,7 +64,7 @@ export class HistoryComponent implements OnInit {
   }
 
   startEdit(entry: TimerEntry) {
-    if (this.editingEntry?.id === entry.id) {
+    if (this.editingEntry?.uuid === entry.uuid) {
       this.editingEntry = null;
     } else {
       this.editingEntry = {...entry};
@@ -77,27 +77,48 @@ export class HistoryComponent implements OnInit {
     this.editingEntry = null;
   }
 
-  async save() {
+  async createEntry() {
     if (!this.editingEntry || !this.editingEntry.labelUuid) {
       alert("Please select a label.");
       return;
     }
 
-    const request: TimerEntryRequest = {
+    const now = new Date().toISOString();
+    const request: CreateTimerEntryRequest = {
+      uuid: crypto.randomUUID(),
       labelUuid: this.editingEntry.labelUuid,
       durationSeconds: this.formDurationMins * 60,
-      startTime: new Date(this.formDateStr).getTime()
+      startTime: new Date(this.formDateStr).getTime(),
+      createdAt: now,
+      updatedAt: now
     };
 
-    await this.historyService.saveEntry(this.editingEntry.id, request);
+    await this.historyService.create(request);
     this.editingEntry = null;
   }
 
-  async deleteEntry(event: Event, id: number) {
+  async updateEntry() {
+    if (!this.editingEntry || !this.editingEntry.uuid || !this.editingEntry.labelUuid) {
+      alert("Please select a label.");
+      return;
+    }
+
+    const request: UpdateTimerEntryRequest = {
+      labelUuid: this.editingEntry.labelUuid,
+      durationSeconds: this.formDurationMins * 60,
+      startTime: new Date(this.formDateStr).getTime(),
+      updatedAt: new Date().toISOString()
+    };
+
+    await this.historyService.update(this.editingEntry.uuid, request);
+    this.editingEntry = null;
+  }
+
+  async deleteEntry(event: Event, uuid: string) {
     event.preventDefault();
     event.stopPropagation();
 
-    await this.historyService.deleteEntry(id);
+    await this.historyService.delete(uuid);
   }
 
   triggerImport() {

@@ -15,7 +15,7 @@
     @if (editingEntry) {
       <div class="edit-section">
         <div class="input-group">
-          <span class="edit-label">{{ editingEntry.id ? 'Edit Session:' : 'New Session:' }}</span>
+          <span class="edit-label">{{ editingEntry.uuid ? 'Edit Session:' : 'New Session:' }}</span>
 
           <select class="modern-input" [(ngModel)]="editingEntry.labelUuid">
             <option [ngValue]="undefined" disabled>Select Label...</option>
@@ -30,7 +30,7 @@
                  placeholder="Duration (mins)"/>
 
           <div class="edit-actions">
-            <ns-app-button variant="primary-btn" (click)="save()">Save</ns-app-button>
+            <ns-app-button variant="primary-btn" (click)="editingEntry.uuid ? updateEntry() : createEntry()">Save</ns-app-button>
             <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
           </div>
         </div>
@@ -41,7 +41,7 @@
   <ns-history-chart></ns-history-chart>
 
   <div class="options-list">
-    @for (entry of pageViewEntries; track entry.id) {
+    @for (entry of pageViewEntries; track entry.uuid) {
       <ns-app-list-item>
         <ng-container info>
           <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}mins</span>
@@ -59,7 +59,7 @@
         <ng-container actions>
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry($event, entry.id)">Delete</ns-app-button>
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry($event, entry.uuid)">Delete</ns-app-button>
           </div>
         </ng-container>
       </ns-app-list-item>

@@ -3,6 +3,7 @@ import {Dexie, Table} from 'dexie';
 import {Label} from '../../features/labels/models/label.model';
 import {TimerOption} from '../../features/timers/models/timer-option.model';
 import {TimerSetting} from '../../features/timers/models/timer-setting.model';
+import {TimerEntry} from '../../features/home/models/timer-entry.model';
 
 export type EntityType = 'LABEL' | 'TIMER_OPTION' | 'TIMER_ENTRY' | 'TIMER_SETTING';
 
@@ -26,6 +27,7 @@ export class AppDB extends Dexie {
   labels!: Table<Label, string>;
   timerOptions!: Table<TimerOption, string>;
   timerSettings!: Table<TimerSetting, string>;
+  timerEntries!: Table<TimerEntry, string>;
   syncQueue!: Table<SyncAction, number>;
 
   constructor() {
@@ -33,12 +35,9 @@ export class AppDB extends Dexie {
 
     this.version(1).stores({
       labels: 'uuid, name, color, createdAt, updatedAt',
-      syncQueue: '++id, timestamp'
-    });
-
-    this.version(2).stores({
       timerOptions: 'uuid, value, createdAt, updatedAt',
       timerSettings: 'uuid, timerOptionUuid, createdAt, updatedAt',
+      timerEntries: 'uuid, labelUuid, startTime, createdAt, updatedAt',
       syncQueue: '++id, timestamp, status, entityType'
     });
   }

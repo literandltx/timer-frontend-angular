@@ -1,59 +1,56 @@
-import {Injectable, inject, Signal} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {TimerEntryService} from '../../home/services/timer-entry.service';
 import {LabelService} from '../../labels/services/label.service';
-import {TimerEntry, TimerEntryRequest} from '../../home/models/timer-entry.model';
-import {Label} from '../../labels/models/label.model';
+import {
+  TimerEntry,
+  CreateTimerEntryRequest,
+  UpdateTimerEntryRequest
+} from '../../home/models/timer-entry.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({providedIn: 'root'})
 export class HistoryService {
   private entryService = inject(TimerEntryService);
   private labelService = inject(LabelService);
 
-  get entries(): TimerEntry[] {
-    return this.entryService.allLocalEntries;
+  public entries = this.entryService.allEntriesSignal;
+  public labels = this.labelService.labels;
+
+  paginatedEntries() {
+    return this.entryService.entries();
   }
 
-  get labels(): Signal<Label[]> {
-    return this.labelService.labels;
-  }
-
-  get paginatedEntries(): Signal<TimerEntry[]> {
-    return this.entryService.entries;
-  }
-
-  loadInitialData(): void {
+  loadInitialData() {
     this.labelService.loadLabels();
+    this.entryService.loadEntries(0, 20);
   }
 
-  loadEntriesPage(page: number, size: number): void {
+  loadEntriesPage(page: number, size: number) {
     this.entryService.loadEntries(page, size);
   }
 
-  async saveEntry(id: number | undefined, request: TimerEntryRequest): Promise<void> {
-    if (id) {
-      await this.entryService.update(id, request);
-    } else {
-      await this.entryService.save(request);
-    }
+  async create(request: CreateTimerEntryRequest) {
+    await this.entryService.save(request);
   }
 
-  async deleteEntry(id: number): Promise<void> {
-    await this.entryService.delete(id);
+  async update(uuid: string, request: UpdateTimerEntryRequest) {
+    await this.entryService.update(uuid, request);
   }
 
-  async importCSV(file: File): Promise<void> {
-    await this.entryService.importCSV(file);
+  async delete(uuid: string) {
+    await this.entryService.delete(uuid);
   }
 
-  exportCSV(): void {
+  exportCSV() {
     this.entryService.exportCSV();
+  }
+
+  async importCSV(file: File) {
+    await this.entryService.importCSV(file);
   }
 
   getLabelName(labelUuid: string): string {
     const label = this.labelService.labels().find(l => l.uuid === labelUuid);
-    return label ? label.name : 'Unknown Label';
+    return label ? label.name : 'Unknown';
   }
 
   getLabelColor(labelUuid: string): string {

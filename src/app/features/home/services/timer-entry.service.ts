@@ -1,117 +1,276 @@
-import {Injectable, signal, inject} from '@angular/core';
-import {firstValueFrom} from 'rxjs';
-import {TimerEntry, TimerEntryRequest} from '../models/timer-entry.model';
-import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
-import {HttpErrorResponse} from '@angular/common/http';
-import {LabelService} from '../../labels/services/label.service';
-
-interface SyncAction {
-  id: string;
-  type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: TimerEntryRequest;
-  entryId?: number;
-  tempId?: number;
-}
+import { Injectable, signal, inject, OnDestroy } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom, Subscription } from 'rxjs';
+import { TimerEntry, CreateTimerEntryRequest, UpdateTimerEntryRequest } from '../models/timer-entry.model';
+import { WebSocketCoreService } from '../../../core/netwrok/websocket.service';
+import { SyncMessage, SyncAction } from '../../../core/netwrok/sync-message.model';
+import { AppDB } from '../../../core/db/app.db';
+import { AuthService } from '../../../core/auth/auth.service';
+import { HealthCheckService } from '../../../core/netwrok/health.service';
+import { LabelService } from '../../labels/services/label.service';
+import { TimerEntryApiService } from './timer-entry-api.service';
 
 const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
-@Injectable({providedIn: 'root'})
-export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
-  protected pingUrl = 'http://localhost:8080/api/v1/timer-entries';
-  protected queueKey = 'timer_entry_sync_queue';
+@Injectable({ providedIn: 'root' })
+export class TimerEntryService implements OnDestroy {
+  private baseUrl = 'http://localhost:8080';
+  private pingUrl = 'http://localhost:8080/api/v1/timer-entries';
+  private lastSyncKey = 'last_timer_entry_sync_time';
 
+  private db: AppDB = inject(AppDB);
+  private http: HttpClient = inject(HttpClient);
+  private authService: AuthService = inject(AuthService);
+  private entryApi: TimerEntryApiService = inject(TimerEntryApiService);
+  private webSocket: WebSocketCoreService = inject(WebSocketCoreService);
+  private healthCheckService: HealthCheckService = inject(HealthCheckService);
   private labelService = inject(LabelService);
-  private allEntriesSignal = signal<TimerEntry[]>(this.getLocalEntries());
-  entries = signal<TimerEntry[]>([]);
+
+  private isSyncing = false;
+  private wsSubscription?: Subscription;
+
+  public allEntriesSignal = signal<TimerEntry[]>([]);
+  public entries = signal<TimerEntry[]>([]);
+
+  constructor() {
+    this.loadEntries();
+    this.initWebSocketConnection();
+  }
+
+  ngOnDestroy() {
+    this.wsSubscription?.unsubscribe();
+  }
 
   get allLocalEntries() {
     return this.allEntriesSignal();
   }
 
-  loadEntries(page = 0, size = 10) {
-    const allLocal = this.getLocalEntries();
-    const start = page * size;
-    this.entries.set(allLocal.slice(start, start + size));
+  private initWebSocketConnection() {
+    if (this.authService.isAuthenticated()) {
+      const token = this.authService.getToken();
+      if (!token) return;
 
-    if (this.isOnline() && this.getQueue().length === 0 && this.authService.isAuthenticated()) {
-      this.http.get<TimerEntry[]>(`${this.pingUrl}?page=${page}&size=${size}`).subscribe({
-        next: (data) => {
-          this.entries.set(data);
-          if (page === 0) {
-            const currentLocal = this.getLocalEntries();
-            const serverIds = new Set(data.map(e => e.id));
-            const merged = [
-              ...data,
-              ...currentLocal.filter(e => !serverIds.has(e.id))
-            ];
+      this.webSocket.connect(this.baseUrl, token);
 
-            this.updateLocalState(() => merged);
-          }
-        },
-        error: (err) => console.error('Background fetch failed', err)
+      this.wsSubscription = this.webSocket.watch<SyncMessage<TimerEntry>>('/user/queue/timer-entries').subscribe({
+        next: (incomingMessage) => this.handleIncomingSync(incomingMessage),
+        error: (err) => console.error(err)
       });
+
+      this.webSocket.onConnected$.subscribe(async () => {
+        await this.pullServerChanges();
+        await this.processSyncQueue();
+      });
+    }
+  }
+
+  private async pullServerChanges() {
+    try {
+      const lastSyncTime = localStorage.getItem(this.lastSyncKey);
+
+      const updatedEntries = await firstValueFrom(
+        this.entryApi.pullUpdates(this.pingUrl, lastSyncTime)
+      );
+
+      if (updatedEntries && updatedEntries.length > 0) {
+        await this.db.transaction('rw', this.db.timerEntries, async () => {
+          if (!lastSyncTime) {
+            await this.db.timerEntries.clear();
+            await this.db.timerEntries.bulkAdd(updatedEntries);
+          } else {
+            const entriesToUpsert = updatedEntries.filter(entry => !entry.deleted);
+            const entriesToDelete = updatedEntries
+              .filter(entry => entry.deleted)
+              .map(entry => entry.uuid);
+
+            if (entriesToUpsert.length > 0) await this.db.timerEntries.bulkPut(entriesToUpsert);
+            if (entriesToDelete.length > 0) await this.db.timerEntries.bulkDelete(entriesToDelete);
+          }
+        });
+        await this.loadEntries();
+      }
+
+      localStorage.setItem(this.lastSyncKey, new Date().toISOString());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async handleIncomingSync(incomingMessage: SyncMessage<TimerEntry>) {
+    const action = incomingMessage.action;
+    const payload = incomingMessage.payload;
+
+    try {
+      switch (action) {
+        case SyncAction.CREATE:
+          const exists = await this.db.timerEntries.get(payload.uuid);
+          if (exists) return;
+          await this.db.timerEntries.put(payload);
+          break;
+        case SyncAction.UPDATE:
+          await this.db.timerEntries.put(payload);
+          break;
+        case SyncAction.DELETE:
+          await this.db.timerEntries.delete(payload.uuid);
+          break;
+        default:
+          return;
+      }
+      await this.loadEntries();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async loadEntries(page = 0, size = 10) {
+    try {
+      const allLocal = await this.db.timerEntries.orderBy('startTime').reverse().toArray();
+      this.allEntriesSignal.set(allLocal);
+
+      const start = page * size;
+      this.entries.set(allLocal.slice(start, start + size));
+    } catch (error) {
+      console.error(error);
     }
   }
 
   recordTimerFinish(durationSeconds: number, activeLabelUuid?: string, fallbackLabelUuid?: string) {
     const finalLabelUuid = activeLabelUuid || fallbackLabelUuid;
 
-    if (!finalLabelUuid) {
-      console.warn("No label selected, cannot save timer history.");
-      return;
-    }
+    if (!finalLabelUuid) return;
 
     const finalDuration = Math.max(durationSeconds, DEFAULT_MINIMUM_TIMER_DURATION);
     const startTime = Date.now() - (finalDuration * 1000);
-    const request: TimerEntryRequest = {
+    const now = new Date().toISOString();
+
+    const request: CreateTimerEntryRequest = {
+      uuid: crypto.randomUUID(),
       labelUuid: finalLabelUuid,
       durationSeconds: finalDuration,
-      startTime: startTime
+      startTime: startTime,
+      createdAt: now,
+      updatedAt: now
     };
 
     this.save(request);
   }
 
-  async save(request: TimerEntryRequest) {
-    const tempId = -Date.now();
-    const newEntry: TimerEntry = {...request, id: tempId};
+  async save(request: CreateTimerEntryRequest) {
+    const newEntry: TimerEntry = { ...request, deleted: false };
 
-    this.updateLocalState(entries => [newEntry, ...entries]);
-    this.enqueueAction({type: 'CREATE', payload: request, tempId});
+    await this.db.transaction('rw', this.db.timerEntries, this.db.syncQueue, async () => {
+      await this.db.timerEntries.add(newEntry);
+      await this.db.syncQueue.add({
+        entityId: request.uuid,
+        entityType: 'TIMER_ENTRY',
+        action: 'CREATE',
+        payload: request,
+        timestamp: Date.now(),
+        status: 'PENDING',
+        retries: 0
+      });
+    });
+
+    await this.loadEntries();
+    this.processSyncQueue();
   }
 
-  async update(id: number, request: TimerEntryRequest) {
-    this.updateLocalState(entries =>
-      entries.map(e => e.id === id ? {...e, ...request} : e)
-    );
+  async update(uuid: string, request: UpdateTimerEntryRequest) {
+    const existingEntry = await this.db.timerEntries.get(uuid);
+    if (!existingEntry) return;
 
-    const queue = this.getQueue();
-    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.tempId === id);
+    const updatedEntry: TimerEntry = {
+      ...existingEntry,
+      ...request
+    };
 
-    if (pendingCreate) {
-      pendingCreate.payload = request;
-      this.setQueue(queue);
-    } else {
-      this.enqueueAction({type: 'UPDATE', entryId: id, payload: request});
+    await this.db.transaction('rw', this.db.timerEntries, this.db.syncQueue, async () => {
+      await this.db.timerEntries.put(updatedEntry);
+      await this.db.syncQueue.add({
+        entityId: uuid,
+        entityType: 'TIMER_ENTRY',
+        action: 'UPDATE',
+        payload: request,
+        timestamp: Date.now(),
+        status: 'PENDING',
+        retries: 0
+      });
+    });
+
+    await this.loadEntries();
+    this.processSyncQueue();
+  }
+
+  async delete(uuid: string) {
+    await this.db.transaction('rw', this.db.timerEntries, this.db.syncQueue, async () => {
+      await this.db.timerEntries.delete(uuid);
+      await this.db.syncQueue.add({
+        entityId: uuid,
+        entityType: 'TIMER_ENTRY',
+        action: 'DELETE',
+        payload: { uuid },
+        timestamp: Date.now(),
+        status: 'PENDING',
+        retries: 0
+      });
+    });
+
+    await this.loadEntries();
+    this.processSyncQueue();
+  }
+
+  private async processSyncQueue() {
+    if (!this.healthCheckService.isHealthy() || this.isSyncing) return;
+    this.isSyncing = true;
+
+    try {
+      const queue = await this.db.syncQueue
+        .where('status').equals('PENDING')
+        .and(item => item.entityType === 'TIMER_ENTRY')
+        .toArray();
+
+      for (const item of queue) {
+        try {
+          if (item.action === 'CREATE') {
+            await firstValueFrom(this.entryApi.create(this.pingUrl, item.payload));
+          } else if (item.action === 'UPDATE') {
+            await firstValueFrom(this.entryApi.update(this.pingUrl, item.entityId, item.payload));
+          } else if (item.action === 'DELETE') {
+            await firstValueFrom(this.entryApi.delete(this.pingUrl, item.entityId));
+          }
+          await this.db.syncQueue.delete(item.id!);
+        } catch (error: any) {
+          const shouldBreak = await this.handleSyncError(item, error);
+          if (shouldBreak) break;
+        }
+      }
+    } finally {
+      this.isSyncing = false;
     }
   }
 
-  async delete(id: number) {
-    this.updateLocalState(entries => entries.filter(e => e.id !== id));
+  private async handleSyncError(item: any, error: any): Promise<boolean> {
+    if (error instanceof HttpErrorResponse) {
+      const isRecoverable = error.status === 429 || error.status >= 500 || error.status === 0;
 
-    const queue = this.getQueue();
-    if (id < 0) {
-      this.setQueue(queue.filter(a => !(a.tempId === id || a.entryId === id)));
-    } else {
-      this.enqueueAction({type: 'DELETE', entryId: id});
+      if (isRecoverable) {
+        await this.db.syncQueue.update(item.id!, {
+          status: 'ERROR',
+          retries: (item.retries || 0) + 1,
+          lastError: `HTTP ${error.status}: ${error.message}`
+        });
+        return true;
+      }
     }
+    await this.db.syncQueue.delete(item.id!);
+    return false;
   }
 
-  exportCSV() {
-    if (this.isOnline() && this.authService.isAuthenticated()) {
+  async exportCSV() {
+    if (this.healthCheckService.isHealthy() && this.authService.isAuthenticated()) {
       this.exportServer();
     } else {
-      this.exportLocal();
+      await this.exportLocal();
     }
   }
 
@@ -136,17 +295,17 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
 
         this.downloadBlob(blob, filename);
       },
-      error: (err) => {
-        console.error('Server export failed, falling back to local export', err);
-        this.exportLocal();
+      error: async (err) => {
+        await this.exportLocal();
       }
     });
   }
 
-  private exportLocal() {
-    const entries = this.getLocalEntries();
+  private async exportLocal() {
+    const entries = await this.db.timerEntries.toArray();
     const localLabels = this.labelService.labels();
     const headers = ['labelName', 'color', 'durationSeconds', 'startTime'];
+
     const rows = entries.map(e => {
       const matchedLabel = localLabels.find(l => l.uuid === e.labelUuid);
       const finalLabelName = matchedLabel?.name || e.label?.name || '';
@@ -161,7 +320,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     this.downloadBlob(blob, 'timer-history-offline.csv');
   }
 
@@ -186,7 +345,7 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
   }
 
   async importCSV(file: File): Promise<void> {
-    if (this.isOnline() && this.authService.isAuthenticated()) {
+    if (this.healthCheckService.isHealthy() && this.authService.isAuthenticated()) {
       await this.importServer(file);
     } else {
       await this.importLocal(file);
@@ -200,9 +359,8 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
 
     try {
       await firstValueFrom(this.http.post(`${this.pingUrl}/import`, formData));
-      this.loadEntries();
+      await this.loadEntries();
     } catch (error) {
-      console.error('Server import failed, falling back to local import', error);
       await this.importLocal(file);
     }
   }
@@ -214,59 +372,85 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
       reader.onload = async (e) => {
         try {
           const text = e.target?.result as string;
-          if (!text) {
-            throw new Error('File is empty');
-          }
+          if (!text) throw new Error('File is empty');
 
           const lines = text.split('\n').filter(l => l.trim().length > 0);
-          if (lines.length < 2) {
-            return resolve();
-          }
+          if (lines.length < 2) return resolve();
 
-          const newEntries: TimerEntry[] = [];
           let localLabels = this.labelService.labels();
+          const now = new Date().toISOString();
 
-          for (let i = 1; i < lines.length; i++) {
-            const [labelName, color, durationStr, startTimeStr] = this.parseCsvRow(lines[i]);
+          await this.db.transaction('rw', this.db.timerEntries, this.db.labels, this.db.syncQueue, async () => {
+            for (let i = 1; i < lines.length; i++) {
+              const [labelName, color, durationStr, startTimeStr] = this.parseCsvRow(lines[i]);
 
-            if (!durationStr || !startTimeStr) continue;
+              if (!durationStr || !startTimeStr) continue;
 
-            const durationSeconds = parseInt(durationStr, 10);
-            const startTime = parseInt(startTimeStr, 10);
+              const durationSeconds = parseInt(durationStr, 10);
+              const startTime = parseInt(startTimeStr, 10);
 
-            let label = localLabels.find(l => l.name === labelName);
+              let label = localLabels.find(l => l.name === labelName);
 
-            if (!label && labelName) {
-              const now = new Date().toISOString();
-              await this.labelService.save({
-                uuid: crypto.randomUUID(),
-                name: labelName,
-                color: color,
+              if (!label && labelName) {
+                const newLabelUuid = crypto.randomUUID();
+                await this.db.labels.add({
+                  uuid: newLabelUuid,
+                  name: labelName,
+                  color: color,
+                  createdAt: now,
+                  updatedAt: now,
+                  deleted: false
+                });
+
+                await this.db.syncQueue.add({
+                  entityId: newLabelUuid,
+                  entityType: 'LABEL',
+                  action: 'CREATE',
+                  payload: { uuid: newLabelUuid, name: labelName, color, createdAt: now, updatedAt: now },
+                  timestamp: Date.now(),
+                  status: 'PENDING',
+                  retries: 0
+                });
+
+                localLabels = await this.db.labels.toArray();
+                label = localLabels.find(l => l.name === labelName);
+              }
+
+              const labelUuid = label?.uuid || 'default-1';
+              const requestUuid = crypto.randomUUID();
+
+              const request: CreateTimerEntryRequest = {
+                uuid: requestUuid,
+                labelUuid,
+                durationSeconds,
+                startTime,
                 createdAt: now,
                 updatedAt: now
+              };
+
+              await this.db.timerEntries.add({
+                ...request,
+                deleted: false,
+                label: { name: labelName, color: color }
               });
-              localLabels = this.labelService.labels();
-              label = localLabels.find(l => l.name === labelName);
+
+              await this.db.syncQueue.add({
+                entityId: requestUuid,
+                entityType: 'TIMER_ENTRY',
+                action: 'CREATE',
+                payload: request,
+                timestamp: Date.now(),
+                status: 'PENDING',
+                retries: 0
+              });
             }
+          });
 
-            const labelUuid = label?.uuid || 'default-1';
-            const request: TimerEntryRequest = {labelUuid, durationSeconds, startTime};
-            const tempId = -(Date.now() + i);
-
-            const newEntry: TimerEntry = {
-              ...request,
-              id: tempId,
-              label: {name: labelName, color: color}
-            };
-
-            newEntries.push(newEntry);
-            this.enqueueAction({type: 'CREATE', payload: request, tempId});
-          }
-
-          this.updateLocalState(entries => [...newEntries, ...entries]);
+          await this.labelService.loadLabels();
+          await this.loadEntries();
+          this.processSyncQueue();
           resolve();
         } catch (err) {
-          console.error('Failed to parse offline CSV', err);
           reject(err);
         }
       };
@@ -298,81 +482,5 @@ export class TimerEntryService extends BaseOfflineSyncService<SyncAction> {
 
     result.push(current);
     return result;
-  }
-
-  private updateLocalState(updateFn: (entries: TimerEntry[]) => TimerEntry[]) {
-    const current = this.getLocalEntries();
-    const updated = updateFn(current);
-    this.setLocalEntries(updated);
-    this.allEntriesSignal.set(updated);
-    this.entries.update(currentView => updateFn(currentView));
-  }
-
-  private getLocalEntries(): TimerEntry[] {
-    return JSON.parse(localStorage.getItem('timer_entries') || '[]');
-  }
-
-  private setLocalEntries(entries: TimerEntry[]) {
-    localStorage.setItem('timer_entries', JSON.stringify(entries));
-  }
-
-  protected async syncQueue() {
-    if (!this.isOnline() || this.isSyncing() || !this.authService.isAuthenticated()) return;
-
-    const queue = this.getQueue();
-    if (queue.length === 0) return;
-
-    this.isSyncing.set(true);
-
-    try {
-      for (let i = 0; i < queue.length; i++) {
-        const action = queue[i];
-
-        try {
-          if (action.type === 'CREATE') {
-            const saved = await firstValueFrom(this.http.post<TimerEntry>(this.pingUrl, action.payload));
-            this.replaceLocalId(action.tempId!, saved.id);
-            this.updateQueueIds(action.tempId!, saved.id);
-          } else if (action.type === 'UPDATE') {
-            await firstValueFrom(this.http.put<TimerEntry>(`${this.pingUrl}/${action.entryId}`, action.payload));
-          } else if (action.type === 'DELETE') {
-            await firstValueFrom(this.http.delete<void>(`${this.pingUrl}/${action.entryId}`));
-          }
-
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
-
-          if (i < queue.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1100));
-          }
-
-        } catch (err: unknown) {
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 0 || err.status === 429 || err.status >= 500) {
-              if (err.status !== 429) this.isOnline.set(false);
-              break;
-            }
-          }
-
-          console.error(`Permanent error on action ${action.id}, dropping.`, err);
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
-        }
-      }
-    } finally {
-      this.isSyncing.set(false);
-    }
-  }
-
-  private replaceLocalId(oldId: number, newId: number) {
-    this.updateLocalState(entries =>
-      entries.map(e => e.id === oldId ? {...e, id: newId} : e)
-    );
-  }
-
-  private updateQueueIds(oldId: number, newId: number) {
-    const queue = this.getQueue();
-    queue.forEach(action => {
-      if (action.entryId === oldId) action.entryId = newId;
-    });
-    this.setQueue(queue);
   }
 }
