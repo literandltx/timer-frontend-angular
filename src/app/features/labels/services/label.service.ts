@@ -17,6 +17,7 @@ import {HealthCheckService} from '../../../core/netwrok/health.service';
 export class LabelService implements OnDestroy {
   private baseUrl = 'http://localhost:8080';
   private labelApiUrl = 'http://localhost:8080/api/v1/labels';
+  private lastSyncKey = 'last_label_sync_time';
 
   private db: AppDB = inject(AppDB);
   private authService: AuthService = inject(AuthService);
@@ -51,9 +52,28 @@ export class LabelService implements OnDestroy {
         error: (err) => console.error(err)
       });
 
-      this.webSocket.onConnected$.subscribe(() => {
-        this.processSyncQueue();
+      this.webSocket.onConnected$.subscribe(async () => {
+        await this.pullServerChanges();
+        await this.processSyncQueue();
       });
+    }
+  }
+
+  private async pullServerChanges() {
+    try {
+      const lastSyncTime = localStorage.getItem(this.lastSyncKey) || '1970-01-01T00:00:00Z';
+      const updatedLabels = await firstValueFrom(this.labelsApi.pullDeltaUpdates(this.labelApiUrl, lastSyncTime));
+
+      if (updatedLabels && updatedLabels.length > 0) {
+        await this.db.transaction('rw', this.db.labels, async () => {
+          await this.db.labels.bulkPut(updatedLabels);
+        });
+        await this.loadLabels();
+      }
+
+      localStorage.setItem(this.lastSyncKey, new Date().toISOString());
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -64,6 +84,10 @@ export class LabelService implements OnDestroy {
     try {
       switch (action) {
         case SyncAction.CREATE:
+          const exists = await this.db.labels.get(payload.uuid);
+          if (exists) return;
+          await this.db.labels.put(payload);
+          break;
         case SyncAction.UPDATE:
           await this.db.labels.put(payload);
           break;
@@ -98,7 +122,7 @@ export class LabelService implements OnDestroy {
         entityId: uuid,
         entityType: 'LABEL',
         action: 'CREATE',
-        payload: request,
+        payload: { ...request, uuid },
         timestamp: Date.now(),
         status: 'PENDING',
         retries: 0
@@ -113,7 +137,6 @@ export class LabelService implements OnDestroy {
     const existingLabel = await this.db.labels.get(uuid);
 
     if (!existingLabel) {
-      console.warn(`[LabelService] Cannot update: Label ${uuid} not found locally.`);
       return;
     }
 
