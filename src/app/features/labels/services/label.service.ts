@@ -61,19 +61,35 @@ export class LabelService implements OnDestroy {
 
   private async pullServerChanges() {
     try {
-      const lastSyncTime = localStorage.getItem(this.lastSyncKey) || '1970-01-01T00:00:00Z';
-      const updatedLabels = await firstValueFrom(this.labelsApi.pullDeltaUpdates(this.labelApiUrl, lastSyncTime));
+      const lastSyncTime = localStorage.getItem(this.lastSyncKey);
+
+      const updatedLabels = await firstValueFrom(
+        this.labelsApi.pullUpdates(this.labelApiUrl, lastSyncTime)
+      );
 
       if (updatedLabels && updatedLabels.length > 0) {
         await this.db.transaction('rw', this.db.labels, async () => {
-          await this.db.labels.bulkPut(updatedLabels);
+
+          if (!lastSyncTime) {
+            await this.db.labels.clear();
+            await this.db.labels.bulkAdd(updatedLabels);
+          } else {
+            const labelsToUpsert = updatedLabels.filter(label => !label.deleted);
+            const labelsToDelete = updatedLabels
+              .filter(label => label.deleted)
+              .map(label => label.uuid);
+
+            if (labelsToUpsert.length > 0) await this.db.labels.bulkPut(labelsToUpsert);
+            if (labelsToDelete.length > 0) await this.db.labels.bulkDelete(labelsToDelete);
+          }
+
         });
         await this.loadLabels();
       }
 
       localStorage.setItem(this.lastSyncKey, new Date().toISOString());
     } catch (error) {
-      console.error(error);
+      console.error('Failed to pull server changes:', error);
     }
   }
 

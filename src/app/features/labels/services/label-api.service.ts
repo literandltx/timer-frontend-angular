@@ -1,5 +1,5 @@
 import {Injectable, inject} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
 import {SyncApiService} from '../../../core/netwrok/sync-api.service';
@@ -10,8 +10,14 @@ import {SyncApiService} from '../../../core/netwrok/sync-api.service';
 export class LabelApiService implements SyncApiService<Label, CreateLabelRequest, UpdateLabelRequest> {
   private http = inject(HttpClient);
 
-  pullDeltaUpdates(apiUrl: string, lastSyncTime: string): Observable<Label[]> {
-    return this.http.get<Label[]>(`${apiUrl}?updatedAfter=${lastSyncTime}`);
+  pullUpdates(apiUrl: string, lastSyncTime: string | null): Observable<Label[]> {
+    let params = new HttpParams();
+
+    if (lastSyncTime) {
+      params = params.set('updatedAfter', lastSyncTime);
+    }
+
+    return this.http.get<Label[]>(apiUrl, {params});
   }
 
   create(apiUrl: string, payload: CreateLabelRequest): Observable<Label> {
