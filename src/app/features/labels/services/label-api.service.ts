@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
 import {SyncApiService} from '../../../core/netwrok/sync-api.service';
+import {environment} from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,25 +11,25 @@ import {SyncApiService} from '../../../core/netwrok/sync-api.service';
 export class LabelApiService implements SyncApiService<Label, CreateLabelRequest, UpdateLabelRequest> {
   private http = inject(HttpClient);
 
-  pullUpdates(apiUrl: string, lastSyncTime: string | null): Observable<Label[]> {
-    let params = new HttpParams();
+  private endpoint = `${environment.apiUrl}/labels`;
 
+  pullUpdates(lastSyncTime: string | null): Observable<Label[]> {
+    let params = new HttpParams();
     if (lastSyncTime) {
       params = params.set('updatedAfter', lastSyncTime);
     }
-
-    return this.http.get<Label[]>(apiUrl, {params});
+    return this.http.get<Label[]>(this.endpoint, {params});
   }
 
-  create(apiUrl: string, payload: CreateLabelRequest): Observable<Label> {
-    return this.http.post<Label>(apiUrl, payload);
+  create(payload: CreateLabelRequest): Observable<Label> {
+    return this.http.post<Label>(this.endpoint, payload);
   }
 
-  update(apiUrl: string, entityId: string, payload: UpdateLabelRequest): Observable<Label> {
-    return this.http.put<Label>(`${apiUrl}/${entityId}`, payload);
+  update(entityId: string, payload: UpdateLabelRequest): Observable<Label> {
+    return this.http.put<Label>(`${this.endpoint}/${entityId}`, payload);
   }
 
-  delete(apiUrl: string, entityId: string): Observable<void> {
-    return this.http.delete<void>(`${apiUrl}/${entityId}`);
+  delete(entityId: string): Observable<void> {
+    return this.http.delete<void>(`${this.endpoint}/${entityId}`);
   }
 }

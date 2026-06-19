@@ -27,8 +27,6 @@ export class TimerListComponent implements OnInit {
   timerOption = this.settingsService.activeSetting;
 
   ngOnInit() {
-    this.optionsService.loadOptions();
-    this.settingsService.loadSettings();
   }
 
   startAdd() {

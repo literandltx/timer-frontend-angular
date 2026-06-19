@@ -2,12 +2,12 @@ import { Observable } from 'rxjs';
 
 export interface SyncApiService<T, CreateReq = any, UpdateReq = any> {
 
-  pullUpdates(apiUrl: string, lastSyncTime: string | null): Observable<T[]>;
+  pullUpdates(lastSyncTime: string | null): Observable<T[]>;
 
-  create(apiUrl: string, payload: CreateReq): Observable<T>;
+  create(payload: CreateReq): Observable<T>;
 
-  update(apiUrl: string, entityId: string, payload: UpdateReq): Observable<T>;
+  update(entityId: string, payload: UpdateReq): Observable<T>;
 
-  delete(apiUrl: string, entityId: string): Observable<void>;
+  delete(entityId: string): Observable<void>;
 
 }

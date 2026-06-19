@@ -22,13 +22,13 @@
 
   <div class="options-list">
     @for (option of options(); track option.uuid) {
-      <ns-app-list-item [isActive]="option.uuid === timerOption()?.timerOptionUuid">
+      <ns-app-list-item [isActive]="option.uuid === timerOption().timerOptionUuid">
         <ng-container info>
           <span class="duration-text">{{ option.value }} mins</span>
         </ng-container>
 
         <ng-container actions>
-          @if (option.uuid === timerOption()?.timerOptionUuid) {
+          @if (option.uuid === timerOption().timerOptionUuid) {
             <span class="badge active-badge">✓ Active</span>
           } @else {
             <ns-app-button variant="outline-btn" (click)="setActive(option.uuid)">Set Active</ns-app-button>
@@ -37,7 +37,7 @@
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(option)">Edit</ns-app-button>
             <ns-app-button variant="text-btn delete-btn" (click)="deleteOption($event, option.uuid)"
-                           [disabled]="option.uuid === timerOption()?.timerOptionUuid">
+                           [disabled]="option.uuid === timerOption().timerOptionUuid">
               Delete
             </ns-app-button>
           </div>
