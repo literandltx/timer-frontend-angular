@@ -1,4 +1,4 @@
-import {Injectable, signal, inject} from '@angular/core';
+import {Injectable, signal, inject, DestroyRef} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {firstValueFrom, switchMap, EMPTY} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
@@ -17,6 +17,7 @@ export class LabelService {
   private health = inject(HealthCheckService);
   private labelApi = inject(LabelApiService);
   private wsCore = inject(WebSocketCoreService);
+  private destroyRef = inject(DestroyRef);
 
   public labels = signal<Label[]>([]);
 
@@ -46,7 +47,7 @@ export class LabelService {
             return EMPTY;
           }
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: async (message: SyncMessage<Label>) => await this.processIncomingSyncMessage(message),
@@ -65,7 +66,7 @@ export class LabelService {
         switch (action) {
           case SyncAction.CREATE:
           case SyncAction.UPDATE:
-            if (existingRecord && JSON.stringify(existingRecord) === JSON.stringify(payload)) {
+            if (existingRecord && this.isEqual(existingRecord, payload)) {
               console.log(`[LabelService] Ignoring WS update, local record is already up-to-date: ${id}`);
               return;
             }
@@ -93,10 +94,15 @@ export class LabelService {
 
   async save(request: CreateLabelRequest) {
     if (this.health.isHealthy()) {
-      const newLabel = await firstValueFrom(this.labelApi.save(request));
-      await this.db.transaction('rw', this.db.labels, async () => {
-        this.db.labels.put(newLabel);
-      });
+      try {
+        const newLabel = await firstValueFrom(this.labelApi.save(request));
+        await this.db.transaction('rw', this.db.labels, async () => {
+          this.db.labels.put(newLabel);
+        });
+      } catch (error) {
+        console.error('[LabelService] Failed to save label to API', error);
+        return;
+      }
     } else {
       // todo: add to offline sync queue
     }
@@ -106,10 +112,15 @@ export class LabelService {
 
   async update(uuid: string, request: UpdateLabelRequest) {
     if (this.health.isHealthy()) {
-      const updatedLabel = await firstValueFrom(this.labelApi.update(uuid, request));
-      await this.db.transaction('rw', this.db.labels, async () => {
-        this.db.labels.put(updatedLabel);
-      });
+      try {
+        const updatedLabel = await firstValueFrom(this.labelApi.update(uuid, request));
+        await this.db.transaction('rw', this.db.labels, async () => {
+          this.db.labels.put(updatedLabel);
+        });
+      } catch (error) {
+        console.error(`[LabelService] Failed to update label ${uuid} in API`, error);
+        return;
+      }
     } else {
       // todo: add to offline sync queue
     }
@@ -119,10 +130,15 @@ export class LabelService {
 
   async delete(uuid: string) {
     if (this.health.isHealthy()) {
-      await firstValueFrom(this.labelApi.delete(uuid));
-      await this.db.transaction('rw', this.db.labels, async () => {
-        this.db.labels.delete(uuid);
-      });
+      try {
+        await firstValueFrom(this.labelApi.delete(uuid));
+        await this.db.transaction('rw', this.db.labels, async () => {
+          this.db.labels.delete(uuid);
+        });
+      } catch (error) {
+        console.error(`[LabelService] Failed to delete label ${uuid} in API`, error);
+        return;
+      }
     } else {
       // todo: add to offline sync queue
     }
@@ -130,4 +146,22 @@ export class LabelService {
     await this.loadLabels();
   }
 
+  private isEqual(obj1: any, obj2: any): boolean {
+    if (obj1 === obj2) return true;
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null) {
+      return false;
+    }
+
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) return false;
+
+    for (const key of keys1) {
+      if (obj1[key] !== obj2[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

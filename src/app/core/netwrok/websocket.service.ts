@@ -14,6 +14,7 @@ export class WebSocketCoreService {
 
   private rxStomp = new RxStomp();
   private isActivated = false;
+  private activeToken: string | null = null;
   private API_URL = `${environment.base_url}`;
 
   constructor() {
@@ -34,12 +35,17 @@ export class WebSocketCoreService {
   }
 
   private connect(): void {
-    if (this.isActivated) {
+    const jwtToken = this.authService.getToken();
+    if (!jwtToken) {
       return;
     }
 
-    const jwtToken = this.authService.getToken();
-    if (!jwtToken) {
+    if (this.isActivated && this.activeToken !== jwtToken) {
+      console.info('[WebSocketCoreService] Token changed. Reconnecting...');
+      this.disconnect();
+    }
+
+    if (this.isActivated) {
       return;
     }
 
@@ -59,6 +65,7 @@ export class WebSocketCoreService {
 
     this.rxStomp.activate();
     this.isActivated = true;
+    this.activeToken = jwtToken;
     console.info('[WebSocketCoreService] RxStomp activated.');
   }
 
@@ -70,6 +77,7 @@ export class WebSocketCoreService {
     console.info('[WebSocketCoreService] Disconnecting from WebSocket...');
     this.rxStomp.deactivate();
     this.isActivated = false;
+    this.activeToken = null;
   }
 
   public watch<T>(destination: string): Observable<T> {
