@@ -21,7 +21,7 @@ export class LabelApiService implements SyncApiService<Label, CreateLabelRequest
     return this.http.get<Label[]>(this.endpoint, {params});
   }
 
-  create(payload: CreateLabelRequest): Observable<Label> {
+  save(payload: CreateLabelRequest): Observable<Label> {
     return this.http.post<Label>(this.endpoint, payload);
   }
 
