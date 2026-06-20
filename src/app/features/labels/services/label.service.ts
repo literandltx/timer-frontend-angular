@@ -1,6 +1,6 @@
 import {Injectable, signal, inject} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {firstValueFrom} from 'rxjs';
+import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
+import {firstValueFrom, switchMap, EMPTY} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
@@ -35,16 +35,27 @@ export class LabelService {
   }
 
   private listenIncomingChanges() {
-    this.wsCore.watch<SyncMessage<Label>>('/user/queue/labels')
-      .pipe(takeUntilDestroyed())
+    toObservable(this.health.isHealthy)
+      .pipe(
+        switchMap((isHealthy: boolean) => {
+          if (isHealthy) {
+            console.info('[LabelService] System healthy, watching labels WS...');
+            return this.wsCore.watch<SyncMessage<Label>>('/user/queue/labels');
+          } else {
+            console.warn('[LabelService] System offline, suspending WS watch...');
+            return EMPTY;
+          }
+        }),
+        takeUntilDestroyed()
+      )
       .subscribe({
-        next: async (message) => await this.processIncomingSyncMessage(message),
-        error: (err) => console.error('[LabelService] WS stream error:', err)
+        next: async (message: SyncMessage<Label>) => await this.processIncomingSyncMessage(message),
+        error: (err: unknown) => console.error('[LabelService] WS stream error:', err)
       });
   }
 
   private async processIncomingSyncMessage(message: SyncMessage<Label>) {
-    const { action, payload } = message;
+    const {action, payload} = message;
     const id = payload.uuid;
 
     try {
@@ -79,6 +90,7 @@ export class LabelService {
       console.error(`[LabelService] Failed to process ${action} for label:`, error);
     }
   }
+
   async save(request: CreateLabelRequest) {
     if (this.health.isHealthy()) {
       const newLabel = await firstValueFrom(this.labelApi.save(request));
