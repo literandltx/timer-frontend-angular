@@ -38,23 +38,38 @@ export class LabelService {
   }
 
   async save(request: CreateLabelRequest) {
+    const uuid = (request as any).uuid || crypto.randomUUID();
+    const optimisticLabel = { ...request, uuid } as unknown as Label;
+
     await this.executeMutation(
+      'CREATE',
+      uuid,
+      request,
       () => firstValueFrom(this.labelApi.save(request)),
-      (newLabel) => this.upsertLocalLabel(newLabel),
+      (newLabel) => this.upsertLocalLabel(newLabel || optimisticLabel),
       'save label'
     );
   }
 
   async update(uuid: string, request: UpdateLabelRequest) {
+    const existingLabel = await this.db.labels.get(uuid);
+    const optimisticLabel = { ...existingLabel, ...request } as Label;
+
     await this.executeMutation(
+      'UPDATE',
+      uuid,
+      request,
       () => firstValueFrom(this.labelApi.update(uuid, request)),
-      (updatedLabel) => this.upsertLocalLabel(updatedLabel),
+      (updatedLabel) => this.upsertLocalLabel(updatedLabel || optimisticLabel),
       `update label ${uuid}`
     );
   }
 
   async delete(uuid: string) {
     await this.executeMutation(
+      'DELETE',
+      uuid,
+      null,
       () => firstValueFrom(this.labelApi.delete(uuid)),
       () => this.deleteLocalLabel(uuid),
       `delete label ${uuid}`
@@ -79,11 +94,48 @@ export class LabelService {
 
   private handleConnectionStateChange(isReady: boolean) {
     if (isReady) {
-      return from(this.pullMissedUpdates()).pipe(
+      return from(this.processSyncQueue()).pipe(
+        switchMap(() => this.pullMissedUpdates()),
         switchMap(() => this.wsCore.watch<SyncMessage<Label>>('/user/queue/labels'))
       );
     } else {
       return EMPTY;
+    }
+  }
+
+  private async processSyncQueue(): Promise<void> {
+    const pendingActions = await this.db.syncQueue
+      .where('entityType')
+      .equals('LABEL')
+      .filter(item => item.status === 'PENDING' || item.status === 'ERROR')
+      .sortBy('timestamp');
+
+    for (const item of pendingActions) {
+      try {
+        switch (item.action) {
+          case 'CREATE':
+            await firstValueFrom(this.labelApi.save(item.payload));
+            break;
+          case 'UPDATE':
+            await firstValueFrom(this.labelApi.update(item.entityId, item.payload));
+            break;
+          case 'DELETE':
+            await firstValueFrom(this.labelApi.delete(item.entityId));
+            break;
+        }
+
+        if (item.id) {
+          await this.db.syncQueue.delete(item.id);
+        }
+      } catch (error) {
+        if (item.id) {
+          await this.db.syncQueue.update(item.id, {
+            status: 'ERROR',
+            retries: (item.retries || 0) + 1,
+            lastError: error instanceof Error ? error.message : String(error)
+          });
+        }
+      }
     }
   }
 
@@ -146,24 +198,51 @@ export class LabelService {
   }
 
   private async executeMutation<T>(
+    action: 'CREATE' | 'UPDATE' | 'DELETE',
+    entityId: string,
+    payload: any,
     apiCall: () => Promise<T>,
-    dbUpdate: (result: T) => Promise<void>,
+    dbUpdate: (result?: T) => Promise<void>,
     actionName: string
   ) {
-    if (this.health.isHealthy()) {
+    const isOnlineAndAuth = this.health.isHealthy() && this.auth.isAuthenticatedSignal();
+
+    if (isOnlineAndAuth) {
       try {
         const result = await apiCall();
         await dbUpdate(result);
         this.updateSyncTimestamp();
       } catch (error) {
-        console.error(`[LabelService] Failed to ${actionName} in API`, error);
-        return;
+        console.error(`[LabelService] Failed to ${actionName} in API. Queueing offline action.`, error);
+        await this.handleOfflineMutation(action, entityId, payload, dbUpdate);
       }
     } else {
-      console.warn(`[LabelService] System offline. Adding ${actionName} to offline sync queue.`);
+      console.warn(`[LabelService] Offline or Unauthenticated. Adding ${actionName} to sync queue.`);
+      await this.handleOfflineMutation(action, entityId, payload, dbUpdate);
     }
 
     await this.loadLabels();
+  }
+
+  private async handleOfflineMutation<T>(
+    action: 'CREATE' | 'UPDATE' | 'DELETE',
+    entityId: string,
+    payload: any,
+    optimisticDbUpdate: (result?: T) => Promise<void>
+  ) {
+    await this.db.transaction('rw', this.db.syncQueue, this.db.labels, async () => {
+      await this.db.syncQueue.add({
+        entityId,
+        entityType: 'LABEL',
+        action,
+        payload,
+        timestamp: Date.now(),
+        status: 'PENDING',
+        retries: 0
+      });
+
+      await optimisticDbUpdate();
+    });
   }
 
   private async upsertLocalLabel(label: Label) {
