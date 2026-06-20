@@ -11,7 +11,7 @@ import {environment} from '../../../../environments/environment';
 export class LabelApiService implements SyncApiService<Label, CreateLabelRequest, UpdateLabelRequest> {
   private http = inject(HttpClient);
 
-  private endpoint = `${environment.apiUrl}/labels`;
+  private endpoint = `${environment.base_url}/api/v1/labels`;
 
   pullUpdates(lastSyncTime: string | null): Observable<Label[]> {
     let params = new HttpParams();
