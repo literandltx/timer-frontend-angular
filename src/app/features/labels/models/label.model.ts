@@ -1,11 +1,9 @@
-export interface Label {
-  uuid: string;
+import {SyncEntity} from '../../../core/models/sync-entity.model';
+
+export interface Label extends SyncEntity {
   userId?: number;
   name: string;
   color: string;
-  createdAt: string;
-  updatedAt: string;
-  deleted: boolean;
 }
 
 export interface CreateLabelRequest {
