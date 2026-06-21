@@ -1,7 +1,8 @@
-import {Injectable, inject, OnDestroy, signal, Signal, WritableSignal} from '@angular/core';
+import {Injectable, inject, DestroyRef, signal, Signal, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {timer, Subscription, of} from 'rxjs';
-import {switchMap, catchError} from 'rxjs/operators';
+import {timer, Subscription, of, fromEvent, merge} from 'rxjs';
+import {switchMap, catchError, map} from 'rxjs/operators';
+import {environment} from '../../../environments/environment';
 
 interface PublicPingResponse {
   status: 'UP' | 'DOWN';
@@ -13,72 +14,68 @@ const POLLING_INTERVAL_MS = 10_000;
 @Injectable({
   providedIn: 'root'
 })
-export class HealthCheckService implements OnDestroy {
-  private http: HttpClient = inject(HttpClient);
-  private pollingSubscription: Subscription | undefined;
+export class HealthCheckService {
+  private http = inject(HttpClient);
+  private destroyRef = inject(DestroyRef); // Modern auto-cleanup
 
-  private baseUrl: string = 'http://localhost:8080';
+  private pollingSubscription?: Subscription;
+  private baseUrl: string | undefined = environment.base_url;
 
   private _isHealthy: WritableSignal<boolean> = signal<boolean>(false);
   public isHealthy: Signal<boolean> = this._isHealthy.asReadonly();
 
   constructor() {
+    this.setupNativeNetworkListeners();
     this.startHealthCheck();
   }
 
-  updateBaseUrl(url: string) {
-    this.stopHealthCheck();
+  private setupNativeNetworkListeners(): void {
+    const networkStatus$ = merge(
+      fromEvent(window, 'offline').pipe(map(() => false)),
+      fromEvent(window, 'online').pipe(map(() => true))
+    );
 
-    this.baseUrl = url;
+    const networkSub = networkStatus$.subscribe((isOnline) => {
+      if (isOnline) {
+        console.info('[HealthCheckService] OS reports online. Resuming health checks.');
+        this.startHealthCheck();
+      } else {
+        console.warn('[HealthCheckService] OS reports offline. Pausing health checks.');
+        this._isHealthy.set(false);
+        this.stopHealthCheck();
+      }
+    });
 
-    if (this.baseUrl) {
-      this.startHealthCheck();
-    } else {
-      this._isHealthy.set(false);
-    }
+    this.destroyRef.onDestroy(() => {
+      networkSub.unsubscribe();
+      this.stopHealthCheck();
+    });
   }
 
-  startHealthCheck() {
-    if (this.pollingSubscription) {
-      return;
-    }
-
-    if (!this.baseUrl) {
-      return;
-    }
+  startHealthCheck(): void {
+    if (this.pollingSubscription || !this.baseUrl) return;
 
     const healthUrl = `${this.baseUrl}/api/v1/system/ping/public`;
 
     this.pollingSubscription = timer(POLLING_INITIAL_DELAY, POLLING_INTERVAL_MS)
       .pipe(
-        switchMap(() => {
-          console.info(`[HealthCheckService] Pinging system...`);
-
-          return this.http.get<PublicPingResponse>(healthUrl).pipe(
+        switchMap(() =>
+          this.http.get<PublicPingResponse>(healthUrl).pipe(
+            map(response => response.status === 'UP'),
             catchError((error) => {
-              console.error('[HealthCheckService] Ping failed or system is unreachable:', error);
-              this._isHealthy.set(false);
-              return of(null);
+              console.error('[HealthCheckService] Ping failed:', error);
+              return of(false);
             })
-          );
-        })
+          )
+        )
       )
-      .subscribe(response => {
-        if (response) {
-          const isUp = response.status === 'UP';
-          this._isHealthy.set(isUp);
-        }
-      });
+      .subscribe((isUp) => this._isHealthy.set(isUp));
   }
 
-  stopHealthCheck() {
+  stopHealthCheck(): void {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = undefined;
     }
-  }
-
-  ngOnDestroy() {
-    this.stopHealthCheck();
   }
 }
