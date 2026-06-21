@@ -50,8 +50,8 @@ export class TimerEntryService {
 
       const populatedEntries = await Promise.all(
         rawEntries.map(async (entry) => {
-          if (entry.labelUuid) {
-            const label = await this.db.labels.get(entry.labelUuid);
+          if (entry.labelId) {
+            const label = await this.db.labels.get(entry.labelId);
             if (label) {
               entry.label = {name: label.name, color: label.color};
             }
@@ -72,10 +72,10 @@ export class TimerEntryService {
     return this.allEntriesSignal();
   }
 
-  recordTimerFinish(durationSeconds: number, activeLabelUuid?: string, fallbackLabelUuid?: string) {
-    const finalLabelUuid = activeLabelUuid || fallbackLabelUuid;
+  recordTimerFinish(durationSeconds: number, activelabelId?: string, fallbacklabelId?: string) {
+    const finallabelId = activelabelId || fallbacklabelId;
 
-    if (!finalLabelUuid) return;
+    if (!finallabelId) return;
 
     const finalDuration = Math.max(durationSeconds, DEFAULT_MINIMUM_TIMER_DURATION);
     const startTime = Date.now() - (finalDuration * 1000);
@@ -83,7 +83,7 @@ export class TimerEntryService {
 
     const request: CreateTimerEntryRequest = {
       uuid: crypto.randomUUID(),
-      labelUuid: finalLabelUuid,
+      labelId: finallabelId,
       durationSeconds: finalDuration,
       startTime: startTime,
       createdAt: now,

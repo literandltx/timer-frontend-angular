@@ -17,7 +17,7 @@
         <div class="input-group">
           <span class="edit-label">{{ editingEntry.uuid ? 'Edit Session:' : 'New Session:' }}</span>
 
-          <select class="modern-input" [(ngModel)]="editingEntry.labelUuid">
+          <select class="modern-input" [(ngModel)]="editingEntry.labelId">
             <option [ngValue]="undefined" disabled>Select Label...</option>
             @for (label of historyService.labels(); track label.uuid) {
               <option [ngValue]="label.uuid">{{ label.name }}</option>
@@ -47,8 +47,8 @@
           <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}mins</span>
 
           <div class="label-wrapper">
-            <span class="label-pill" [style.background-color]="getLabelColor(entry.labelUuid)">
-              {{ getLabelName(entry.labelUuid) }}
+            <span class="label-pill" [style.background-color]="getLabelColor(entry.labelId)">
+              {{ getLabelName(entry.labelId) }}
             </span>
           </div>
 

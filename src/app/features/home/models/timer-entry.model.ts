@@ -3,7 +3,7 @@ import {CreateLabelRequest} from '../../labels/models/label.model';
 export interface TimerEntry {
   uuid: string;
 
-  labelUuid: string;
+  labelId: string;
   durationSeconds: number;
   startTime: number;
 
@@ -18,7 +18,7 @@ export interface TimerEntry {
 
 export interface CreateTimerEntryRequest {
   uuid: string;
-  labelUuid: string;
+  labelId: string;
   durationSeconds: number;
   startTime: number;
   createdAt: string;
@@ -26,7 +26,7 @@ export interface CreateTimerEntryRequest {
 }
 
 export interface UpdateTimerEntryRequest {
-  labelUuid: string;
+  labelId: string;
   durationSeconds: number;
   startTime: number;
   updatedAt: string;

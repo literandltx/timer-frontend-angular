@@ -57,7 +57,7 @@ export class HistoryComponent implements OnInit {
     if (this.editingEntry && !this.editingEntry.uuid) {
       this.editingEntry = null;
     } else {
-      this.editingEntry = {labelUuid: undefined, durationSeconds: 0};
+      this.editingEntry = {labelId: undefined, durationSeconds: 0};
       this.formDateStr = this.formatDateForInput(Date.now());
       this.formDurationMins = 25;
     }
@@ -78,7 +78,7 @@ export class HistoryComponent implements OnInit {
   }
 
   async createEntry() {
-    if (!this.editingEntry || !this.editingEntry.labelUuid) {
+    if (!this.editingEntry || !this.editingEntry.labelId) {
       alert("Please select a label.");
       return;
     }
@@ -86,7 +86,7 @@ export class HistoryComponent implements OnInit {
     const now = new Date().toISOString();
     const request: CreateTimerEntryRequest = {
       uuid: crypto.randomUUID(),
-      labelUuid: this.editingEntry.labelUuid,
+      labelId: this.editingEntry.labelId,
       durationSeconds: this.formDurationMins * 60,
       startTime: new Date(this.formDateStr).getTime(),
       createdAt: now,
@@ -98,13 +98,13 @@ export class HistoryComponent implements OnInit {
   }
 
   async updateEntry() {
-    if (!this.editingEntry || !this.editingEntry.uuid || !this.editingEntry.labelUuid) {
+    if (!this.editingEntry || !this.editingEntry.uuid || !this.editingEntry.labelId) {
       alert("Please select a label.");
       return;
     }
 
     const request: UpdateTimerEntryRequest = {
-      labelUuid: this.editingEntry.labelUuid,
+      labelId: this.editingEntry.labelId,
       durationSeconds: this.formDurationMins * 60,
       startTime: new Date(this.formDateStr).getTime(),
       updatedAt: new Date().toISOString()
@@ -147,12 +147,12 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-  getLabelName(labelUuid: string): string {
-    return this.historyService.getLabelName(labelUuid);
+  getLabelName(labelId: string): string {
+    return this.historyService.getLabelName(labelId);
   }
 
-  getLabelColor(labelUuid: string): string {
-    return this.historyService.getLabelColor(labelUuid);
+  getLabelColor(labelId: string): string {
+    return this.historyService.getLabelColor(labelId);
   }
 
   private formatDateForInput(epoch: number): string {
