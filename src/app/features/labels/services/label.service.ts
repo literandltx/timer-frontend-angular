@@ -9,6 +9,7 @@ import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {SyncMessage, SyncAction} from '../../../core/netwrok/sync-message.model';
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {isEqual} from '../../../shared/utils/object.utils';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {
@@ -39,7 +40,7 @@ export class LabelService {
 
   async save(request: CreateLabelRequest) {
     const uuid = (request as any).uuid || crypto.randomUUID();
-    const optimisticLabel = { ...request, uuid } as unknown as Label;
+    const optimisticLabel = {...request, uuid} as unknown as Label;
 
     await this.executeMutation(
       'CREATE',
@@ -53,7 +54,7 @@ export class LabelService {
 
   async update(uuid: string, request: UpdateLabelRequest) {
     const existingLabel = await this.db.labels.get(uuid);
-    const optimisticLabel = { ...existingLabel, ...request } as Label;
+    const optimisticLabel = {...existingLabel, ...request} as Label;
 
     await this.executeMutation(
       'UPDATE',
@@ -183,7 +184,7 @@ export class LabelService {
 
   private async handleIncomingUpsert(payload: Label) {
     const existingRecord = await this.db.labels.get(payload.uuid);
-    if (existingRecord && this.isEqual(existingRecord, payload)) {
+    if (existingRecord && isEqual(existingRecord, payload)) {
       return;
     }
     await this.upsertLocalLabel(payload);
@@ -261,22 +262,4 @@ export class LabelService {
     localStorage.setItem(this.SYNC_KEY, new Date().toISOString());
   }
 
-  private isEqual(obj1: any, obj2: any): boolean {
-    if (obj1 === obj2) return true;
-    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null) {
-      return false;
-    }
-
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) return false;
-
-    for (const key of keys1) {
-      if (obj1[key] !== obj2[key]) {
-        return false;
-      }
-    }
-    return true;
-  }
 }
