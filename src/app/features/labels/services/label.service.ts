@@ -10,6 +10,7 @@ import {SyncMessage, SyncAction} from '../../../core/netwrok/sync-message.model'
 import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 import {AuthService} from '../../../core/auth/auth.service';
 import {isEqual} from '../../../shared/utils/object.utils';
+import {SyncTimestampService} from '../../../core/netwrok/sync-state.service';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {
@@ -20,9 +21,10 @@ export class LabelService {
   private labelApi = inject(LabelApiService);
   private wsCore = inject(WebSocketCoreService);
   private destroyRef = inject(DestroyRef);
+  private syncTimestamp = inject(SyncTimestampService);
 
   public labels = signal<Label[]>([]);
-  private readonly SYNC_KEY = 'last_label_sync';
+  private readonly ENTITY_TYPE = 'LABEL';
 
   constructor() {
     this.loadLabels();
@@ -107,7 +109,7 @@ export class LabelService {
   private async processSyncQueue(): Promise<void> {
     const pendingActions = await this.db.syncQueue
       .where('entityType')
-      .equals('LABEL')
+      .equals(this.ENTITY_TYPE)
       .filter(item => item.status === 'PENDING' || item.status === 'ERROR')
       .sortBy('timestamp');
 
@@ -142,7 +144,7 @@ export class LabelService {
 
   private async pullMissedUpdates(): Promise<void> {
     try {
-      const lastSync = localStorage.getItem(this.SYNC_KEY);
+      const lastSync = this.syncTimestamp.get(this.ENTITY_TYPE);
       const updates = await firstValueFrom(this.labelApi.pullUpdates(lastSync));
 
       if (updates && updates.length > 0) {
@@ -152,7 +154,7 @@ export class LabelService {
         await this.loadLabels();
       }
 
-      this.updateSyncTimestamp();
+      this.syncTimestamp.update(this.ENTITY_TYPE);
     } catch (error) {
       console.error('[LabelService] Failed to pull updates from server', error);
     }
@@ -175,7 +177,7 @@ export class LabelService {
           return;
       }
 
-      this.updateSyncTimestamp();
+      this.syncTimestamp.update(this.ENTITY_TYPE);
       await this.loadLabels();
     } catch (error) {
       console.error(`[LabelService] Failed to process ${action} for label:`, error);
@@ -212,7 +214,7 @@ export class LabelService {
       try {
         const result = await apiCall();
         await dbUpdate(result);
-        this.updateSyncTimestamp();
+        this.syncTimestamp.update(this.ENTITY_TYPE);
       } catch (error) {
         console.error(`[LabelService] Failed to ${actionName} in API. Queueing offline action.`, error);
         await this.handleOfflineMutation(action, entityId, payload, dbUpdate);
@@ -234,7 +236,7 @@ export class LabelService {
     await this.db.transaction('rw', this.db.syncQueue, this.db.labels, async () => {
       await this.db.syncQueue.add({
         entityId,
-        entityType: 'LABEL',
+        entityType: this.ENTITY_TYPE,
         action,
         payload,
         timestamp: Date.now(),
@@ -257,9 +259,4 @@ export class LabelService {
       await this.db.labels.delete(uuid);
     });
   }
-
-  private updateSyncTimestamp() {
-    localStorage.setItem(this.SYNC_KEY, new Date().toISOString());
-  }
-
 }
