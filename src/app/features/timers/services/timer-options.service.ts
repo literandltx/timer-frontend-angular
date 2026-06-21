@@ -179,7 +179,7 @@ export class TimerOptionsService {
         for (const defaultOption of DEFAULT_TIMER_OPTIONS) {
           const request: CreateTimerOptionRequest = {
             ...defaultOption,
-            uuid: crypto.randomUUID(),
+            // uuid: crypto.randomUUID(),
             createdAt: now,
             updatedAt: now,
           } as CreateTimerOptionRequest;

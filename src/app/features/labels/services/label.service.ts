@@ -135,7 +135,7 @@ export class LabelService {
         for (const defaultLabel of DEFAULT_LABELS) {
           const request: CreateLabelRequest = {
             ...defaultLabel,
-            uuid: crypto.randomUUID(),
+            // uuid: crypto.randomUUID(),
             createdAt: now,
             updatedAt: now,
           } as CreateLabelRequest;
