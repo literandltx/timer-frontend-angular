@@ -11,6 +11,7 @@ import {WebSocketCoreService} from '../../../core/netwrok/websocket.service';
 import {AuthService} from '../../../core/auth/auth.service';
 import {isEqual} from '../../../shared/utils/object.utils';
 import {SyncTimestampService} from '../../../core/netwrok/sync-state.service';
+import {SyncEngineService} from '../../../core/services/sync-engine.service';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {
@@ -22,6 +23,7 @@ export class LabelService {
   private wsCore = inject(WebSocketCoreService);
   private destroyRef = inject(DestroyRef);
   private syncTimestamp = inject(SyncTimestampService);
+  private syncEngine = inject(SyncEngineService);
 
   public labels = signal<Label[]>([]);
   private readonly ENTITY_TYPE = 'LABEL';
@@ -36,7 +38,7 @@ export class LabelService {
       const labels: Label[] = await this.db.labels.toArray();
       this.labels.set(labels);
     } catch (error) {
-      console.error('[LabelService] Failed to load labels from DB', error);
+      console.error(error);
     }
   }
 
@@ -44,39 +46,45 @@ export class LabelService {
     const uuid = (request as any).uuid || crypto.randomUUID();
     const optimisticLabel = {...request, uuid} as unknown as Label;
 
-    await this.executeMutation(
+    await this.syncEngine.executeMutation(
       'CREATE',
+      this.ENTITY_TYPE,
       uuid,
       request,
       () => firstValueFrom(this.labelApi.save(request)),
-      (newLabel) => this.upsertLocalLabel(newLabel || optimisticLabel),
-      'save label'
+      () => this.upsertLocalLabel(optimisticLabel),
+      this.db.labels
     );
+    await this.loadLabels();
   }
 
   async update(uuid: string, request: UpdateLabelRequest) {
     const existingLabel = await this.db.labels.get(uuid);
     const optimisticLabel = {...existingLabel, ...request} as Label;
 
-    await this.executeMutation(
+    await this.syncEngine.executeMutation(
       'UPDATE',
+      this.ENTITY_TYPE,
       uuid,
       request,
       () => firstValueFrom(this.labelApi.update(uuid, request)),
-      (updatedLabel) => this.upsertLocalLabel(updatedLabel || optimisticLabel),
-      `update label ${uuid}`
+      () => this.upsertLocalLabel(optimisticLabel),
+      this.db.labels
     );
+    await this.loadLabels();
   }
 
   async delete(uuid: string) {
-    await this.executeMutation(
+    await this.syncEngine.executeMutation(
       'DELETE',
+      this.ENTITY_TYPE,
       uuid,
       null,
       () => firstValueFrom(this.labelApi.delete(uuid)),
       () => this.deleteLocalLabel(uuid),
-      `delete label ${uuid}`
+      this.db.labels
     );
+    await this.loadLabels();
   }
 
   private setupSyncAndWebSockets() {
@@ -97,48 +105,12 @@ export class LabelService {
 
   private handleConnectionStateChange(isReady: boolean) {
     if (isReady) {
-      return from(this.processSyncQueue()).pipe(
+      return from(this.syncEngine.processQueue(this.ENTITY_TYPE, this.labelApi)).pipe(
         switchMap(() => this.pullMissedUpdates()),
         switchMap(() => this.wsCore.watch<SyncMessage<Label>>('/user/queue/labels'))
       );
     } else {
       return EMPTY;
-    }
-  }
-
-  private async processSyncQueue(): Promise<void> {
-    const pendingActions = await this.db.syncQueue
-      .where('entityType')
-      .equals(this.ENTITY_TYPE)
-      .filter(item => item.status === 'PENDING' || item.status === 'ERROR')
-      .sortBy('timestamp');
-
-    for (const item of pendingActions) {
-      try {
-        switch (item.action) {
-          case 'CREATE':
-            await firstValueFrom(this.labelApi.save(item.payload));
-            break;
-          case 'UPDATE':
-            await firstValueFrom(this.labelApi.update(item.entityId, item.payload));
-            break;
-          case 'DELETE':
-            await firstValueFrom(this.labelApi.delete(item.entityId));
-            break;
-        }
-
-        if (item.id) {
-          await this.db.syncQueue.delete(item.id);
-        }
-      } catch (error) {
-        if (item.id) {
-          await this.db.syncQueue.update(item.id, {
-            status: 'ERROR',
-            retries: (item.retries || 0) + 1,
-            lastError: error instanceof Error ? error.message : String(error)
-          });
-        }
-      }
     }
   }
 
@@ -198,54 +170,6 @@ export class LabelService {
       return;
     }
     await this.deleteLocalLabel(uuid);
-  }
-
-  private async executeMutation<T>(
-    action: 'CREATE' | 'UPDATE' | 'DELETE',
-    entityId: string,
-    payload: any,
-    apiCall: () => Promise<T>,
-    dbUpdate: (result?: T) => Promise<void>,
-    actionName: string
-  ) {
-    const isOnlineAndAuth = this.health.isHealthy() && this.auth.isAuthenticatedSignal();
-
-    if (isOnlineAndAuth) {
-      try {
-        const result = await apiCall();
-        await dbUpdate(result);
-        this.syncTimestamp.update(this.ENTITY_TYPE);
-      } catch (error) {
-        console.error(`[LabelService] Failed to ${actionName} in API. Queueing offline action.`, error);
-        await this.handleOfflineMutation(action, entityId, payload, dbUpdate);
-      }
-    } else {
-      console.warn(`[LabelService] Offline or Unauthenticated. Adding ${actionName} to sync queue.`);
-      await this.handleOfflineMutation(action, entityId, payload, dbUpdate);
-    }
-
-    await this.loadLabels();
-  }
-
-  private async handleOfflineMutation<T>(
-    action: 'CREATE' | 'UPDATE' | 'DELETE',
-    entityId: string,
-    payload: any,
-    optimisticDbUpdate: (result?: T) => Promise<void>
-  ) {
-    await this.db.transaction('rw', this.db.syncQueue, this.db.labels, async () => {
-      await this.db.syncQueue.add({
-        entityId,
-        entityType: this.ENTITY_TYPE,
-        action,
-        payload,
-        timestamp: Date.now(),
-        status: 'PENDING',
-        retries: 0
-      });
-
-      await optimisticDbUpdate();
-    });
   }
 
   private async upsertLocalLabel(label: Label) {
