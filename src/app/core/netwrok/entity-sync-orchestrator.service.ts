@@ -68,7 +68,21 @@ export class EntitySyncOrchestrator {
       const updates = await firstValueFrom(apiService.pullUpdates(lastSync));
 
       if (updates && updates.length > 0) {
-        await dbTable.bulkPut(updates);
+        const toDeleteIds = updates
+          .filter(u => (u as any).deleted === true || (u as any).isDeleted === true)
+          .map(u => u.uuid);
+
+        const toUpdate = updates
+          .filter(u => (u as any).deleted !== true && (u as any).isDeleted !== true);
+
+        if (toUpdate.length > 0) {
+          await dbTable.bulkPut(toUpdate);
+        }
+
+        if (toDeleteIds.length > 0) {
+          await dbTable.bulkDelete(toDeleteIds);
+          console.log(`[SyncOrchestrator] Purged ${toDeleteIds.length} deleted items from local DB for ${entityType}`);
+        }
       }
       this.syncTimestamp.update(entityType);
     } catch (error) {
@@ -84,7 +98,10 @@ export class EntitySyncOrchestrator {
     const {action, payload} = message;
 
     try {
-      switch (action) {
+      const isPayloadDeleted = (payload as any).deleted === true || (payload as any).isDeleted === true;
+      const effectiveAction = isPayloadDeleted ? SyncAction.DELETE : action;
+
+      switch (effectiveAction) {
         case SyncAction.CREATE:
         case SyncAction.UPDATE:
           const existingRecord = await dbTable.get(payload.uuid);
@@ -95,6 +112,7 @@ export class EntitySyncOrchestrator {
         case SyncAction.DELETE:
           if (await dbTable.get(payload.uuid)) {
             await dbTable.delete(payload.uuid);
+            console.log(`[SyncOrchestrator] Deleted item via WS for ${entityType}`);
           }
           break;
         default:
