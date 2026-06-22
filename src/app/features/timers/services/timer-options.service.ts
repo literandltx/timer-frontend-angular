@@ -14,6 +14,7 @@ import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {TimerSettingsService} from './timer-settings.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerOptionsService {
@@ -24,6 +25,7 @@ export class TimerOptionsService {
   private destroyRef = inject(DestroyRef);
   private health = inject(HealthCheckService);
   private auth = inject(AuthService);
+  private timerSettings = inject(TimerSettingsService);
 
   private readonly ENTITY_TYPE = 'TIMER_OPTION';
   private readonly WS_TOPIC = '/user/queue/timer-options';
@@ -176,15 +178,28 @@ export class TimerOptionsService {
         console.log('[TimerOptionsService] Safe to seed default timer options.');
 
         const now = new Date().toISOString();
+        let firstOptionUuid: string | null = null;
+
         for (const defaultOption of DEFAULT_TIMER_OPTIONS) {
+          const optionUuid = defaultOption.uuid || crypto.randomUUID();
+
           const request: CreateTimerOptionRequest = {
             ...defaultOption,
-            // uuid: crypto.randomUUID(),
+            uuid: optionUuid,
             createdAt: now,
             updatedAt: now,
           } as CreateTimerOptionRequest;
 
+          if (!firstOptionUuid) {
+            firstOptionUuid = optionUuid;
+          }
+
           await this.save(request);
+        }
+
+        if (firstOptionUuid) {
+          console.log('[TimerOptionsService] Initializing default timer setting.');
+          await this.timerSettings.setActiveOption(firstOptionUuid);
         }
       }
 
