@@ -1,35 +1,35 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { LabelService } from '../../labels/services/label.service';
-import { Label } from "../../labels/models/label.model";
+import {Injectable, inject, signal, computed} from '@angular/core';
+import {LabelService} from '../../labels/services/label.service';
+import {Label} from "../../labels/models/label.model";
 
 @Injectable()
 export class HomeService {
   private labelService = inject(LabelService);
-  private rawLabelId = signal<number | undefined>(this.getSavedLabelId());
+  private rawLabelUuid = signal<string | undefined>(this.getSavedlabelUuid());
 
-  public activeLabelId = computed(() => {
+  public activeLabelUuid = computed(() => {
     const labels: Label[] = this.labelService.labels();
-    const currentId: number | undefined = this.rawLabelId();
+    const currentId: string | undefined = this.rawLabelUuid();
 
     if (labels.length === 0) {
       return undefined;
     }
 
-    const exists: boolean = labels.some(l => l.id === currentId);
-    return exists ? currentId : labels[0].id;
+    const exists: boolean = labels.some(l => l.uuid === currentId);
+    return exists ? currentId : labels[0].uuid;
   });
 
-  public setActiveLabel(id: number | undefined): void {
-    this.rawLabelId.set(id);
+  public setActiveLabel(id: string | undefined): void {
+    this.rawLabelUuid.set(id);
     if (id !== undefined) {
-      localStorage.setItem('activeLabelId', id.toString());
+      localStorage.setItem('activelabelUuid', id);
     } else {
-      localStorage.removeItem('activeLabelId');
+      localStorage.removeItem('activelabelUuid');
     }
   }
 
-  private getSavedLabelId(): number | undefined {
-    const saved: string | null = localStorage.getItem('activeLabelId');
-    return saved ? Number(saved) : undefined;
+  private getSavedlabelUuid(): string | undefined {
+    const saved: string | null = localStorage.getItem('activelabelUuid');
+    return saved ? saved : undefined;
   }
 }

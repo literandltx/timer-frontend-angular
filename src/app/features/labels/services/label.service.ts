@@ -1,157 +1,152 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, signal, inject, DestroyRef} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {Label, CreateLabelRequest} from '../models/label.model';
-import {BaseOfflineSyncService} from '../../../core/services/base-offline-sync.service';
-import {HttpErrorResponse} from '@angular/common/http';
 
-interface SyncAction {
-  id: string;
-  type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: CreateLabelRequest;
-  labelId?: number;
-  tempId?: number;
-}
-
-const DEFAULT_LABELS: Label[] = [
-  {id: 1, userId: 0, name: 'Work', color: '#ef4444'},
-  {id: 2, userId: 0, name: 'Study', color: '#3b82f6'},
-  {id: 3, userId: 0, name: 'Chill', color: '#10b981'},
-];
+import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
+import {AppDB} from '../../../core/db/app.db';
+import {LabelApiService} from './label-api.service';
+import {SyncEngineService} from '../../../core/services/sync-engine.service';
+import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
+import {HealthCheckService} from '../../../core/netwrok/health.service';
+import {AuthService} from '../../../core/auth/auth.service';
+import {DEFAULT_LABELS} from '../models/label.constants';
 
 @Injectable({providedIn: 'root'})
-export class LabelService extends BaseOfflineSyncService<SyncAction> {
-  protected pingUrl = 'http://localhost:8080/api/v1/labels';
-  protected queueKey = 'label_sync_queue';
+export class LabelService {
+  private db = inject(AppDB);
+  private labelApi = inject(LabelApiService);
+  private syncEngine = inject(SyncEngineService);
+  private syncOrchestrator = inject(EntitySyncOrchestrator);
+  private destroyRef = inject(DestroyRef);
+  private health = inject(HealthCheckService);
+  private auth = inject(AuthService);
 
-  labels = signal<Label[]>([]);
+  private readonly ENTITY_TYPE = 'LABEL';
+  private readonly WS_LABEL_TOPIC = '/user/queue/labels';
+  private readonly LOCAL_STORAGE_KEY = 'app_labels_seeded_v1';
 
-  loadLabels() {
-    this.labels.set(this.getLocalLabels());
+  public labels = signal<Label[]>([]);
 
-    if (this.isOnline() && this.getQueue().length === 0 && this.authService.isAuthenticated()) {
-      this.http.get<Label[]>(this.pingUrl).subscribe({
-        next: (data) => {
-          this.setLocalLabels(data);
-          this.labels.set(data);
-        },
-        error: (err) => console.error('Background fetch failed', err)
-      });
-    }
-  }
-
-  async save(label: CreateLabelRequest) {
-    const tempId = -Date.now();
-    const newLabel: Label = {...label, id: tempId, userId: 0};
-
-    this.updateLocalState(labels => [...labels, newLabel]);
-    this.enqueueAction({type: 'CREATE', payload: label, tempId});
-  }
-
-  async update(id: number, request: CreateLabelRequest) {
-    this.updateLocalState(labels =>
-      labels.map(l => l.id === id ? {...l, ...request} : l)
+  constructor() {
+    this.syncOrchestrator.setupSync<Label, CreateLabelRequest, UpdateLabelRequest>(
+      this.ENTITY_TYPE,
+      this.WS_LABEL_TOPIC,
+      this.labelApi,
+      this.db.labels,
+      this.destroyRef,
+      () => this.loadLabels()
     );
+    this.initializeData();
+  }
 
-    const queue = this.getQueue();
-    const pendingCreate = queue.find(a => a.type === 'CREATE' && a.tempId === id);
+  private async initializeData() {
+    await this.seedDefaultLabels();
+    await this.loadLabels();
+  }
 
-    if (pendingCreate) {
-      pendingCreate.payload = request;
-      this.setQueue(queue);
-    } else {
-      this.enqueueAction({type: 'UPDATE', labelId: id, payload: request});
+  async loadLabels() {
+    try {
+      this.labels.set(await this.db.labels.toArray());
+    } catch (error) {
+      console.error('[LabelService] Failed to load labels:', error);
     }
   }
 
-  async delete(id: number) {
-    this.updateLocalState(labels => labels.filter(l => l.id !== id));
+  async save(request: CreateLabelRequest) {
+    const uuid = request.uuid || crypto.randomUUID();
+    const optimisticLabel = {...request, uuid} as unknown as Label;
 
-    const queue = this.getQueue();
-    if (id < 0) {
-      this.setQueue(queue.filter(a => !(a.tempId === id || a.labelId === id)));
-    } else {
-      this.enqueueAction({type: 'DELETE', labelId: id});
-    }
+    await this.syncEngine.executeMutation(
+      'CREATE',
+      this.ENTITY_TYPE,
+      uuid,
+      request,
+      () => firstValueFrom(this.labelApi.save(request)),
+      async () => {
+        await this.db.labels.put(optimisticLabel);
+      },
+      this.db.labels
+    );
+    await this.loadLabels();
   }
 
-  protected async syncQueue() {
-    if (!this.isOnline() || this.isSyncing() || !this.authService.isAuthenticated()) return;
+  async update(uuid: string, request: UpdateLabelRequest) {
+    const existingLabel = await this.db.labels.get(uuid);
+    const optimisticLabel = {...existingLabel, ...request} as Label;
 
-    const queue = this.getQueue();
-    if (queue.length === 0) return;
+    await this.syncEngine.executeMutation(
+      'UPDATE',
+      this.ENTITY_TYPE,
+      uuid,
+      request,
+      () => firstValueFrom(this.labelApi.update(uuid, request)),
+      async () => {
+        await this.db.labels.put(optimisticLabel);
+      },
+      this.db.labels
+    );
+    await this.loadLabels();
+  }
 
-    this.isSyncing.set(true);
+  async delete(uuid: string) {
+    await this.syncEngine.executeMutation(
+      'DELETE',
+      this.ENTITY_TYPE,
+      uuid,
+      null,
+      () => firstValueFrom(this.labelApi.delete(uuid)),
+      async () => {
+        await this.db.labels.delete(uuid);
+      },
+      this.db.labels
+    );
+    await this.loadLabels();
+  }
+
+  private async seedDefaultLabels() {
+    if (localStorage.getItem(this.LOCAL_STORAGE_KEY) === 'true') {
+      return;
+    }
 
     try {
-      for (let i = 0; i < queue.length; i++) {
-        const action = queue[i];
+      const localCount = await this.db.labels.count();
 
-        try {
-          if (action.type === 'CREATE') {
-            const saved = await firstValueFrom(this.http.post<Label>(this.pingUrl, action.payload));
-            this.replaceLocalId(action.tempId!, saved.id);
-            this.updateQueueIds(action.tempId!, saved.id);
-          } else if (action.type === 'UPDATE') {
-            await firstValueFrom(this.http.put<Label>(`${this.pingUrl}/${action.labelId}`, action.payload));
-          } else if (action.type === 'DELETE') {
-            await firstValueFrom(this.http.delete<void>(`${this.pingUrl}/${action.labelId}`));
-          }
+      if (localCount === 0) {
+        const isAuthed = this.auth.isAuthenticatedSignal();
 
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
+        if (isAuthed) {
+          try {
+            const EPOCH_DATE = new Date(0).toISOString();
+            const serverLabels = await firstValueFrom(this.labelApi.pullUpdates(EPOCH_DATE));
 
-          if (i < queue.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1100));
-          }
-
-        } catch (err: unknown) {
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 0 || err.status === 429 || err.status >= 500) {
-              if (err.status !== 429) this.isOnline.set(false);
-              break;
+            if (serverLabels && serverLabels.length > 0) {
+              console.log('[LabelService] Existing user history found. Skipping defaults.');
+              localStorage.setItem(this.LOCAL_STORAGE_KEY, 'true');
+              return;
             }
+          } catch (apiError) {
+            console.warn('[LabelService] Server unreachable during verification. Aborting seed.', apiError);
+            return;
           }
+        }
 
-          console.error(`Permanent error on action ${action.id}, dropping.`, err);
-          this.setQueue(this.getQueue().filter(a => a.id !== action.id));
+        console.log('[LabelService] Safe to seed default labels.');
+
+        const now = new Date().toISOString();
+        for (const defaultLabel of DEFAULT_LABELS) {
+          const request: CreateLabelRequest = {
+            ...defaultLabel,
+            // uuid: crypto.randomUUID(),
+            createdAt: now,
+            updatedAt: now,
+          } as CreateLabelRequest;
+
+          await this.save(request);
         }
       }
-    } finally {
-      this.isSyncing.set(false);
+
+      localStorage.setItem(this.LOCAL_STORAGE_KEY, 'true');
+    } catch (error) {
+      console.error('[LabelService] Failed to seed default labels:', error);
     }
-  }
-
-  private updateLocalState(updateFn: (labels: Label[]) => Label[]) {
-    const current = this.getLocalLabels();
-    const updated = updateFn(current);
-    this.setLocalLabels(updated);
-    this.labels.set(updated);
-  }
-
-  private getLocalLabels(): Label[] {
-    const stored: string | null = localStorage.getItem('labels');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-
-    this.setLocalLabels(DEFAULT_LABELS);
-    return DEFAULT_LABELS;
-  }
-
-  private setLocalLabels(labels: Label[]) {
-    localStorage.setItem('labels', JSON.stringify(labels));
-  }
-
-  private replaceLocalId(oldId: number, newId: number) {
-    this.updateLocalState(labels =>
-      labels.map(l => l.id === oldId ? {...l, id: newId} : l)
-    );
-  }
-
-  private updateQueueIds(oldId: number, newId: number) {
-    const queue = this.getQueue();
-    queue.forEach(action => {
-      if (action.labelId === oldId) action.labelId = newId;
-    });
-    this.setQueue(queue);
   }
 }

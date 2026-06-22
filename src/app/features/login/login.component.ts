@@ -4,6 +4,7 @@ import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../core/auth/auth.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
+import {AppDB} from '../../core/db/app.db';
 
 @Component({
   selector: 'ns-app-login',
@@ -16,6 +17,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private db = inject(AppDB);
 
   isLoading = signal(false);
   errorMessage = signal('');
@@ -50,9 +52,16 @@ export class LoginComponent {
     }
   }
 
-  onLogout() {
+  async onLogout() {
     this.authService.logout();
     localStorage.clear();
+
+    try {
+      await Promise.all(this.db.tables.map(table => table.clear()));
+    } catch (err) {
+      console.error('Failed to clear IndexedDB on logout', err);
+    }
+
     this.loginForm.reset();
   }
 }

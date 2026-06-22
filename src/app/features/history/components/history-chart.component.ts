@@ -66,14 +66,14 @@ export class HistoryChartComponent {
   });
 
   chartData = computed(() => {
-    const entries = this.historyService.entries;
+    const entries = this.historyService.entries();
     const range = this.periodRange();
 
     const filteredEntries = entries.filter((entry: TimerEntry) => {
       return entry.startTime >= range.start && entry.startTime < range.end;
     });
 
-    const aggregated = new Map<number, number>();
+    const aggregated = new Map<string, number>();
     let totalSeconds = 0;
 
     for (const entry of filteredEntries) {
@@ -121,7 +121,7 @@ export class HistoryChartComponent {
   });
 
   barChartData = computed(() => {
-    const entries = this.historyService.entries;
+    const entries = this.historyService.entries();
     const tf = this.timeframe();
     const range = this.periodRange();
 

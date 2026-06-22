@@ -8,7 +8,7 @@
     @if (editingOption) {
       <div class="edit-section">
         <div class="input-group">
-          <span class="edit-label">{{ editingOption.id ? 'Edit Timer:' : 'New Timer:' }}</span>
+          <span class="edit-label">{{ editingOption.uuid ? 'Edit Timer:' : 'New Timer:' }}</span>
           <input class="modern-input" type="number" [(ngModel)]="editingOption.value"
                  placeholder="Duration (e.g., 25)"/>
           <div class="edit-actions">
@@ -21,26 +21,23 @@
   </div>
 
   <div class="options-list">
-    @for (option of timerService.options(); track option.id) {
-      <ns-app-list-item [isActive]="option.id === timerService.activeSetting()?.timerOptionId">
+    @for (option of options(); track option.uuid) {
+      <ns-app-list-item [isActive]="option.uuid === timerOption().timerOptionUuid">
         <ng-container info>
           <span class="duration-text">{{ option.value }} mins</span>
-          @if (option.id < 0 && timerService.isOnline()) {
-            <span class="badge pending-badge">Pending</span>
-          }
         </ng-container>
 
         <ng-container actions>
-          @if (option.id === timerService.activeSetting()?.timerOptionId) {
+          @if (option.uuid === timerOption().timerOptionUuid) {
             <span class="badge active-badge">✓ Active</span>
           } @else {
-            <ns-app-button variant="outline-btn" (click)="timerService.setActiveOption(option.id)">Set Active</ns-app-button>
+            <ns-app-button variant="outline-btn" (click)="setActive(option.uuid)">Set Active</ns-app-button>
           }
 
           <div class="action-group">
             <ns-app-button variant="text-btn edit-btn" (click)="startEdit(option)">Edit</ns-app-button>
-            <ns-app-button variant="text-btn delete-btn" (click)="deleteOption($event, option.id)"
-                        [disabled]="option.id === timerService.activeSetting()?.timerOptionId">
+            <ns-app-button variant="text-btn delete-btn" (click)="deleteOption($event, option.uuid)"
+                           [disabled]="option.uuid === timerOption().timerOptionUuid">
               Delete
             </ns-app-button>
           </div>
