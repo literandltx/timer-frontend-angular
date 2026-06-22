@@ -1,6 +1,7 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
+import {environment} from '../../../environments/environment';
 
 export interface LoginCredentials {
   email?: string;
@@ -23,7 +24,7 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/auth';
+  private apiUrl = `${environment.base_url}/api/v1/auth`;
 
   public isAuthenticatedSignal = signal<boolean>(this.hasToken());
 
