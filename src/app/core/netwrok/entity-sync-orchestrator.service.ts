@@ -30,18 +30,25 @@ export class EntitySyncOrchestrator {
     onDataChanged: () => void | Promise<void>
   ) {
     const syncState = computed(() => ({
-      isReady: this.health.isHealthy() && this.auth.isAuthenticatedSignal()
+      isReady: this.health.isHealthy() && this.auth.isAuthenticatedSignal(),
+      useWs: this.health.isWsEnabled()
     }));
 
     toObservable(syncState)
       .pipe(
-        switchMap(({isReady}) => {
+        switchMap(({isReady, useWs}) => {
           if (isReady) {
             return from(this.syncEngine.processQueue(entityType, apiService)).pipe(
               switchMap(() => this.pullMissedUpdates(entityType, apiService, dbTable)),
               switchMap(() => {
                 onDataChanged();
-                return this.wsCore.watch<SyncMessage<T>>(wsTopic);
+                if (useWs) {
+                  console.info(`[SyncOrchestrator] Connecting WS for ${entityType}`);
+                  return this.wsCore.watch<SyncMessage<T>>(wsTopic);
+                } else {
+                  console.info(`[SyncOrchestrator] WS disabled for ${entityType}. Staying on HTTP only.`);
+                  return EMPTY;
+                }
               })
             );
           }

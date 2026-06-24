@@ -24,11 +24,19 @@ export class HealthCheckService {
   private _isHealthy: WritableSignal<boolean> = signal<boolean>(false);
   public isHealthy: Signal<boolean> = this._isHealthy.asReadonly();
 
+  private _isWsEnabled: WritableSignal<boolean> = signal<boolean>(true);
+  public isWsEnabled: Signal<boolean> = this._isWsEnabled.asReadonly();
+
   constructor() {
     this.setupNativeNetworkListeners();
     this.startHealthCheck();
   }
 
+  public setWsStatus(enabled: boolean): void {
+    this._isWsEnabled.set(enabled);
+    console.info(`[HealthCheckService] WebSocket status set to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+  }
+  
   private setupNativeNetworkListeners(): void {
     const networkStatus$ = merge(
       fromEvent(window, 'offline').pipe(map(() => false)),
