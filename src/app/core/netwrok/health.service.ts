@@ -1,25 +1,35 @@
 import {Injectable, inject, DestroyRef, signal, Signal, WritableSignal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {timer, Subscription, of, fromEvent, merge} from 'rxjs';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {timer, Subscription, of, fromEvent, merge, Observable} from 'rxjs';
 import {switchMap, catchError, map} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
+import {AuthService} from '../auth/auth.service';
 
 interface PublicPingResponse {
   status: 'UP' | 'DOWN';
 }
 
+interface UserPingResponse {
+  status: 'UP' | 'DOWN';
+  username: string;
+  activeDevicesCount: number;
+}
+
 const POLLING_INITIAL_DELAY = 0;
 const POLLING_INTERVAL_MS = 10_000;
+const DEVICE_ID_KEY = 'app_device_uuid';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HealthCheckService {
   private http = inject(HttpClient);
-  private destroyRef = inject(DestroyRef); // Modern auto-cleanup
+  private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
 
   private pollingSubscription?: Subscription;
   private baseUrl: string | undefined = environment.base_url;
+  private deviceUuid: string = this.getOrCreateDeviceUuid();
 
   private _isHealthy: WritableSignal<boolean> = signal<boolean>(false);
   public isHealthy: Signal<boolean> = this._isHealthy.asReadonly();
@@ -36,7 +46,7 @@ export class HealthCheckService {
     this._isWsEnabled.set(enabled);
     console.info(`[HealthCheckService] WebSocket status set to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
-  
+
   private setupNativeNetworkListeners(): void {
     const networkStatus$ = merge(
       fromEvent(window, 'offline').pipe(map(() => false)),
@@ -63,19 +73,9 @@ export class HealthCheckService {
   startHealthCheck(): void {
     if (this.pollingSubscription || !this.baseUrl) return;
 
-    const healthUrl = `${this.baseUrl}/api/v1/system/ping/public`;
-
     this.pollingSubscription = timer(POLLING_INITIAL_DELAY, POLLING_INTERVAL_MS)
       .pipe(
-        switchMap(() =>
-          this.http.get<PublicPingResponse>(healthUrl).pipe(
-            map(response => response.status === 'UP'),
-            catchError((error) => {
-              console.error('[HealthCheckService] Ping failed:', error);
-              return of(false);
-            })
-          )
-        )
+        switchMap(() => this.executePing())
       )
       .subscribe((isUp) => this._isHealthy.set(isUp));
   }
@@ -85,5 +85,39 @@ export class HealthCheckService {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = undefined;
     }
+  }
+
+  private executePing(): Observable<boolean> {
+    if (this.authService.isAuthenticatedSignal()) {
+      const userUrl = `${this.baseUrl}/api/v1/system/ping/user`;
+      const params = new HttpParams().set('deviceUuid', this.deviceUuid);
+      console.info('[HealthCheckService] User ping');
+      return this.http.post<UserPingResponse>(userUrl, null, {params}).pipe(
+        map(response => response.status === 'UP'),
+        catchError((error) => {
+          console.error('[HealthCheckService] User ping failed:', error);
+          return of(false);
+        })
+      );
+    } else {
+      const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
+      console.info('[HealthCheckService] Public ping');
+      return this.http.get<PublicPingResponse>(publicUrl).pipe(
+        map(response => response.status === 'UP'),
+        catchError((error) => {
+          console.error('[HealthCheckService] Public ping failed:', error);
+          return of(false);
+        })
+      );
+    }
+  }
+
+  private getOrCreateDeviceUuid(): string {
+    let uuid = localStorage.getItem(DEVICE_ID_KEY);
+    if (!uuid) {
+      uuid = crypto.randomUUID();
+      localStorage.setItem(DEVICE_ID_KEY, uuid);
+    }
+    return uuid;
   }
 }
