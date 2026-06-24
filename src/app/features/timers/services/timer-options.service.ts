@@ -100,7 +100,9 @@ export class TimerOptionsService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.api.save(request)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.save(request))
+        : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.put(optimisticOption);
       },
@@ -124,7 +126,9 @@ export class TimerOptionsService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.api.update(uuid, request)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.update(uuid, request))
+        : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.put(optimisticOption);
       },
@@ -139,7 +143,9 @@ export class TimerOptionsService {
       this.ENTITY_TYPE,
       uuid,
       null,
-      () => firstValueFrom(this.api.delete(uuid)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.delete(uuid))
+        : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.delete(uuid);
       },
@@ -194,7 +200,17 @@ export class TimerOptionsService {
             firstOptionUuid = optionUuid;
           }
 
-          await this.save(request);
+          if (isAuthed) {
+            try {
+              await firstValueFrom(this.api.save(request));
+              await this.db.timerOptions.put({...request, deleted: false} as TimerOption);
+            } catch (err) {
+              console.warn('[TimerOptionsService] Direct save failed during seed, falling back to sync queue.', err);
+              await this.save(request);
+            }
+          } else {
+            await this.save(request);
+          }
         }
 
         if (firstOptionUuid) {

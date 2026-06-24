@@ -5,11 +5,14 @@ import {TimerSetting, TimerSettingRequest} from '../models/timer-setting.model';
 import {SyncMessage} from '../../../core/netwrok/sync-message.model';
 import {environment} from '../../../../environments/environment';
 import {AppDB} from '../../../core/db/app.db';
+import {DEFAULT_TIMER_OPTIONS} from '../models/timer-option.constants';
+import {AuthService} from '../../../core/auth/auth.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerSettingsService implements OnDestroy {
   private http = inject(HttpClient);
   private db = inject(AppDB);
+  private auth = inject(AuthService);
   private subscriptions = new Subscription();
 
   private baseUrl: string = environment.base_url;
@@ -33,60 +36,33 @@ export class TimerSettingsService implements OnDestroy {
         latestUpdatedAt = latest.updatedAt;
       }
 
-      let syncUrl = `${this.baseUrl}/api/v1/timer-settings/sync`;
-      if (latestUpdatedAt) {
-        syncUrl += `?updatedAfter=${latestUpdatedAt}`;
-      }
-
-      const sub = this.http.get<TimerSetting>(syncUrl, {observe: 'response'}).subscribe({
-        next: async (response) => {
-          if (response.status === 200 && response.body) {
-            const setting = response.body;
-            this.activeSetting.set(setting);
-            await this.db.timerSettings.put(setting);
-          } else if (response.status === 204 && localSettings.length === 0) {
-            await this.forceSaveInitialSettings();
-          }
-        },
-        error: async (error) => {
-          console.warn('[TimerSettingsService] Backend unreachable or sync failed.', error);
-          if (localSettings.length === 0) {
-            await this.forceSaveInitialSettings();
-          }
+      if (this.auth.isAuthenticatedSignal()) {
+        let syncUrl = `${this.baseUrl}/api/v1/timer-settings/sync`;
+        if (latestUpdatedAt) {
+          syncUrl += `?updatedAfter=${latestUpdatedAt}`;
         }
-      });
 
-      this.subscriptions.add(sub);
+        const sub = this.http.get<TimerSetting>(syncUrl, {observe: 'response'}).subscribe({
+          next: async (response) => {
+            if (response.status === 200 && response.body) {
+              const setting = response.body;
+              this.activeSetting.set(setting);
+              await this.db.timerSettings.put(setting);
+            }
+          },
+          error: (error) => {
+            if (error.status === 404) {
+              console.info('[TimerSettingsService] No settings found on backend (new user). Waiting for options seed.');
+            } else {
+              console.warn('[TimerSettingsService] Backend unreachable or sync failed.', error);
+            }
+          }
+        });
+
+        this.subscriptions.add(sub);
+      }
     } catch (err) {
       console.error('[TimerSettingsService] Failed to load settings from DB:', err);
-    }
-  }
-
-  private async forceSaveInitialSettings(): Promise<void> {
-    const initialSetting = this.activeSetting();
-    try {
-      await this.db.timerSettings.put(initialSetting);
-
-      const request: TimerSettingRequest = {
-        uuid: initialSetting.uuid,
-        timerOptionUuid: initialSetting.timerOptionUuid,
-        createdAt: initialSetting.createdAt,
-        updatedAt: initialSetting.updatedAt
-      };
-
-      await firstValueFrom(
-        this.http.put<TimerSetting>(`${this.baseUrl}/api/v1/timer-settings`, request)
-      );
-    } catch (error) {
-      console.warn('[TimerSettingsService] Backend unreachable. Initial setting stored offline.', error);
-      await this.db.syncQueue.add({
-        entityId: initialSetting.uuid,
-        entityType: 'TIMER_SETTING',
-        action: 'UPDATE',
-        payload: initialSetting,
-        timestamp: Date.now(),
-        status: 'PENDING'
-      });
     }
   }
 
@@ -118,6 +94,10 @@ export class TimerSettingsService implements OnDestroy {
         status: 'PENDING'
       });
 
+      if (!this.auth.isAuthenticatedSignal()) {
+        console.error('User unauthenticated. Skipping HTTP call, kept in queue.');
+      }
+
       const request: TimerSettingRequest = {
         uuid: updatedSetting.uuid,
         timerOptionUuid: timerOptionUuid,
@@ -132,7 +112,7 @@ export class TimerSettingsService implements OnDestroy {
       await this.db.syncQueue.delete(syncId);
 
     } catch (error) {
-      console.warn('[TimerSettingsService] Backend sync failed. Action safely stored in offline queue.', error);
+      console.info(`[TimerSettingsService] Action safely stored offline: ${(error as Error).message}`);
     }
   }
 
@@ -155,7 +135,7 @@ export class TimerSettingsService implements OnDestroy {
 
     return {
       uuid: crypto.randomUUID(),
-      timerOptionUuid: crypto.randomUUID(),
+      timerOptionUuid: DEFAULT_TIMER_OPTIONS[0].uuid as string,
       createdAt: NOW,
       updatedAt: NOW,
       deleted: false
