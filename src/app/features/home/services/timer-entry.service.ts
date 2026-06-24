@@ -6,11 +6,11 @@ import {
   CreateTimerEntryRequest,
   UpdateTimerEntryRequest
 } from '../models/timer-entry.model';
-
 import {AppDB} from '../../../core/db/app.db';
 import {TimerEntryApiService} from './timer-entry-api.service';
 import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
+import {AuthService} from '../../../core/auth/auth.service';
 
 const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
@@ -21,6 +21,7 @@ export class TimerEntryService {
   private syncEngine = inject(SyncEngineService);
   private syncOrchestrator = inject(EntitySyncOrchestrator);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
 
   private readonly ENTITY_TYPE = 'TIMER_ENTRY';
   private readonly WS_TOPIC = '/user/queue/timer-entries';
@@ -75,7 +76,9 @@ export class TimerEntryService {
   recordTimerFinish(durationSeconds: number, activelabelId?: string, fallbacklabelId?: string) {
     const finallabelId = activelabelId || fallbacklabelId;
 
-    if (!finallabelId) return;
+    if (!finallabelId) {
+      return;
+    }
 
     const finalDuration = Math.max(durationSeconds, DEFAULT_MINIMUM_TIMER_DURATION);
     const startTime = Date.now() - (finalDuration * 1000);
@@ -102,7 +105,9 @@ export class TimerEntryService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.api.save(request)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.save(request))
+        : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.put(optimisticEntry);
       },
@@ -120,7 +125,9 @@ export class TimerEntryService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.api.update(uuid, request)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.update(uuid, request))
+        : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.put(optimisticEntry);
       },
@@ -135,7 +142,9 @@ export class TimerEntryService {
       this.ENTITY_TYPE,
       uuid,
       null,
-      () => firstValueFrom(this.api.delete(uuid)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.api.delete(uuid))
+        : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.delete(uuid);
       },
