@@ -1,7 +1,7 @@
 import {Injectable, inject, DestroyRef, signal, Signal, WritableSignal} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {timer, Subscription, of, fromEvent, merge, Observable} from 'rxjs';
-import {switchMap, catchError, map} from 'rxjs/operators';
+import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {AuthService} from '../auth/auth.service';
 
@@ -11,8 +11,8 @@ interface PublicPingResponse {
 
 interface UserPingResponse {
   status: 'UP' | 'DOWN';
-  username: string;
-  activeDevicesCount: number;
+  user: string;
+  activeDevices: number;
 }
 
 const POLLING_INITIAL_DELAY = 0;
@@ -44,7 +44,7 @@ export class HealthCheckService {
 
   public setWsStatus(enabled: boolean): void {
     this._isWsEnabled.set(enabled);
-    console.info(`[HealthCheckService] WebSocket status set to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+    console.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
 
   private setupNativeNetworkListeners(): void {
@@ -93,6 +93,13 @@ export class HealthCheckService {
       const params = new HttpParams().set('deviceUuid', this.deviceUuid);
       console.info('[HealthCheckService] User ping');
       return this.http.post<UserPingResponse>(userUrl, null, {params}).pipe(
+        tap((response) => {
+          console.info(`[HealthCheckService] User ping OK. Active devices count: ${response.activeDevices}`);
+          const shouldEnableWs = response.activeDevices >= 2;
+          if (this._isWsEnabled() !== shouldEnableWs) {
+            this.setWsStatus(shouldEnableWs);
+          }
+        }),
         map(response => response.status === 'UP'),
         catchError((error) => {
           console.error('[HealthCheckService] User ping failed:', error);
@@ -103,6 +110,11 @@ export class HealthCheckService {
       const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
       console.info('[HealthCheckService] Public ping');
       return this.http.get<PublicPingResponse>(publicUrl).pipe(
+        tap(() => {
+          if (this._isWsEnabled()) {
+            this.setWsStatus(false);
+          }
+        }),
         map(response => response.status === 'UP'),
         catchError((error) => {
           console.error('[HealthCheckService] Public ping failed:', error);
