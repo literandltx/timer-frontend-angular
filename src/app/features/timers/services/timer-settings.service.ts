@@ -40,18 +40,53 @@ export class TimerSettingsService implements OnDestroy {
 
       const sub = this.http.get<TimerSetting>(syncUrl, {observe: 'response'}).subscribe({
         next: async (response) => {
-          const setting = response.body;
-          if (setting) {
+          if (response.status === 200 && response.body) {
+            const setting = response.body;
             this.activeSetting.set(setting);
             await this.db.timerSettings.put(setting);
+          } else if (response.status === 204 && localSettings.length === 0) {
+            await this.forceSaveInitialSettings();
           }
         },
-        error: (error) => console.warn('[TimerSettingsService] Backend unreachable or sync failed.', error)
+        error: async (error) => {
+          console.warn('[TimerSettingsService] Backend unreachable or sync failed.', error);
+          if (localSettings.length === 0) {
+            await this.forceSaveInitialSettings();
+          }
+        }
       });
 
       this.subscriptions.add(sub);
     } catch (err) {
       console.error('[TimerSettingsService] Failed to load settings from DB:', err);
+    }
+  }
+
+  private async forceSaveInitialSettings(): Promise<void> {
+    const initialSetting = this.activeSetting();
+    try {
+      await this.db.timerSettings.put(initialSetting);
+
+      const request: TimerSettingRequest = {
+        uuid: initialSetting.uuid,
+        timerOptionUuid: initialSetting.timerOptionUuid,
+        createdAt: initialSetting.createdAt,
+        updatedAt: initialSetting.updatedAt
+      };
+
+      await firstValueFrom(
+        this.http.put<TimerSetting>(`${this.baseUrl}/api/v1/timer-settings`, request)
+      );
+    } catch (error) {
+      console.warn('[TimerSettingsService] Backend unreachable. Initial setting stored offline.', error);
+      await this.db.syncQueue.add({
+        entityId: initialSetting.uuid,
+        entityType: 'TIMER_SETTING',
+        action: 'UPDATE',
+        payload: initialSetting,
+        timestamp: Date.now(),
+        status: 'PENDING'
+      });
     }
   }
 
@@ -97,7 +132,7 @@ export class TimerSettingsService implements OnDestroy {
       await this.db.syncQueue.delete(syncId);
 
     } catch (error) {
-      console.warn('[TimerSettingsService] Backend sync failed. Action safely stored in offline queue.');
+      console.warn('[TimerSettingsService] Backend sync failed. Action safely stored in offline queue.', error);
     }
   }
 
