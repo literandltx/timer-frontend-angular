@@ -24,6 +24,7 @@ export class DatabaseInitializer {
 
   async seedInitialData(): Promise<void> {
     if (localStorage.getItem(this.SEEDED_KEY) === 'true') {
+      console.log('[Seeder] Database already seeded. Skipping initialization.');
       return;
     }
 

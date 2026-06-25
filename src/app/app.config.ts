@@ -6,11 +6,6 @@ import {authInterceptor} from './core/interceptors/auth.interceptor';
 import {GlobalErrorHandler} from './core/errors/global-error-handler';
 import {DatabaseInitializer} from './core/services/database-initializer.service';
 
-export function initializeAppDefaults() {
-  const seeder = inject(DatabaseInitializer);
-  return seeder.seedInitialData();
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -21,6 +16,9 @@ export const appConfig: ApplicationConfig = {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler
     },
-    provideAppInitializer(initializeAppDefaults)
+    provideAppInitializer(() => {
+      const seeder = inject(DatabaseInitializer);
+      return seeder.seedInitialData();
+    })
   ]
 };
