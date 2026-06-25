@@ -153,40 +153,4 @@ export class TimerEntryService {
     await this.loadEntries();
   }
 
-
-  async exportCSV() {
-  }
-
-  private exportServer() {
-  }
-
-  private async exportLocal() {
-  }
-
-  async importCSV(file: File): Promise<void> {
-    return new Promise<void>(() => {
-    });
-  }
-
-  private async importServer(file: File): Promise<void> {
-    return new Promise<void>(() => {
-    });
-  }
-
-  private async importLocal(file: File): Promise<void> {
-    return new Promise<void>(() => {
-    });
-  }
-
-  private downloadBlob(blob: Blob, filename: string) {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  }
-
 }

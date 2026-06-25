@@ -1,5 +1,5 @@
 import {Injectable, inject, DestroyRef, signal, Signal, WritableSignal} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {timer, Subscription, of, fromEvent, merge, Observable} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
@@ -91,20 +91,16 @@ export class HealthCheckService {
     if (this.authService.isAuthenticatedSignal()) {
       const userUrl = `${this.baseUrl}/api/v1/system/ping/user`;
       const params = new HttpParams().set('deviceUuid', this.deviceUuid);
-      console.info('[HealthCheckService] User ping');
       return this.http.post<UserPingResponse>(userUrl, null, {params}).pipe(
         tap((response) => {
-          console.info(`[HealthCheckService] User ping OK. Active devices count: ${response.activeDevices}`);
+          console.info(`[HealthCheckService] User ping. Active devices count: ${response.activeDevices}`);
           const shouldEnableWs = response.activeDevices >= 2;
           if (this._isWsEnabled() !== shouldEnableWs) {
             this.setWsStatus(shouldEnableWs);
           }
         }),
         map(response => response.status === 'UP'),
-        catchError((error) => {
-          console.error('[HealthCheckService] User ping failed:', error);
-          return of(false);
-        })
+        catchError((error: HttpErrorResponse) => this.handlePingError(error))
       );
     } else {
       const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
@@ -116,10 +112,7 @@ export class HealthCheckService {
           }
         }),
         map(response => response.status === 'UP'),
-        catchError((error) => {
-          console.error('[HealthCheckService] Public ping failed:', error);
-          return of(false);
-        })
+        catchError((error: HttpErrorResponse) => this.handlePingError(error))
       );
     }
   }
@@ -132,4 +125,15 @@ export class HealthCheckService {
     }
     return uuid;
   }
+
+  private handlePingError(error: HttpErrorResponse): Observable<boolean> {
+    if (error.status === 0) {
+      console.warn('[HealthCheckService] Backend is unreachable. App is currently in offline mode.');
+    } else {
+      console.error(`[HealthCheckService] Backend returned error code ${error.status}`);
+    }
+
+    return of(false);
+  }
+
 }
