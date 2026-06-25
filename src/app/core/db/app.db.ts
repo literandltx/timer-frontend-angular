@@ -6,12 +6,13 @@ import {TimerSetting} from '../../features/timers/models/timer-setting.model';
 import {TimerEntry} from '../../features/home/models/timer-entry.model';
 
 export type EntityType = 'LABEL' | 'TIMER_OPTION' | 'TIMER_ENTRY' | 'TIMER_SETTING';
+export type SyncActionType = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export interface SyncAction {
   id?: number;
   entityId: string;
   entityType: EntityType;
-  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  action: SyncActionType;
   payload?: any;
 
   timestamp: number;

@@ -1,22 +1,22 @@
 import {Injectable, signal, inject, OnDestroy} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import {Subscription, firstValueFrom} from 'rxjs';
 import {TimerSetting, TimerSettingRequest} from '../models/timer-setting.model';
 import {SyncMessage} from '../../../core/netwrok/sync-message.model';
-import {environment} from '../../../../environments/environment';
 import {AppDB} from '../../../core/db/app.db';
+import {AuthService} from '../../../core/auth/auth.service';
+import {TimerSettingApiService} from './timer-setting-api.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerSettingsService implements OnDestroy {
-  private http = inject(HttpClient);
+  private api = inject(TimerSettingApiService);
   private db = inject(AppDB);
+  private auth = inject(AuthService);
   private subscriptions = new Subscription();
 
-  private baseUrl: string = environment.base_url;
-
-  public activeSetting = signal<TimerSetting>(this.createInitialTimerSetting());
+  public activeSetting = signal<TimerSetting>({} as TimerSetting);
 
   constructor() {
+    this.loadSettings();
   }
 
   async loadSettings(): Promise<void> {
@@ -33,23 +33,21 @@ export class TimerSettingsService implements OnDestroy {
         latestUpdatedAt = latest.updatedAt;
       }
 
-      let syncUrl = `${this.baseUrl}/api/v1/timer-settings/sync`;
-      if (latestUpdatedAt) {
-        syncUrl += `?updatedAfter=${latestUpdatedAt}`;
-      }
-
-      const sub = this.http.get<TimerSetting>(syncUrl, {observe: 'response'}).subscribe({
-        next: async (response) => {
-          const setting = response.body;
-          if (setting) {
-            this.activeSetting.set(setting);
-            await this.db.timerSettings.put(setting);
+      if (this.auth.isAuthenticatedSignal()) {
+        const sub = this.api.pullUpdates(latestUpdatedAt).subscribe({
+          next: async (response) => {
+            if (response) {
+              this.activeSetting.set(response);
+              await this.db.timerSettings.put(response);
+            }
+          },
+          error: (error) => {
+            console.warn('[TimerSettingsService] Sync failed.', error);
           }
-        },
-        error: (error) => console.warn('[TimerSettingsService] Backend unreachable or sync failed.', error)
-      });
+        });
 
-      this.subscriptions.add(sub);
+        this.subscriptions.add(sub);
+      }
     } catch (err) {
       console.error('[TimerSettingsService] Failed to load settings from DB:', err);
     }
@@ -61,8 +59,12 @@ export class TimerSettingsService implements OnDestroy {
 
   async setActiveOption(timerOptionUuid: string): Promise<void> {
     const currentSetting = this.activeSetting();
-    const now = new Date().toISOString();
 
+    if (!currentSetting.uuid) {
+      return;
+    }
+
+    const now = new Date().toISOString();
     const updatedSetting: TimerSetting = {
       ...currentSetting,
       timerOptionUuid: timerOptionUuid,
@@ -83,6 +85,10 @@ export class TimerSettingsService implements OnDestroy {
         status: 'PENDING'
       });
 
+      if (!this.auth.isAuthenticatedSignal()) {
+        console.error('User unauthenticated. Skipping HTTP call, kept in queue.');
+      }
+
       const request: TimerSettingRequest = {
         uuid: updatedSetting.uuid,
         timerOptionUuid: timerOptionUuid,
@@ -90,41 +96,26 @@ export class TimerSettingsService implements OnDestroy {
         updatedAt: now
       };
 
-      await firstValueFrom(
-        this.http.put<TimerSetting>(`${this.baseUrl}/api/v1/timer-settings`, request)
-      );
-
+      await firstValueFrom(this.api.save(request));
       await this.db.syncQueue.delete(syncId);
 
     } catch (error) {
-      console.warn('[TimerSettingsService] Backend sync failed. Action safely stored in offline queue.');
+      console.info(`[TimerSettingsService] Action safely stored offline.`, error);
     }
   }
 
   async handleIncomingSync(incomingMessage: SyncMessage<TimerSetting>): Promise<void> {
-    if (!incomingMessage || !incomingMessage.payload) return;
+    if (!incomingMessage || !incomingMessage.payload) {
+      return;
+    }
 
     const incomingSetting = incomingMessage.payload;
     const currentSetting = this.activeSetting();
-
-    const isNewer = new Date(incomingSetting.updatedAt).getTime() > new Date(currentSetting.updatedAt).getTime();
+    const isNewer = !currentSetting.updatedAt || new Date(incomingSetting.updatedAt).getTime() > new Date(currentSetting.updatedAt).getTime();
 
     if (isNewer && !incomingSetting.deleted) {
       this.activeSetting.set(incomingSetting);
       await this.db.timerSettings.put(incomingSetting);
     }
   }
-
-  private createInitialTimerSetting(): TimerSetting {
-    const NOW = new Date().toISOString();
-
-    return {
-      uuid: crypto.randomUUID(),
-      timerOptionUuid: crypto.randomUUID(),
-      createdAt: NOW,
-      updatedAt: NOW,
-      deleted: false
-    };
-  }
-
 }

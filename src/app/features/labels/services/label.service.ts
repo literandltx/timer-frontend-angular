@@ -6,9 +6,7 @@ import {AppDB} from '../../../core/db/app.db';
 import {LabelApiService} from './label-api.service';
 import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
-import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {AuthService} from '../../../core/auth/auth.service';
-import {DEFAULT_LABELS} from '../models/label.constants';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {
@@ -17,12 +15,10 @@ export class LabelService {
   private syncEngine = inject(SyncEngineService);
   private syncOrchestrator = inject(EntitySyncOrchestrator);
   private destroyRef = inject(DestroyRef);
-  private health = inject(HealthCheckService);
   private auth = inject(AuthService);
 
   private readonly ENTITY_TYPE = 'LABEL';
   private readonly WS_LABEL_TOPIC = '/user/queue/labels';
-  private readonly LOCAL_STORAGE_KEY = 'app_labels_seeded_v1';
 
   public labels = signal<Label[]>([]);
 
@@ -35,12 +31,8 @@ export class LabelService {
       this.destroyRef,
       () => this.loadLabels()
     );
-    this.initializeData();
-  }
 
-  private async initializeData() {
-    await this.seedDefaultLabels();
-    await this.loadLabels();
+    this.loadLabels();
   }
 
   async loadLabels() {
@@ -60,7 +52,7 @@ export class LabelService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.labelApi.save(request)),
+      () => this.auth.isAuthenticatedSignal() ? firstValueFrom(this.labelApi.save(request)) : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.put(optimisticLabel);
       },
@@ -78,7 +70,9 @@ export class LabelService {
       this.ENTITY_TYPE,
       uuid,
       request,
-      () => firstValueFrom(this.labelApi.update(uuid, request)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.labelApi.update(uuid, request))
+        : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.put(optimisticLabel);
       },
@@ -93,7 +87,9 @@ export class LabelService {
       this.ENTITY_TYPE,
       uuid,
       null,
-      () => firstValueFrom(this.labelApi.delete(uuid)),
+      () => this.auth.isAuthenticatedSignal()
+        ? firstValueFrom(this.labelApi.delete(uuid))
+        : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.delete(uuid);
       },
@@ -102,51 +98,4 @@ export class LabelService {
     await this.loadLabels();
   }
 
-  private async seedDefaultLabels() {
-    if (localStorage.getItem(this.LOCAL_STORAGE_KEY) === 'true') {
-      return;
-    }
-
-    try {
-      const localCount = await this.db.labels.count();
-
-      if (localCount === 0) {
-        const isAuthed = this.auth.isAuthenticatedSignal();
-
-        if (isAuthed) {
-          try {
-            const EPOCH_DATE = new Date(0).toISOString();
-            const serverLabels = await firstValueFrom(this.labelApi.pullUpdates(EPOCH_DATE));
-
-            if (serverLabels && serverLabels.length > 0) {
-              console.log('[LabelService] Existing user history found. Skipping defaults.');
-              localStorage.setItem(this.LOCAL_STORAGE_KEY, 'true');
-              return;
-            }
-          } catch (apiError) {
-            console.warn('[LabelService] Server unreachable during verification. Aborting seed.', apiError);
-            return;
-          }
-        }
-
-        console.log('[LabelService] Safe to seed default labels.');
-
-        const now = new Date().toISOString();
-        for (const defaultLabel of DEFAULT_LABELS) {
-          const request: CreateLabelRequest = {
-            ...defaultLabel,
-            // uuid: crypto.randomUUID(),
-            createdAt: now,
-            updatedAt: now,
-          } as CreateLabelRequest;
-
-          await this.save(request);
-        }
-      }
-
-      localStorage.setItem(this.LOCAL_STORAGE_KEY, 'true');
-    } catch (error) {
-      console.error('[LabelService] Failed to seed default labels:', error);
-    }
-  }
 }
