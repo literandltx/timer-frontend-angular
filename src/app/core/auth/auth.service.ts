@@ -29,7 +29,7 @@ export class AuthService {
   public isAuthenticatedSignal = signal<boolean>(this.hasToken());
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials, {withCredentials: true}).pipe(
       tap((response: AuthResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
@@ -40,6 +40,16 @@ export class AuthService {
 
   register(userData: RegisterData): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData);
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, {}, {withCredentials: true}).pipe(
+      tap((response: AuthResponse) => {
+        if (response && response.token) {
+          this.setToken(response.token);
+        }
+      })
+    );
   }
 
   setToken(token: string): void {
@@ -53,6 +63,10 @@ export class AuthService {
 
   private hasToken(): boolean {
     return !!localStorage.getItem('jwt_token');
+  }
+
+  logoutApi(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, {}, {withCredentials: true});
   }
 
   logout(): void {
