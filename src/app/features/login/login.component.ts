@@ -53,15 +53,34 @@ export class LoginComponent {
   }
 
   async onLogout() {
-    this.authService.logout();
-    localStorage.clear();
+    this.authService.logoutApi().subscribe({
+      next: async () => {
+        this.authService.logout();
 
-    try {
-      await Promise.all(this.db.tables.map(table => table.clear()));
-    } catch (err) {
-      console.error('Failed to clear IndexedDB on logout', err);
-    }
+        try {
+          await Promise.all(this.db.tables.map(table => table.clear()));
+        } catch (err) {
+          console.error('Failed to clear IndexedDB on logout', err);
+        }
 
-    this.loginForm.reset();
+        this.loginForm.reset();
+        localStorage.clear();
+        window.location.reload();
+      },
+      error: async (err) => {
+        console.error('Logout failed on the server, but cleaning up local state anyway', err);
+
+        this.authService.logout();
+        try {
+          await Promise.all(this.db.tables.map(table => table.clear()));
+        } catch (error) {
+          console.error(error)
+        }
+
+        this.loginForm.reset();
+        localStorage.clear();
+        window.location.reload();
+      }
+    });
   }
 }
