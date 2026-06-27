@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TimerEntryService } from '../../../features/home/services/timer-entry.service';
+import {Component, inject} from '@angular/core';
+import {RouterLink, RouterLinkActive} from '@angular/router';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';

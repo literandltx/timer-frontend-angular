@@ -1,13 +1,4 @@
 <nav class="main-nav">
-  <div class="left-section">
-    <div class="status-badge"
-         [style.color]="healthService.isHealthy() ? '#2b8a3e' : '#c92a2a'"
-         [attr.title]="healthService.isHealthy() ? 'App is Online' : 'App is Offline'"
-         [attr.aria-label]="healthService.isHealthy() ? 'Network status: Online' : 'Network status: Offline'">
-      ●
-    </div>
-  </div>
-
   <div class="nav-links">
     <a routerLink="/home" routerLinkActive="active" title="Home">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="nav-icon">
@@ -36,13 +27,6 @@
       </svg>
       <span class="nav-text">History</span>
     </a>
-
-    <a routerLink="/login" routerLinkActive="active" title="Login / Sign Up">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="nav-icon">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-      </svg>
-      <span class="nav-text">Login</span>
-    </a>
   </div>
 
   <div class="right-section">
@@ -57,6 +41,15 @@
         </svg>
       }
     </ns-app-button>
-  </div>
 
+    <a routerLink="/login" class="user-link">
+      <div class="user-avatar"
+           [style.borderColor]="healthService.isHealthy() ? '#2b8a3e' : '#c92a2a'"
+           [attr.title]="healthService.isHealthy() ? 'App is Online' : 'App is Offline'">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="avatar-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+      </div>
+    </a>
+  </div>
 </nav>
