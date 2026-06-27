@@ -4,7 +4,6 @@ import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../core/auth/auth.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {AppDB} from '../../core/db/app.db';
 
 @Component({
   selector: 'ns-app-login',
@@ -17,7 +16,6 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private db = inject(AppDB);
 
   isLoading = signal(false);
   errorMessage = signal('');
@@ -52,35 +50,8 @@ export class LoginComponent {
     }
   }
 
-  async onLogout() {
-    this.authService.logoutApi().subscribe({
-      next: async () => {
-        this.authService.logout();
-
-        try {
-          await Promise.all(this.db.tables.map(table => table.clear()));
-        } catch (err) {
-          console.error('Failed to clear IndexedDB on logout', err);
-        }
-
-        this.loginForm.reset();
-        localStorage.clear();
-        window.location.reload();
-      },
-      error: async (err) => {
-        console.error('Logout failed on the server, but cleaning up local state anyway', err);
-
-        this.authService.logout();
-        try {
-          await Promise.all(this.db.tables.map(table => table.clear()));
-        } catch (error) {
-          console.error(error)
-        }
-
-        this.loginForm.reset();
-        localStorage.clear();
-        window.location.reload();
-      }
-    });
+  onLogout() {
+    this.loginForm.reset();
+    this.authService.logout();
   }
 }
