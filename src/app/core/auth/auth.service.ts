@@ -70,10 +70,10 @@ export class AuthService {
 
   logout(): void {
     this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).subscribe({
-      next: async () => await this.clearLocalState(),
-      error: async (err) => {
-        console.error('Server logout failed, but cleaning local state anyway', err);
-        await this.clearLocalState();
+      next: () => this.clearAuthState(),
+      error: (err) => {
+        console.error('Server logout failed, but cleaning local auth state anyway', err);
+        this.clearAuthState();
       }
     });
   }
@@ -82,7 +82,7 @@ export class AuthService {
     this.http.delete(`${this.usersApiUrl}/me`, {withCredentials: true}).subscribe({
       next: async () => {
         console.log('Account deleted successfully');
-        await this.clearLocalState();
+        await this.clearAllUserData();
       },
       error: (err) => {
         console.error('Account deletion failed', err);
@@ -91,14 +91,20 @@ export class AuthService {
     });
   }
 
-  private async clearLocalState(): Promise<void> {
+  public clearAuthState(): void {
+    this.accessToken = null;
+    this.isAuthenticatedSignal.set(false);
+    this.router.navigate(['/login']);
+  }
+
+  private async clearAllUserData(): Promise<void> {
     this.accessToken = null;
     this.isAuthenticatedSignal.set(false);
 
     try {
       await Promise.all(this.db.tables.map(table => table.clear()));
     } catch (err) {
-      console.error('Failed to clear IndexedDB on logout', err);
+      console.error('Failed to clear IndexedDB on account deletion', err);
     }
 
     localStorage.clear();

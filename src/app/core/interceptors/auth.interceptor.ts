@@ -61,7 +61,7 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
       }),
       catchError((err) => {
         isRefreshing = false;
-        authService['clearLocalState']();
+        authService.clearAuthState();
         return throwError(() => err);
       })
     );
