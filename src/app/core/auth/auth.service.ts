@@ -31,8 +31,9 @@ export class AuthService {
 
   private authApiUrl = `${environment.base_url}/api/v1/auth`;
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
+  private accessToken: string | null = null;
 
-  public isAuthenticatedSignal = signal<boolean>(this.hasToken());
+  public isAuthenticatedSignal = signal<boolean>(false);
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
@@ -59,16 +60,12 @@ export class AuthService {
   }
 
   private setToken(token: string): void {
-    localStorage.setItem('jwt_token', token);
+    this.accessToken = token;
     this.isAuthenticatedSignal.set(true);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('jwt_token');
-  }
-
-  private hasToken(): boolean {
-    return !!localStorage.getItem('jwt_token');
+    return this.accessToken;
   }
 
   logout(): void {
@@ -95,7 +92,7 @@ export class AuthService {
   }
 
   private async clearLocalState(): Promise<void> {
-    localStorage.removeItem('jwt_token');
+    this.accessToken = null;
     this.isAuthenticatedSignal.set(false);
 
     try {

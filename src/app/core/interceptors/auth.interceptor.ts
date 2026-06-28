@@ -61,8 +61,7 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
       }),
       catchError((err) => {
         isRefreshing = false;
-        authService.logout();
-        router.navigate(['/login']);
+        authService['clearLocalState']();
         return throwError(() => err);
       })
     );
