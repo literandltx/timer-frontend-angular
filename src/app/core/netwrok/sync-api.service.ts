@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-export interface SyncApiService<T, CreateReq = any, UpdateReq = any> {
+export interface SyncApiService<T, CreateReq = unknown, UpdateReq = unknown> {
 
   pullUpdates(lastSyncTime: string | null): Observable<T[]>;
 

@@ -36,16 +36,22 @@
       </button>
     </form>
 
+    <div class="divider">
+      <span>Or</span>
+    </div>
+    
     <p class="register-prompt">
       Don't have an account? <a routerLink="/register">Register</a>
     </p>
 
-    <div class="divider">
-      <span>Account Actions</span>
-    </div>
+    @if (isAuthenticated()) {
+      <div class="divider">
+        <span>Account Actions</span>
+      </div>
 
-    <button type="button" class="btn-ghost" (click)="onLogout()">
-      Logout
-    </button>
+      <button type="button" class="btn-ghost" (click)="onLogout()" [disabled]="isLoggingOut()">
+        {{ isLoggingOut() ? 'Logging out...' : 'Logout' }}
+      </button>
+    }
   </div>
 </div>

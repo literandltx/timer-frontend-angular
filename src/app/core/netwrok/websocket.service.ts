@@ -98,7 +98,7 @@ export class WebSocketCoreService {
     );
   }
 
-  public publish(destination: string, body: any): void {
+  public publish(destination: string, body: unknown): void {
     console.info(`[WebSocketCoreService] Publishing message to: ${destination}`, body);
 
     this.rxStomp.publish({

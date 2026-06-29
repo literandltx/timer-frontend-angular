@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TimerOptionsService} from './services/timer-options.service';
@@ -18,16 +18,13 @@ import {
   templateUrl: './timer-list.component.html',
   styleUrl: './timer-list.component.css'
 })
-export class TimerListComponent implements OnInit {
+export class TimerListComponent {
   public optionsService = inject(TimerOptionsService);
   public settingsService = inject(TimerSettingsService);
 
   editingOption: Partial<TimerOption> | null = null;
   options = this.optionsService.options;
   timerOption = this.settingsService.activeSetting;
-
-  ngOnInit() {
-  }
 
   startAdd() {
     const isAlreadyAdding = this.editingOption && !this.editingOption.uuid;

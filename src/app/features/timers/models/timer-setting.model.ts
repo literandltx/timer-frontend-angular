@@ -16,6 +16,6 @@ export interface TimerSettingRequest {
 export interface TimerSettingSyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE';
-  payload?: any;
+  payload?: unknown;
   settingUuid?: string;
 }

@@ -1,6 +1,6 @@
 import {Injectable, inject, DestroyRef, signal, Signal, WritableSignal} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
-import {Subscription, of, fromEvent, merge, Observable, timer} from 'rxjs';
+import {timer, Subscription, of, fromEvent, merge, Observable} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {AuthService} from '../auth/auth.service';
@@ -15,7 +15,8 @@ interface UserPingResponse {
   activeDevices: number;
 }
 
-const SMART_POLL_INTERVAL_MS = 10_000;
+const POLLING_INITIAL_DELAY = 0;
+const POLLING_INTERVAL_MS = 10_000;
 const DEVICE_ID_KEY = 'app_device_uuid';
 
 @Injectable({
@@ -26,39 +27,24 @@ export class HealthCheckService {
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
 
-  private smartPollingSubscription?: Subscription;
+  private pollingSubscription?: Subscription;
   private baseUrl: string | undefined = environment.base_url;
   private deviceUuid: string = this.getOrCreateDeviceUuid();
 
   private _isHealthy: WritableSignal<boolean> = signal<boolean>(false);
   public isHealthy: Signal<boolean> = this._isHealthy.asReadonly();
 
-  private _isWsEnabled: WritableSignal<boolean> = signal<boolean>(false);
+  private _isWsEnabled: WritableSignal<boolean> = signal<boolean>(true);
   public isWsEnabled: Signal<boolean> = this._isWsEnabled.asReadonly();
 
   constructor() {
     this.setupNativeNetworkListeners();
-    this.doSinglePing();
+    this.startHealthCheck();
   }
 
   public setWsStatus(enabled: boolean): void {
-    if (this._isWsEnabled() !== enabled) {
-      this._isWsEnabled.set(enabled);
-      console.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
-    }
-  }
-
-  public setOnlineStatus(isOnline: boolean): void {
-    if (this._isHealthy() !== isOnline) {
-      this._isHealthy.set(isOnline);
-      console.info(`[HealthCheckService] Network status changed to: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
-    }
-
-    if (isOnline && this.authService.isAuthenticatedSignal() && !this._isWsEnabled()) {
-      this.startSmartPolling();
-    } else if (!isOnline) {
-      this.stopSmartPolling();
-    }
+    this._isWsEnabled.set(enabled);
+    console.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
 
   private setupNativeNetworkListeners(): void {
@@ -69,61 +55,48 @@ export class HealthCheckService {
 
     const networkSub = networkStatus$.subscribe((isOnline) => {
       if (isOnline) {
-        console.info('[HealthCheckService] OS reports online. Checking backend connection.');
-        this.doSinglePing();
+        console.info('[HealthCheckService] OS reports online. Resuming health checks.');
+        this.startHealthCheck();
       } else {
-        console.warn('[HealthCheckService] OS reports offline.');
-        this.setOnlineStatus(false);
+        console.warn('[HealthCheckService] OS reports offline. Pausing health checks.');
+        this._isHealthy.set(false);
+        this.stopHealthCheck();
       }
     });
 
     this.destroyRef.onDestroy(() => {
       networkSub.unsubscribe();
-      this.stopSmartPolling();
+      this.stopHealthCheck();
     });
   }
 
-  private doSinglePing(): void {
-    this.executePing().subscribe(isUp => {
-      this.setOnlineStatus(isUp);
-    });
-  }
+  startHealthCheck(): void {
+    if (this.pollingSubscription || !this.baseUrl) return;
 
-  private startSmartPolling(): void {
-    if (this.smartPollingSubscription || !this.baseUrl) return;
-
-    console.info('[HealthCheckService] Starting smart polling to detect 2nd device...');
-    this.smartPollingSubscription = timer(0, SMART_POLL_INTERVAL_MS)
+    this.pollingSubscription = timer(POLLING_INITIAL_DELAY, POLLING_INTERVAL_MS)
       .pipe(
         switchMap(() => this.executePing())
       )
-      .subscribe((isUp) => {
-        if (!isUp) this.setOnlineStatus(false);
-      });
+      .subscribe((isUp) => this._isHealthy.set(isUp));
   }
 
-  private stopSmartPolling(): void {
-    if (this.smartPollingSubscription) {
-      console.info('[HealthCheckService] Stopping smart polling.');
-      this.smartPollingSubscription.unsubscribe();
-      this.smartPollingSubscription = undefined;
+  stopHealthCheck(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = undefined;
     }
   }
 
   private executePing(): Observable<boolean> {
-    if (!this.baseUrl) {
-      return of(false);
-    }
-
     if (this.authService.isAuthenticatedSignal()) {
       const userUrl = `${this.baseUrl}/api/v1/system/ping/user`;
       const params = new HttpParams().set('deviceUuid', this.deviceUuid);
       return this.http.post<UserPingResponse>(userUrl, null, {params}).pipe(
         tap((response) => {
+          console.info(`[HealthCheckService] User ping. Active devices count: ${response.activeDevices}`);
           const shouldEnableWs = response.activeDevices >= 2;
-          this.setWsStatus(shouldEnableWs);
-          if (shouldEnableWs) {
-            this.stopSmartPolling();
+          if (this._isWsEnabled() !== shouldEnableWs) {
+            this.setWsStatus(shouldEnableWs);
           }
         }),
         map(response => response.status === 'UP'),
@@ -133,7 +106,11 @@ export class HealthCheckService {
       const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
       console.info('[HealthCheckService] Public ping');
       return this.http.get<PublicPingResponse>(publicUrl).pipe(
-        tap(() => this.setWsStatus(false)),
+        tap(() => {
+          if (this._isWsEnabled()) {
+            this.setWsStatus(false);
+          }
+        }),
         map(response => response.status === 'UP'),
         catchError((error: HttpErrorResponse) => this.handlePingError(error))
       );

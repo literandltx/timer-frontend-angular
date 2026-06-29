@@ -1,4 +1,5 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject, signal, DestroyRef} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../core/auth/auth.service';
@@ -16,9 +17,12 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   isLoading = signal(false);
+  isLoggingOut = signal(false);
   errorMessage = signal('');
+  isAuthenticated = this.authService.isAuthenticatedSignal;
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -32,26 +36,33 @@ export class LoginComponent {
 
       const {email, password} = this.loginForm.getRawValue();
 
-      this.authService.login({username: email, password}).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate(['/home']);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
+      this.authService.login({username: email, password})
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.router.navigate(['/home']);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.isLoading.set(false);
 
-          if (err.status === 0 || err.status >= 500) {
-            this.errorMessage.set('Servers are currently offline. Cannot log in right now.');
-          } else {
-            this.errorMessage.set('Invalid email or password.');
+            if (err.status === 0 || err.status >= 500) {
+              this.errorMessage.set('Servers are currently offline. Cannot log in right now.');
+            } else {
+              this.errorMessage.set('Invalid email or password.');
+            }
           }
-        }
-      });
+        });
     }
   }
 
   onLogout() {
     this.loginForm.reset();
-    this.authService.logout();
+    this.isLoggingOut.set(true);
+
+    this.authService.logout().subscribe({
+      next: () => this.isLoggingOut.set(false),
+      error: () => this.isLoggingOut.set(false)
+    });
   }
 }

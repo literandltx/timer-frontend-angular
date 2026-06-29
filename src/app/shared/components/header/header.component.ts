@@ -35,6 +35,21 @@ export class HeaderComponent {
     this.isUserMenuOpen = false;
   }
 
+  reset() {
+    this.closeUserMenu();
+
+    const isConfirmed = confirm('Are you sure you want to reset all local data? This will clear your offline database and local settings.');
+
+    if (isConfirmed) {
+      this.authService.resetLocalData();
+    }
+  }
+
+  resetAuth() {
+    this.closeUserMenu();
+    this.reset();
+  }
+
   logout() {
     this.closeUserMenu();
     this.authService.logout();

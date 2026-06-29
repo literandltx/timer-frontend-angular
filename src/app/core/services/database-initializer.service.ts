@@ -94,7 +94,7 @@ export class DatabaseInitializer {
     }
   }
 
-  private async pushOrQueue(entityType: EntityType, action: SyncActionType, payload: any, isAuthed: boolean, apiCall: () => Promise<any>) {
+  private async pushOrQueue(entityType: EntityType, action: SyncActionType, payload: unknown, isAuthed: boolean, apiCall: () => Promise<unknown>) {
     if (isAuthed) {
       try {
         await apiCall();

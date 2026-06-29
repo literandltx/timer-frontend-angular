@@ -31,7 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !req.url.includes('/api/v1/auth/refresh')) {
-        return handle401Error(authReq, next, authService, router);
+        return handle401Error(authReq, next, authService);
       }
 
       if ((error.status === 401 || error.status === 403) && req.url.includes('/api/v1/auth/refresh')) {
@@ -44,7 +44,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService: AuthService, router: Router) {
+function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
@@ -61,8 +61,7 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
       }),
       catchError((err) => {
         isRefreshing = false;
-        authService.logout();
-        router.navigate(['/login']);
+        authService.clearAuthState();
         return throwError(() => err);
       })
     );

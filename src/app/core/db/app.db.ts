@@ -13,7 +13,7 @@ export interface SyncAction {
   entityId: string;
   entityType: EntityType;
   action: SyncActionType;
-  payload?: any;
+  payload?: unknown;
 
   timestamp: number;
   status?: 'PENDING' | 'ERROR';

@@ -151,6 +151,13 @@
   background-color: var(--link-hover-bg);
 }
 
+.dropdown-divider {
+  height: 1px;
+  background-color: var(--nav-border);
+  margin: 4px 0;
+  width: 100%;
+}
+
 .logout-btn {
   color: #c92a2a;
 }

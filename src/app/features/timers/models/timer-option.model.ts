@@ -21,6 +21,6 @@ export interface UpdateTimerOptionRequest {
 export interface TimerOptionSyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: any;
+  payload?: unknown;
   optionUuid?: string;
 }

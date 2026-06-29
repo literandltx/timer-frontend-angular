@@ -1,6 +1,6 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
+import {Observable, tap, catchError, of} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
@@ -31,8 +31,10 @@ export class AuthService {
 
   private authApiUrl = `${environment.base_url}/api/v1/auth`;
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
+  private accessToken: string | null = null;
 
-  public isAuthenticatedSignal = signal<boolean>(this.hasToken());
+  private _isAuthenticated = signal<boolean>(false);
+  public isAuthenticatedSignal = this._isAuthenticated.asReadonly();
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
@@ -59,33 +61,30 @@ export class AuthService {
   }
 
   private setToken(token: string): void {
-    localStorage.setItem('jwt_token', token);
-    this.isAuthenticatedSignal.set(true);
+    this.accessToken = token;
+    this._isAuthenticated.set(true);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('jwt_token');
+    return this.accessToken;
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem('jwt_token');
-  }
-
-  logout(): void {
-    this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).subscribe({
-      next: async () => await this.clearLocalState(),
-      error: async (err) => {
-        console.error('Server logout failed, but cleaning local state anyway', err);
-        await this.clearLocalState();
-      }
-    });
+  logout(): Observable<unknown> {
+    return this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).pipe(
+      tap(() => this.clearAuthState()),
+      catchError((err) => {
+        console.error('Server logout failed, but cleaning local auth state anyway', err);
+        this.clearAuthState();
+        return of(null);
+      })
+    );
   }
 
   deleteAccount(): void {
     this.http.delete(`${this.usersApiUrl}/me`, {withCredentials: true}).subscribe({
       next: async () => {
         console.log('Account deleted successfully');
-        await this.clearLocalState();
+        await this.clearAllUserData();
       },
       error: (err) => {
         console.error('Account deletion failed', err);
@@ -94,18 +93,39 @@ export class AuthService {
     });
   }
 
-  private async clearLocalState(): Promise<void> {
-    localStorage.removeItem('jwt_token');
-    this.isAuthenticatedSignal.set(false);
+  public async resetLocalData(): Promise<void> {
+    this.accessToken = null;
+    this._isAuthenticated.set(false);
+
+    try {
+      await Promise.all(this.db.tables.map(table => table.clear()));
+      console.log('IndexedDB cleared successfully');
+    } catch (err) {
+      console.error('Failed to clear IndexedDB during reset', err);
+    }
+
+    localStorage.clear();
+    window.location.reload();
+  }
+
+  public clearAuthState(): void {
+    this.accessToken = null;
+    this._isAuthenticated.set(false);
+    this.router.navigate(['/login']);
+  }
+
+  private async clearAllUserData(): Promise<void> {
+    this.accessToken = null;
+    this._isAuthenticated.set(false);
 
     try {
       await Promise.all(this.db.tables.map(table => table.clear()));
     } catch (err) {
-      console.error('Failed to clear IndexedDB on logout', err);
+      console.error('Failed to clear IndexedDB on account deletion', err);
     }
 
     localStorage.clear();
-    this.router.navigate(['/login']);
+    window.location.href = '/login';
   }
 
 }
