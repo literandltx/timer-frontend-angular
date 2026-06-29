@@ -4,6 +4,7 @@ import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {catchError, of} from 'rxjs';
 import {routes} from './app.routes';
 import {authInterceptor} from './core/interceptors/auth.interceptor';
+import {networkStatusInterceptor} from './core/interceptors/network-status.interceptor'; // Added
 import {GlobalErrorHandler} from './core/errors/global-error-handler';
 import {DatabaseInitializer} from './core/services/database-initializer.service';
 import {AuthService} from './core/auth/auth.service';
@@ -12,7 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, networkStatusInterceptor])
     ),
     {
       provide: ErrorHandler,
