@@ -1,5 +1,3 @@
-import {CreateLabelRequest} from '../../labels/models/label.model';
-
 export interface TimerEntry {
   uuid: string;
 
@@ -35,6 +33,6 @@ export interface UpdateTimerEntryRequest {
 export interface TimerEntrySyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: any;
+  payload?: unknown;
   entryUuid?: string;
 }

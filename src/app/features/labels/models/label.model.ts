@@ -23,6 +23,6 @@ export interface UpdateLabelRequest {
 export interface LabelSyncAction {
   id: string;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
-  payload?: any;
+  payload?: unknown;
   labelUuid?: string;
 }

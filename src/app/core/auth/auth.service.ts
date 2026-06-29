@@ -69,7 +69,7 @@ export class AuthService {
     return this.accessToken;
   }
 
-  logout(): Observable<any> {
+  logout(): Observable<unknown> {
     return this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).pipe(
       tap(() => this.clearAuthState()),
       catchError((err) => {

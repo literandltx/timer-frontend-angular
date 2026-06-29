@@ -19,10 +19,10 @@ export class SyncEngineService {
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     entityType: EntityType,
     entityId: string,
-    payload: any,
+    payload: unknown,
     apiCall: () => Promise<T>,
     optimisticDbUpdate: () => Promise<void>,
-    dbTable: Table<any, string>
+    dbTable: Table<unknown, string>
   ): Promise<void> {
     const isOnlineAndAuth = this.health.isHealthy() && this.auth.isAuthenticatedSignal();
 
@@ -31,7 +31,7 @@ export class SyncEngineService {
         await apiCall();
         await optimisticDbUpdate();
         this.syncTimestamp.update(entityType);
-      } catch (error) {
+      } catch {
         await this.queueOfflineMutation(action, entityType, entityId, payload, optimisticDbUpdate, dbTable);
       }
     } else {
@@ -39,7 +39,7 @@ export class SyncEngineService {
     }
   }
 
-  async processQueue<T>(entityType: EntityType, apiService: SyncApiService<T, any, any>): Promise<void> {
+  async processQueue<T>(entityType: EntityType, apiService: SyncApiService<T, unknown, unknown>): Promise<void> {
     const pendingActions = await this.db.syncQueue
       .where('entityType')
       .equals(entityType)
@@ -79,9 +79,9 @@ export class SyncEngineService {
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     entityType: EntityType,
     entityId: string,
-    payload: any,
+    payload: unknown,
     optimisticDbUpdate: () => Promise<void>,
-    dbTable: Table<any, string>
+    dbTable: Table<unknown, string>
   ) {
     await this.db.transaction('rw', this.db.syncQueue, dbTable, async () => {
       await this.db.syncQueue.add({

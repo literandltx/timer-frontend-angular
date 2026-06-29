@@ -1,7 +1,7 @@
 /**
  * Performs a shallow equality check between two objects.
  */
-export function isEqual(obj1: any, obj2: any): boolean {
+export function isEqual(obj1: unknown, obj2: unknown): boolean {
   if (obj1 === obj2) {
     return true;
   }
@@ -10,15 +10,18 @@ export function isEqual(obj1: any, obj2: any): boolean {
     return false;
   }
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+  const o1 = obj1 as Record<string, unknown>;
+  const o2 = obj2 as Record<string, unknown>;
+
+  const keys1 = Object.keys(o1);
+  const keys2 = Object.keys(o2);
 
   if (keys1.length !== keys2.length) {
     return false;
   }
 
   for (const key of keys1) {
-    if (obj1[key] !== obj2[key]) {
+    if (o1[key] !== o2[key]) {
       return false;
     }
   }
@@ -29,7 +32,7 @@ export function isEqual(obj1: any, obj2: any): boolean {
 /**
  * Performs a deep equality check between two objects or arrays.
  */
-export function isDeepEqual(obj1: any, obj2: any): boolean {
+export function isDeepEqual(obj1: unknown, obj2: unknown): boolean {
   if (obj1 === obj2) {
     return true;
   }
@@ -42,15 +45,18 @@ export function isDeepEqual(obj1: any, obj2: any): boolean {
     return false;
   }
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+  const o1 = obj1 as Record<string, unknown>;
+  const o2 = obj2 as Record<string, unknown>;
+
+  const keys1 = Object.keys(o1);
+  const keys2 = Object.keys(o2);
 
   if (keys1.length !== keys2.length) {
     return false;
   }
 
   for (const key of keys1) {
-    if (!keys2.includes(key) || !isDeepEqual(obj1[key], obj2[key])) {
+    if (!keys2.includes(key) || !isDeepEqual(o1[key], o2[key])) {
       return false;
     }
   }

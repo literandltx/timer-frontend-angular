@@ -1,5 +1,5 @@
 import {Component, inject, HostListener, ElementRef} from '@angular/core';
-import {RouterLink, RouterLinkActive, Router} from '@angular/router';
+import {RouterLink, RouterLinkActive} from '@angular/router';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';

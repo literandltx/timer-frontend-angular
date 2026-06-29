@@ -79,11 +79,11 @@ export class EntitySyncOrchestrator {
 
       if (updates && updates.length > 0) {
         const toDeleteIds = updates
-          .filter(u => (u as any).deleted === true || (u as any).isDeleted === true)
+          .filter(u => u.deleted)
           .map(u => u.uuid);
 
         const toUpdate = updates
-          .filter(u => (u as any).deleted !== true && (u as any).isDeleted !== true);
+          .filter(u => !u.deleted);
 
         if (toUpdate.length > 0) {
           await dbTable.bulkPut(toUpdate);
