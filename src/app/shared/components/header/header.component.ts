@@ -17,7 +17,6 @@ export class HeaderComponent {
   public themeService = inject(ThemeService);
   public authService = inject(AuthService);
   private elementRef = inject(ElementRef);
-  private router = inject(Router);
 
   public isUserMenuOpen = false;
 
@@ -29,15 +28,26 @@ export class HeaderComponent {
   }
 
   toggleUserMenu(): void {
-    if (this.authService.isAuthenticatedSignal()) {
-      this.isUserMenuOpen = !this.isUserMenuOpen;
-    } else {
-      this.router.navigate(['/login']);
-    }
+    this.isUserMenuOpen = !this.isUserMenuOpen;
   }
 
   closeUserMenu(): void {
     this.isUserMenuOpen = false;
+  }
+
+  reset() {
+    this.closeUserMenu();
+
+    const isConfirmed = confirm('Are you sure you want to reset all local data? This will clear your offline database and local settings.');
+
+    if (isConfirmed) {
+      this.authService.resetLocalData();
+    }
+  }
+
+  resetAuth() {
+    this.closeUserMenu();
+    this.reset();
   }
 
   logout() {

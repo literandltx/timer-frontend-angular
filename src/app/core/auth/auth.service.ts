@@ -93,6 +93,21 @@ export class AuthService {
     });
   }
 
+  public async resetLocalData(): Promise<void> {
+    this.accessToken = null;
+    this._isAuthenticated.set(false);
+
+    try {
+      await Promise.all(this.db.tables.map(table => table.clear()));
+      console.log('IndexedDB cleared successfully');
+    } catch (err) {
+      console.error('Failed to clear IndexedDB during reset', err);
+    }
+
+    localStorage.clear();
+    window.location.reload();
+  }
+
   public clearAuthState(): void {
     this.accessToken = null;
     this._isAuthenticated.set(false);
