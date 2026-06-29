@@ -1,6 +1,6 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
+import {Observable, tap, catchError, of} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
@@ -33,7 +33,8 @@ export class AuthService {
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
   private accessToken: string | null = null;
 
-  public isAuthenticatedSignal = signal<boolean>(false);
+  private _isAuthenticated = signal<boolean>(false);
+  public isAuthenticatedSignal = this._isAuthenticated.asReadonly();
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
@@ -61,21 +62,22 @@ export class AuthService {
 
   private setToken(token: string): void {
     this.accessToken = token;
-    this.isAuthenticatedSignal.set(true);
+    this._isAuthenticated.set(true);
   }
 
   getToken(): string | null {
     return this.accessToken;
   }
 
-  logout(): void {
-    this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).subscribe({
-      next: () => this.clearAuthState(),
-      error: (err) => {
+  logout(): Observable<any> {
+    return this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).pipe(
+      tap(() => this.clearAuthState()),
+      catchError((err) => {
         console.error('Server logout failed, but cleaning local auth state anyway', err);
         this.clearAuthState();
-      }
-    });
+        return of(null);
+      })
+    );
   }
 
   deleteAccount(): void {
@@ -93,13 +95,13 @@ export class AuthService {
 
   public clearAuthState(): void {
     this.accessToken = null;
-    this.isAuthenticatedSignal.set(false);
+    this._isAuthenticated.set(false);
     this.router.navigate(['/login']);
   }
 
   private async clearAllUserData(): Promise<void> {
     this.accessToken = null;
-    this.isAuthenticatedSignal.set(false);
+    this._isAuthenticated.set(false);
 
     try {
       await Promise.all(this.db.tables.map(table => table.clear()));
