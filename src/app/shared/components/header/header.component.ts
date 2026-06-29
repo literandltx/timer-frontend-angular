@@ -1,5 +1,5 @@
 import {Component, inject, HostListener, ElementRef} from '@angular/core';
-import {RouterLink, RouterLinkActive} from '@angular/router';
+import {RouterLink, RouterLinkActive, Router} from '@angular/router';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
@@ -17,6 +17,7 @@ export class HeaderComponent {
   public themeService = inject(ThemeService);
   public authService = inject(AuthService);
   private elementRef = inject(ElementRef);
+  private router = inject(Router);
 
   public isUserMenuOpen = false;
 
@@ -28,7 +29,11 @@ export class HeaderComponent {
   }
 
   toggleUserMenu(): void {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
+    if (this.authService.isAuthenticatedSignal()) {
+      this.isUserMenuOpen = !this.isUserMenuOpen;
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   closeUserMenu(): void {
