@@ -110,7 +110,7 @@ export class AuthService {
     }
 
     localStorage.clear();
-    this.router.navigate(['/login']);
+    window.location.href = '/login';
   }
 
 }
