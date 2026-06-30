@@ -51,11 +51,13 @@ export class HeaderComponent {
   }
 
   logout() {
+    console.log("Apply logout")
     this.closeUserMenu();
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 
   deleteAccount() {
+    console.log("Apply deleteAccount")
     this.closeUserMenu();
 
     const isConfirmed = confirm('Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.');

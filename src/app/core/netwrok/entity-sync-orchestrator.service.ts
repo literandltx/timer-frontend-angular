@@ -22,7 +22,8 @@ export class EntitySyncOrchestrator {
   private syncEngine = inject(SyncEngineService);
 
   public setupSync<T extends SyncEntity, CreateReq, UpdateReq>(
-    entityType: Parameters<SyncEngineService['processQueue']>[0],
+    // entityType: Parameters<SyncEngineService['processQueue']>[0],
+    entityType: Parameters<SyncEngineService['processQueueV2']>[0],
     wsTopic: string,
     apiService: SyncApiService<T, CreateReq, UpdateReq>,
     dbTable: Table<T, string>,
@@ -39,7 +40,8 @@ export class EntitySyncOrchestrator {
         switchMap(({isReady, useWs}) => {
           if (isReady) {
             console.info(`[SyncOrchestrator][${entityType}] System Ready. Processing offline queue & pulling missed updates...`);
-            return from(this.syncEngine.processQueue(entityType, apiService)).pipe(
+            // return from(this.syncEngine.processQueue(entityType, apiService)).pipe(
+            return from(this.syncEngine.processQueueV2(entityType)).pipe(
               switchMap(() => this.pullMissedUpdates(entityType, apiService, dbTable)),
               switchMap(() => {
                 onDataChanged();
