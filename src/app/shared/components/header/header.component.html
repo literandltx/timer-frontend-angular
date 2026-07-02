@@ -55,15 +55,15 @@
 
       @if (isUserMenuOpen) {
         <div class="dropdown-menu">
-          <button class="dropdown-item" (click)="reset()">Reset</button>
-          <div class="dropdown-divider"></div>
-
           @if (authService.isAuthenticatedSignal()) {
             <button class="dropdown-item" (click)="resetAuth()">Reset</button>
+            <div class="dropdown-divider"></div>
             <button class="dropdown-item logout-btn" (click)="logout()">Logout</button>
             <div class="dropdown-divider"></div>
             <button class="dropdown-item delete-btn" (click)="deleteAccount()">Delete Account</button>
           } @else {
+            <button class="dropdown-item" (click)="reset()">Reset</button>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" routerLink="/login" (click)="closeUserMenu()">Login</a>
             <a class="dropdown-item" routerLink="/register" (click)="closeUserMenu()">Register</a>
           }
