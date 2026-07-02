@@ -34,19 +34,20 @@ export class SyncEngineService {
     optimisticDbUpdate: () => Promise<void>,
     dbTable: Table<unknown, string>
   ): Promise<void> {
+    await optimisticDbUpdate();
+
     const isOnlineAndAuth = this.health.isHealthy() && this.auth.isAuthenticatedSignal();
 
-    if (isOnlineAndAuth) {
-      try {
-        await apiCall();
-        await optimisticDbUpdate();
-        this.syncTimestamp.update(entityType);
-      } catch {
-        await this.queueOfflineMutation(action, entityType, entityId, payload, optimisticDbUpdate, dbTable);
-      }
-    } else {
-      await this.queueOfflineMutation(action, entityType, entityId, payload, optimisticDbUpdate, dbTable);
+    if (!isOnlineAndAuth) {
+      await this.enqueue(action, entityType, entityId, payload);
+      return;
     }
+
+    apiCall()
+      .then(() => this.syncTimestamp.update(entityType))
+      .catch(async () => {
+        await this.enqueue(action, entityType, entityId, payload);
+      });
   }
 
   /**
@@ -160,25 +161,20 @@ export class SyncEngineService {
     }
   }
 
-  private async queueOfflineMutation(
+  private async enqueue(
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     entityType: EntityType,
     entityId: string,
-    payload: unknown,
-    optimisticDbUpdate: () => Promise<void>,
-    dbTable: Table<unknown, string>
-  ) {
-    await this.db.transaction('rw', this.db.syncQueue, dbTable, async () => {
-      await this.db.syncQueue.add({
-        entityId,
-        entityType,
-        action,
-        payload,
-        timestamp: Date.now(),
-        status: 'PENDING',
-        retries: 0
-      });
-      await optimisticDbUpdate();
+    payload: unknown
+  ): Promise<void> {
+    await this.db.syncQueue.add({
+      entityId,
+      entityType,
+      action,
+      payload,
+      timestamp: Date.now(),
+      status: 'PENDING',
+      retries: 0
     });
   }
 }
