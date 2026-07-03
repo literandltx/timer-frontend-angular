@@ -6,6 +6,8 @@ import {AppDB} from '../../../core/db/app.db';
 import {AuthService} from '../../../core/auth/auth.service';
 import {TimerSettingApiService} from './timer-setting-api.service';
 
+const STORAGE_KEY = 'activeTimerSetting';
+
 @Injectable({providedIn: 'root'})
 export class TimerSettingsService implements OnDestroy {
   private api = inject(TimerSettingApiService);
@@ -13,7 +15,7 @@ export class TimerSettingsService implements OnDestroy {
   private auth = inject(AuthService);
   private subscriptions = new Subscription();
 
-  public activeSetting = signal<TimerSetting>({} as TimerSetting);
+  public activeSetting = signal<TimerSetting>(this.readFromLocalStorage() ?? this.createLocalDefault());
 
   constructor() {
     this.loadSettings();
@@ -29,16 +31,27 @@ export class TimerSettingsService implements OnDestroy {
           (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         )[0];
 
-        this.activeSetting.set(latest);
+        const current = this.activeSetting();
+        if (!current.updatedAt || new Date(latest.updatedAt).getTime() >= new Date(current.updatedAt).getTime()) {
+          this.setActiveSetting(latest);
+        }
         latestUpdatedAt = latest.updatedAt;
+      } else {
+        await this.db.timerSettings.put(this.activeSetting());
       }
 
       if (this.auth.isAuthenticatedSignal()) {
         const sub = this.api.pullUpdates(latestUpdatedAt).subscribe({
           next: async (response) => {
             if (response) {
-              this.activeSetting.set(response);
-              await this.db.timerSettings.put(response);
+              const current = this.activeSetting();
+              const isNewer = !current.updatedAt ||
+                new Date(response.updatedAt).getTime() > new Date(current.updatedAt).getTime();
+
+              if (isNewer) {
+                this.setActiveSetting(response);
+                await this.db.timerSettings.put(response);
+              }
             }
           },
           error: (error) => {
@@ -59,19 +72,16 @@ export class TimerSettingsService implements OnDestroy {
 
   async setActiveOption(timerOptionUuid: string): Promise<void> {
     const currentSetting = this.activeSetting();
-
-    if (!currentSetting.uuid) {
-      return;
-    }
-
     const now = new Date().toISOString();
     const updatedSetting: TimerSetting = {
       ...currentSetting,
+      uuid: currentSetting.uuid ?? this.generateUuid(),
+      createdAt: currentSetting.createdAt ?? now,
       timerOptionUuid: timerOptionUuid,
       updatedAt: now
     };
 
-    this.activeSetting.set(updatedSetting);
+    this.setActiveSetting(updatedSetting);
 
     try {
       await this.db.timerSettings.put(updatedSetting);
@@ -115,8 +125,44 @@ export class TimerSettingsService implements OnDestroy {
     const isNewer = !currentSetting.updatedAt || new Date(incomingSetting.updatedAt).getTime() > new Date(currentSetting.updatedAt).getTime();
 
     if (isNewer && !incomingSetting.deleted) {
-      this.activeSetting.set(incomingSetting);
+      this.setActiveSetting(incomingSetting);
       await this.db.timerSettings.put(incomingSetting);
     }
   }
+
+  private setActiveSetting(setting: TimerSetting): void {
+    this.activeSetting.set(setting);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(setting));
+    } catch (err) {
+      console.warn('[TimerSettingsService] Failed to cache setting in localStorage.', err);
+    }
+  }
+
+  private readFromLocalStorage(): TimerSetting | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) as TimerSetting : null;
+    } catch (err) {
+      console.warn('[TimerSettingsService] Failed to read cached setting.', err);
+      return null;
+    }
+  }
+
+  private createLocalDefault(): TimerSetting {
+    const now = new Date().toISOString();
+    return {
+      uuid: this.generateUuid(),
+      timerOptionUuid: undefined as unknown as string,
+      createdAt: now,
+      updatedAt: now
+    } as TimerSetting;
+  }
+
+  private generateUuid(): string {
+    return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
 }
