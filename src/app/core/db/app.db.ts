@@ -3,7 +3,7 @@ import {Dexie, Table} from 'dexie';
 import {Label} from '../../features/labels/models/label.model';
 import {TimerOption} from '../../features/timers/models/timer-option.model';
 import {TimerSetting} from '../../features/timers/models/timer-setting.model';
-import {TimerEntry} from '../../features/home/models/timer-entry.model';
+import {TimerEntry} from '../../features/timers/models/timer-entry.model';
 
 export type EntityType = 'LABEL' | 'TIMER_OPTION' | 'TIMER_ENTRY' | 'TIMER_SETTING';
 export type SyncActionType = 'CREATE' | 'UPDATE' | 'DELETE';
