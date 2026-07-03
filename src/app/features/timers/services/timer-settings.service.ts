@@ -87,6 +87,7 @@ export class TimerSettingsService implements OnDestroy {
 
       if (!this.auth.isAuthenticatedSignal()) {
         console.error('User unauthenticated. Skipping HTTP call, kept in queue.');
+        return;
       }
 
       const request: TimerSettingRequest = {
