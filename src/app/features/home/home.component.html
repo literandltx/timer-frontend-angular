@@ -1,6 +1,6 @@
 <div class="timer-container">
 
-  @for (key of [settingService.activeSetting().timerOptionUuid]; track key) {
+  @if (settingService.activeSetting()) {
     <ns-app-timer
       [timeAmount]="currentTimerSeconds()"
       (timerFinish)="onTimerFinish($event)"

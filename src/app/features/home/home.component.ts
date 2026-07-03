@@ -9,7 +9,7 @@ import {ToggleButtonComponent} from '../../shared/components/toggle/toggle-butto
 import {LabelService} from '../labels/services/label.service';
 import {TimerSettingsService} from '../timers/services/timer-settings.service';
 import {TimerOptionsService} from '../timers/services/timer-options.service';
-import {TimerEntryService} from './services/timer-entry.service';
+import {TimerEntryService} from '../timers/services/timer-entry.service';
 import {TitleBlinkerService} from '../../core/services/title-blinker.service';
 import {HomeService} from './services/home.service';
 

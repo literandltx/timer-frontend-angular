@@ -1,12 +1,12 @@
 import {Injectable, inject} from '@angular/core';
-import {TimerEntryService} from '../../home/services/timer-entry.service';
+import {TimerEntryService} from '../../timers/services/timer-entry.service';
 import {LabelService} from '../../labels/services/label.service';
 import {TimerOptionsService} from '../../timers/services/timer-options.service';
 import {
   TimerEntry,
   CreateTimerEntryRequest,
   UpdateTimerEntryRequest
-} from '../../home/models/timer-entry.model';
+} from '../../timers/models/timer-entry.model';
 import {TimerOption} from '../../timers/models/timer-option.model';
 import {Label} from '../../labels/models/label.model';
 import {AppDB} from '../../../core/db/app.db';
