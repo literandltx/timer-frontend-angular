@@ -5,7 +5,7 @@ import {RegisterComponent} from './features/register/register.component';
 import {LoginComponent} from './features/login/login.component';
 import {LabelListComponent} from './features/labels/label-list.component';
 import {HistoryComponent} from './features/history/history.component';
-import {PresetComponent} from './features/settings/preset.component';
+import {PresetComponent} from './features/preset/preset.component';
 
 export const routes: Routes = [
   {path: 'home', component: HomeComponent},
