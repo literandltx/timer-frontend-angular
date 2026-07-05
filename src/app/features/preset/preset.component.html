@@ -71,7 +71,7 @@
   <section class="preset-section label-section">
     <div class="header-row">
       <h2 class="page-title">Labels</h2>
-      <button type="button" class="icon-btn add-icon-btn" (click)="startAddLabel()" aria-label="Add label" title="Add label">
+      <button type="button" class="icon-btn add-icon-btn" (click)="startAddLabel($event)" aria-label="Add label" title="Add label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -82,7 +82,7 @@
     <div class="content-divider"></div>
 
     @if (editingLabel) {
-      <div class="edit-section">
+      <div class="edit-section2">
         <div class="input-group">
 <!--          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>-->
 
@@ -115,9 +115,9 @@
       @for (label of labels(); track label.uuid) {
         <ns-app-list-item>
           <ng-container info>
-        <span class="label-pill" [style.background-color]="label.color">
-          {{ label.name }}
-        </span>
+            <span class="label-pill" [style.background-color]="label.color">
+              {{ label.name }}
+            </span>
           </ng-container>
 
           <ng-container actions>
@@ -136,7 +136,7 @@
             </button>
 
             <div class="action-group">
-              <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label)"
+              <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label, $event)"
                       aria-label="Edit label" title="Edit label">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
