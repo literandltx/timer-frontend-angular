@@ -35,10 +35,6 @@
       @if (!isAdding) {
         <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option" title="Add timer option"></button>
       }
-
-      @if (options().length === 0) {
-        <p class="empty-hint">No timer options yet — add one to get started.</p>
-      }
     </div>
 
     @if (isAdding) {
@@ -88,7 +84,7 @@
     @if (editingLabel) {
       <div class="edit-section">
         <div class="input-group">
-          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>
+<!--          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>-->
 
           <input class="modern-input" type="text" [(ngModel)]="editingLabel.name"
                  placeholder="Label Name"/>
@@ -117,28 +113,27 @@
 
     <div class="options-list">
       @for (label of labels(); track label.uuid) {
-        <ns-app-list-item [isActive]="label.uuid === homeService.activeLabelUuid()">
+        <ns-app-list-item>
           <ng-container info>
-            <span class="label-pill" [style.background-color]="label.color">
-              {{ label.name }}
-            </span>
+        <span class="label-pill" [style.background-color]="label.color">
+          {{ label.name }}
+        </span>
           </ng-container>
 
           <ng-container actions>
-            @if (label.uuid === homeService.activeLabelUuid()) {
-              <span class="badge active-badge" aria-label="Active" title="Active">
+            <button
+              type="button"
+              class="active-toggle-btn"
+              [class.active]="label.uuid === homeService.activeLabelUuid()"
+              (click)="setActiveLabel(label.uuid)"
+              [attr.aria-label]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'"
+              [attr.title]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'">
+              @if (label.uuid === homeService.activeLabelUuid()) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-              </span>
-            } @else {
-              <button type="button" class="icon-btn active-icon-btn" (click)="setActiveLabel(label.uuid)"
-                      aria-label="Set active" title="Set active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="9"></circle>
-                </svg>
-              </button>
-            }
+              }
+            </button>
 
             <div class="action-group">
               <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label)"
