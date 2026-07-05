@@ -6,6 +6,7 @@ import {Injectable, signal, computed, WritableSignal, Signal} from '@angular/cor
 export class TimerService {
   timeLeft: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
+  initialTimeSignal: WritableSignal<number> = signal<number>(0);
 
   private initialTime = 0;
   private endTime: number | null = null;
@@ -25,6 +26,7 @@ export class TimerService {
 
   setInitialTime(time: number) {
     this.initialTime = time;
+    this.initialTimeSignal.set(time);
     this.timeLeft.set(time);
   }
 
@@ -80,6 +82,7 @@ export class TimerService {
     this.pause();
     if (newTime !== undefined) {
       this.initialTime = newTime;
+      this.initialTimeSignal.set(newTime);
     }
     this.timeLeft.set(this.initialTime);
   }

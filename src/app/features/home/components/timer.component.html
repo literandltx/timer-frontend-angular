@@ -6,11 +6,43 @@
   (keyup.enter)="handleClick()"
   (keyup.space)="handleClick()"
 >
-  <h1 class="timer-display">
-    {{ timerService.formattedTime() }}
-  </h1>
+  <div class="ring-container">
+    <svg class="ring-svg" viewBox="0 0 300 300">
+      <g [attr.transform]="'rotate(-90 ' + center + ' ' + center + ')'">
+        <circle
+          class="ring-track"
+          [attr.cx]="center"
+          [attr.cy]="center"
+          [attr.r]="radius"
+          [attr.stroke-width]="strokeWidth"
+          fill="none"/>
 
-  <p class="timer-subtitle">
-    {{ timerService.isRunning() ? 'Click to Pause' : 'Click to Start' }} • Double-click to Reset
-  </p>
+        <circle
+          class="ring-progress"
+          [attr.cx]="center"
+          [attr.cy]="center"
+          [attr.r]="radius"
+          [attr.stroke-width]="strokeWidth"
+          fill="none"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="dashOffset()"/>
+      </g>
+
+      <circle
+        class="ring-dot"
+        [attr.cx]="dotPosition().x"
+        [attr.cy]="dotPosition().y"
+        [attr.r]="strokeWidth"/>
+    </svg>
+
+    <div class="ring-content">
+      <h1 class="timer-display">
+        {{ timerService.formattedTime() }}
+      </h1>
+
+      <p class="timer-subtitle">
+        {{ timerService.isRunning() ? 'Click to Pause' : 'Click to Start' }} • Double-click to Reset
+      </p>
+    </div>
+  </div>
 </div>
