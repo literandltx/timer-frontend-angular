@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from '@angular/core';
+import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ButtonComponent} from '../../shared/components/button/button.component';
@@ -40,6 +40,28 @@ export class PresetComponent implements OnInit {
     return this.activeSetting().timerOptionUuid;
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    if (this.isAdding) {
+      const clickedInsideTimerEdit = target.closest('.timer-edit-section');
+      const clickedTrigger = target.closest('.option-chip-default');
+      if (!clickedInsideTimerEdit && !clickedTrigger) {
+        this.cancelAdd();
+      }
+    }
+
+    if (this.editingLabel) {
+      const clickedInsideLabelEdit = target.closest('.label-edit-section');
+      const clickedAddTrigger = target.closest('.add-icon-btn');
+      const clickedEditTrigger = target.closest('.edit-icon-btn');
+      if (!clickedInsideLabelEdit && !clickedAddTrigger && !clickedEditTrigger) {
+        this.cancelLabel();
+      }
+    }
+  }
+
   async setActive(uuid: string) {
     await this.settingsService.setActiveOption(uuid);
   }
@@ -78,12 +100,14 @@ export class PresetComponent implements OnInit {
     await this.optionsService.delete(uuid);
   }
 
-  startAddLabel() {
+  startAddLabel(event?: Event) {
+    event?.stopPropagation();
     const isAlreadyAdding = this.editingLabel && !this.editingLabel.uuid;
     this.editingLabel = isAlreadyAdding ? null : {name: '', color: '#3b82f6'};
   }
 
-  startEditLabel(label: Label) {
+  startEditLabel(label: Label, event?: Event) {
+    event?.stopPropagation();
     const isAlreadyEditingThis = this.editingLabel?.uuid === label.uuid;
     this.editingLabel = isAlreadyEditingThis ? null : {...label};
   }
