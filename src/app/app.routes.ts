@@ -5,9 +5,11 @@ import {RegisterComponent} from './features/register/register.component';
 import {LoginComponent} from './features/login/login.component';
 import {LabelListComponent} from './features/labels/label-list.component';
 import {HistoryComponent} from './features/history/history.component';
+import {PresetComponent} from './features/settings/preset.component';
 
 export const routes: Routes = [
   {path: 'home', component: HomeComponent},
+  {path: 'preset', component: PresetComponent},
   {path: 'timer-list', component: TimerListComponent},
   {path: 'label-list', component: LabelListComponent},
   {path: 'history', component: HistoryComponent},

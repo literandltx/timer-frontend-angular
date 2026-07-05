@@ -1,0 +1,64 @@
+<div class="preset-container">
+
+  <section class="preset-section">
+    <div class="section-header">
+      <h2 class="section-title">Timers</h2>
+    </div>
+
+    <div class="chip-grid">
+      @for (option of options(); track option.uuid) {
+        <div
+          class="option-chip"
+          role="button"
+          tabindex="0"
+          [class.active]="option.uuid === activeUuid"
+          (click)="setActive(option.uuid)"
+          (keydown.enter)="setActive(option.uuid)"
+          (keydown.space)="setActive(option.uuid); $event.preventDefault()">
+          <span class="chip-value">{{ option.value }}m</span>
+          <button
+            type="button"
+            class="chip-delete"
+            (click)="deleteOption($event, option.uuid)"
+            aria-label="Delete option">
+            ×
+          </button>
+        </div>
+      }
+
+      @if (!isAdding) {
+        <button type="button" class="option-chip-default" (click)="startAdd()"> </button>
+      }
+
+      @if (options().length === 0) {
+        <p class="empty-hint">No timer options yet — add one to get started.</p>
+      }
+    </div>
+  </section>
+
+  @if (isAdding) {
+    <div class="edit-section">
+      <div class="input-group">
+        <input
+          class="modern-input"
+          type="number"
+          [(ngModel)]="newValue"
+          placeholder="Duration (e.g., 25)"
+          (keyup.enter)="confirmAdd()"
+          (keyup.escape)="cancelAdd()"/>
+
+        <div class="edit-actions">
+          <button type="button" class="primary-btn" (click)="confirmAdd()">Save</button>
+          <button type="button" class="ghost-btn" (click)="cancelAdd()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="section-divider"></div>
+
+  <section class="preset-section label-section">
+    <ns-app-label-list></ns-app-label-list>
+  </section>
+
+</div>
