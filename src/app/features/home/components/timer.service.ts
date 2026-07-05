@@ -1,4 +1,6 @@
-import {Injectable, signal, computed, WritableSignal, Signal} from '@angular/core';
+import { Injectable, signal, computed, WritableSignal, Signal } from '@angular/core';
+
+export type TimerState = 'idle' | 'running' | 'paused';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +9,16 @@ export class TimerService {
   timeLeft: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
   initialTimeSignal: WritableSignal<number> = signal<number>(0);
+
+  state: Signal<TimerState> = computed(() => {
+    if (this.isRunning()) {
+      return 'running';
+    }
+    if (this.timeLeft() < this.initialTimeSignal() && this.timeLeft() > 0) {
+      return 'paused';
+    }
+    return 'idle';
+  });
 
   private initialTime = 0;
   private endTime: number | null = null;

@@ -35,14 +35,22 @@
         [attr.r]="strokeWidth"/>
     </svg>
 
-    <div class="ring-content">
-      <h1 class="timer-display">
-        {{ timerService.formattedTime() }}
-      </h1>
+    <h1 class="timer-display">
+      {{ timerService.formattedTime() }}
+    </h1>
 
-      <p class="timer-subtitle">
-        {{ timerService.isRunning() ? 'Click to Pause' : 'Click to Start' }} • Double-click to Reset
-      </p>
-    </div>
+    <p class="timer-subtitle">
+      @switch (timerService.state()) {
+        @case ('idle') {
+          Click to Start
+        }
+        @case ('running') {
+          Click to pause • Double-click to Finish
+        }
+        @case ('paused') {
+          Click to resume • Double-click to Finish
+        }
+      }
+    </p>
   </div>
 </div>
