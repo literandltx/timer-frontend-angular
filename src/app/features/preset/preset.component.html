@@ -1,0 +1,167 @@
+<div class="preset-container">
+
+  <section class="preset-section">
+    <div class="section-header">
+      <h2 class="section-title">Timers</h2>
+    </div>
+
+    <div class="content-divider"></div>
+
+    <div class="chip-grid">
+      @for (option of options(); track option.uuid) {
+        <div
+          class="option-chip"
+          role="button"
+          tabindex="0"
+          [class.active]="option.uuid === activeUuid"
+          (click)="setActive(option.uuid)"
+          (keydown.enter)="setActive(option.uuid)"
+          (keydown.space)="setActive(option.uuid); $event.preventDefault()">
+          <span class="chip-value">{{ option.value }}m</span>
+          <button
+            type="button"
+            class="chip-delete"
+            (click)="deleteOption($event, option.uuid)"
+            aria-label="Delete option"
+            title="Delete option">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      }
+
+      @if (!isAdding) {
+        <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option" title="Add timer option"></button>
+      }
+    </div>
+
+    @if (isAdding) {
+      <div class="edit-section">
+        <div class="input-group">
+          <input
+            class="modern-input"
+            type="number"
+            [(ngModel)]="newValue"
+            placeholder="Duration (e.g., 25)"
+            (keyup.enter)="confirmAdd()"
+            (keyup.escape)="cancelAdd()"/>
+
+          <div class="edit-actions">
+            <button type="button" class="icon-btn confirm-btn" (click)="confirmAdd()" aria-label="Save" title="Save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="icon-btn cancel-btn" (click)="cancelAdd()" aria-label="Cancel" title="Cancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="preset-section label-section">
+    <div class="header-row">
+      <h2 class="page-title">Labels</h2>
+      <button type="button" class="icon-btn add-icon-btn" (click)="startAddLabel()" aria-label="Add label" title="Add label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content-divider"></div>
+
+    @if (editingLabel) {
+      <div class="edit-section">
+        <div class="input-group">
+<!--          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>-->
+
+          <input class="modern-input" type="text" [(ngModel)]="editingLabel.name"
+                 placeholder="Label Name"/>
+
+          <input class="modern-color-input" type="color" [(ngModel)]="editingLabel.color"
+                 title="Choose label color"/>
+
+          <div class="edit-actions">
+            <button type="button" class="icon-btn confirm-btn"
+                    (click)="editingLabel.uuid ? updateLabel() : createLabel()"
+                    aria-label="Save" title="Save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="icon-btn cancel-btn" (click)="cancelLabel()" aria-label="Cancel" title="Cancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="options-list">
+      @for (label of labels(); track label.uuid) {
+        <ns-app-list-item>
+          <ng-container info>
+        <span class="label-pill" [style.background-color]="label.color">
+          {{ label.name }}
+        </span>
+          </ng-container>
+
+          <ng-container actions>
+            <button
+              type="button"
+              class="active-toggle-btn"
+              [class.active]="label.uuid === homeService.activeLabelUuid()"
+              (click)="setActiveLabel(label.uuid)"
+              [attr.aria-label]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'"
+              [attr.title]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'">
+              @if (label.uuid === homeService.activeLabelUuid()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              }
+            </button>
+
+            <div class="action-group">
+              <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label)"
+                      aria-label="Edit label" title="Edit label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button type="button" class="icon-btn delete-icon-btn" (click)="deleteLabel($event, label.uuid)"
+                      aria-label="Delete label" title="Delete label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
+                </svg>
+              </button>
+            </div>
+          </ng-container>
+        </ns-app-list-item>
+      } @empty {
+        <div class="empty-state">
+          <p class="empty-text">No labels found. Add one above!</p>
+        </div>
+      }
+    </div>
+  </section>
+
+</div>
