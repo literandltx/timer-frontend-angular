@@ -57,6 +57,7 @@
   font-weight: 600;
   color: var(--link-active-color);
   background-color: var(--link-active-bg);
+  border-radius: 12px;
 }
 
 .main-nav a:focus-visible {
@@ -181,7 +182,11 @@
 
   .main-nav .nav-links a {
     padding: 12px;
-    border-radius: 50%;
+    border-radius: 12px;
+  }
+
+  .main-nav .nav-links a.active {
+    border-radius: 12px;
   }
 
   .nav-links {
