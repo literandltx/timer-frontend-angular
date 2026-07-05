@@ -43,12 +43,6 @@
   animation: slideDown 0.2s ease-out;
 }
 
-.edit-section2 {
-  margin-top: 20px;
-  margin-bottom: 12px;
-  animation: slideDown 0.2s ease-out;
-}
-
 .input-group {
   display: flex;
   gap: 12px;
