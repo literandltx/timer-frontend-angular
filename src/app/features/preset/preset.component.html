@@ -5,6 +5,8 @@
       <h2 class="section-title">Timers</h2>
     </div>
 
+    <div class="content-divider"></div>
+
     <div class="chip-grid">
       @for (option of options(); track option.uuid) {
         <div
@@ -27,38 +29,87 @@
       }
 
       @if (!isAdding) {
-        <button type="button" class="option-chip-default" (click)="startAdd()"> </button>
+        <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option"></button>
       }
 
       @if (options().length === 0) {
         <p class="empty-hint">No timer options yet — add one to get started.</p>
       }
     </div>
-  </section>
 
-  @if (isAdding) {
-    <div class="edit-section">
-      <div class="input-group">
-        <input
-          class="modern-input"
-          type="number"
-          [(ngModel)]="newValue"
-          placeholder="Duration (e.g., 25)"
-          (keyup.enter)="confirmAdd()"
-          (keyup.escape)="cancelAdd()"/>
+    @if (isAdding) {
+      <div class="edit-section">
+        <div class="input-group">
+          <input
+            class="modern-input"
+            type="number"
+            [(ngModel)]="newValue"
+            placeholder="Duration (e.g., 25)"
+            (keyup.enter)="confirmAdd()"
+            (keyup.escape)="cancelAdd()"/>
 
-        <div class="edit-actions">
-          <button type="button" class="primary-btn" (click)="confirmAdd()">Save</button>
-          <button type="button" class="ghost-btn" (click)="cancelAdd()">Cancel</button>
+          <div class="edit-actions">
+            <button type="button" class="primary-btn" (click)="confirmAdd()">Save</button>
+            <button type="button" class="ghost-btn" (click)="cancelAdd()">Cancel</button>
+          </div>
         </div>
       </div>
-    </div>
-  }
+    }
+  </section>
 
   <div class="section-divider"></div>
 
   <section class="preset-section label-section">
-    <ns-app-label-list></ns-app-label-list>
+    <div class="header-row">
+      <h2 class="page-title">Labels</h2>
+      <ns-app-button variant="primary-btn" (click)="startAddLabel()">+ Add Label</ns-app-button>
+    </div>
+
+    <div class="content-divider"></div>
+
+    @if (editingLabel) {
+      <div class="edit-section">
+        <div class="input-group">
+          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>
+
+          <input class="modern-input" type="text" [(ngModel)]="editingLabel.name"
+                 placeholder="Label Name"/>
+
+          <input class="modern-color-input" type="color" [(ngModel)]="editingLabel.color"
+                 title="Choose label color"/>
+
+          <div class="edit-actions">
+            <ns-app-button variant="primary-btn" (click)="editingLabel.uuid ? updateLabel() : createLabel()">Save</ns-app-button>
+            <ns-app-button variant="ghost-btn" (click)="cancelLabel()">Cancel</ns-app-button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="options-list">
+      @for (label of labels(); track label.uuid) {
+        <ns-app-list-item>
+
+          <ng-container info>
+            <span class="label-pill" [style.background-color]="label.color">
+              {{ label.name }}
+            </span>
+          </ng-container>
+
+          <ng-container actions>
+            <div class="action-group">
+              <ns-app-button variant="text-btn edit-btn" (click)="startEditLabel(label)">Edit</ns-app-button>
+              <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.uuid)">Delete</ns-app-button>
+            </div>
+          </ng-container>
+
+        </ns-app-list-item>
+      } @empty {
+        <div class="empty-state">
+          <p class="empty-text">No labels found. Add one above!</p>
+        </div>
+      }
+    </div>
   </section>
 
 </div>
