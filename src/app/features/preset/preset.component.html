@@ -22,14 +22,18 @@
             type="button"
             class="chip-delete"
             (click)="deleteOption($event, option.uuid)"
-            aria-label="Delete option">
-            ×
+            aria-label="Delete option"
+            title="Delete option">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
       }
 
       @if (!isAdding) {
-        <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option"></button>
+        <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option" title="Add timer option"></button>
       }
 
       @if (options().length === 0) {
@@ -49,8 +53,17 @@
             (keyup.escape)="cancelAdd()"/>
 
           <div class="edit-actions">
-            <button type="button" class="primary-btn" (click)="confirmAdd()">Save</button>
-            <button type="button" class="ghost-btn" (click)="cancelAdd()">Cancel</button>
+            <button type="button" class="icon-btn confirm-btn" (click)="confirmAdd()" aria-label="Save" title="Save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="icon-btn cancel-btn" (click)="cancelAdd()" aria-label="Cancel" title="Cancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -62,7 +75,12 @@
   <section class="preset-section label-section">
     <div class="header-row">
       <h2 class="page-title">Labels</h2>
-      <ns-app-button variant="primary-btn" (click)="startAddLabel()">+ Add Label</ns-app-button>
+      <button type="button" class="icon-btn add-icon-btn" (click)="startAddLabel()" aria-label="Add label" title="Add label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
     </div>
 
     <div class="content-divider"></div>
@@ -79,8 +97,19 @@
                  title="Choose label color"/>
 
           <div class="edit-actions">
-            <ns-app-button variant="primary-btn" (click)="editingLabel.uuid ? updateLabel() : createLabel()">Save</ns-app-button>
-            <ns-app-button variant="ghost-btn" (click)="cancelLabel()">Cancel</ns-app-button>
+            <button type="button" class="icon-btn confirm-btn"
+                    (click)="editingLabel.uuid ? updateLabel() : createLabel()"
+                    aria-label="Save" title="Save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="icon-btn cancel-btn" (click)="cancelLabel()" aria-label="Cancel" title="Cancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -97,14 +126,38 @@
 
           <ng-container actions>
             @if (label.uuid === homeService.activeLabelUuid()) {
-              <span class="badge active-badge">✓ Active</span>
+              <span class="badge active-badge" aria-label="Active" title="Active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
             } @else {
-              <ns-app-button variant="outline-btn" (click)="setActiveLabel(label.uuid)">Set Active</ns-app-button>
+              <button type="button" class="icon-btn active-icon-btn" (click)="setActiveLabel(label.uuid)"
+                      aria-label="Set active" title="Set active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </button>
             }
 
             <div class="action-group">
-              <ns-app-button variant="text-btn edit-btn" (click)="startEditLabel(label)">Edit</ns-app-button>
-              <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.uuid)">Delete</ns-app-button>
+              <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label)"
+                      aria-label="Edit label" title="Edit label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button type="button" class="icon-btn delete-icon-btn" (click)="deleteLabel($event, label.uuid)"
+                      aria-label="Delete label" title="Delete label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
+                </svg>
+              </button>
             </div>
           </ng-container>
         </ns-app-list-item>
