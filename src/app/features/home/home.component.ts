@@ -1,6 +1,5 @@
 import {Component, OnInit, inject, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
 
@@ -14,7 +13,7 @@ import {HomeService} from './services/home.service';
 @Component({
   selector: 'ns-app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TimerComponent],
+  imports: [CommonModule, RouterModule, TimerComponent],
   providers: [HomeService],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -28,13 +27,14 @@ export class HomeComponent implements OnInit {
   private blinkerService = inject(TitleBlinkerService);
   private isTimerFinished = false;
 
-  activeLabelColor = computed(() => {
+  private activeLabel = computed(() => {
     const labels = this.labelService.labels();
     const uuid = this.homeService.activeLabelUuid();
-    const activeLabel = labels.find(l => l.uuid === uuid);
-
-    return activeLabel ? activeLabel.color : '#000000';
+    return labels.find(l => l.uuid === uuid);
   });
+
+  activeLabelColor = computed(() => this.activeLabel()?.color ?? '#000000');
+  activeLabelName = computed(() => this.activeLabel()?.name ?? 'No label');
 
   currentTimerSeconds = computed(() => {
     const activeSetting = this.settingService.activeSetting();
