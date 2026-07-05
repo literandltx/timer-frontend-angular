@@ -8,11 +8,13 @@ import {TimerSettingsService} from '../timers/services/timer-settings.service';
 import {CreateTimerOptionRequest} from '../timers/models/timer-option.model';
 import {LabelService} from '../labels/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../labels/models/label.model';
+import {HomeService} from '../home/services/home.service';
 
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
+  providers: [HomeService],
   templateUrl: './preset.component.html',
   styleUrls: ['./preset.component.css']
 })
@@ -20,6 +22,7 @@ export class PresetComponent implements OnInit {
   private optionsService = inject(TimerOptionsService);
   private settingsService = inject(TimerSettingsService);
   private labelService = inject(LabelService);
+  public homeService = inject(HomeService);
 
   labels = this.labelService.labels;
   options = this.optionsService.options;
@@ -126,5 +129,9 @@ export class PresetComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     await this.labelService.delete(uuid);
+  }
+
+  setActiveLabel(uuid: string) {
+    this.homeService.setActiveLabel(uuid);
   }
 }

@@ -302,6 +302,20 @@
   margin: 12px 0 12px;
 }
 
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.active-badge {
+  background: var(--success-bg);
+  color: var(--success-color);
+}
+
 .options-list {
   display: flex;
   flex-direction: column;

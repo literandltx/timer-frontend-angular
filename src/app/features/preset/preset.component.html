@@ -88,8 +88,7 @@
 
     <div class="options-list">
       @for (label of labels(); track label.uuid) {
-        <ns-app-list-item>
-
+        <ns-app-list-item [isActive]="label.uuid === homeService.activeLabelUuid()">
           <ng-container info>
             <span class="label-pill" [style.background-color]="label.color">
               {{ label.name }}
@@ -97,12 +96,17 @@
           </ng-container>
 
           <ng-container actions>
+            @if (label.uuid === homeService.activeLabelUuid()) {
+              <span class="badge active-badge">✓ Active</span>
+            } @else {
+              <ns-app-button variant="outline-btn" (click)="setActiveLabel(label.uuid)">Set Active</ns-app-button>
+            }
+
             <div class="action-group">
               <ns-app-button variant="text-btn edit-btn" (click)="startEditLabel(label)">Edit</ns-app-button>
               <ns-app-button variant="text-btn delete-btn" (click)="deleteLabel($event, label.uuid)">Delete</ns-app-button>
             </div>
           </ng-container>
-
         </ns-app-list-item>
       } @empty {
         <div class="empty-state">
