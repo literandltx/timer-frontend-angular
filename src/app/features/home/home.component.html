@@ -9,19 +9,6 @@
   }
 
   <div class="bottom-controls-wrapper">
-    <div class="timer-options-wrapper">
-      <ns-app-toggle-group variant="transparent">
-        @for (option of optionsService.options(); track option.uuid) {
-          <ns-app-toggle-button
-            variant="solid"
-            [active]="settingService.activeSetting().timerOptionUuid === option.uuid"
-            (toggled)="settingService.setActiveOption(option.uuid)">
-            {{ option.value }}m
-          </ns-app-toggle-button>
-        }
-      </ns-app-toggle-group>
-    </div>
-
     <div class="label-selector-wrapper">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
            [attr.stroke]="activeLabelColor()" class="label-icon">
