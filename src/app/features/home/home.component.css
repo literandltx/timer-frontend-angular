@@ -40,7 +40,7 @@
 
 .label-name {
   color: var(--text-color);
-  font-size: 18px;
+  font-size: 24px;
   max-width: 140px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -54,6 +54,7 @@
   }
 
   .label-name {
+    font-size: 18px;
     max-width: 120px;
   }
 }

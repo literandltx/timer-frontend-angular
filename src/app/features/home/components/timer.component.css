@@ -10,8 +10,49 @@
   touch-action: manipulation;
 }
 
+.ring-container {
+  position: relative;
+  width: min(80vw, 420px);
+  height: min(80vw, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ring-track {
+  stroke: var(--border-light);
+}
+
+.ring-progress {
+  stroke: var(--text-heading);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s linear;
+}
+
+.ring-dot {
+  fill: var(--text-heading);
+  transition: cx 0.4s linear, cy 0.4s linear;
+}
+
+.ring-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
 .timer-display {
-  font-size: clamp(4rem, 15vw, 8rem);
+  font-size: clamp(5rem, 12vw, 7rem);
   font-weight: bold;
   margin: 0;
   color: var(--text-heading);
@@ -19,7 +60,7 @@
 }
 
 .timer-subtitle {
-  font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+  font-size: clamp(0.7rem, 2vw, 0.9rem);
   color: var(--text-muted);
   margin-top: 10px;
 }

@@ -7,7 +7,8 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
-  inject
+  inject,
+  computed
 } from '@angular/core';
 import {noop} from 'rxjs';
 import {TimerService} from './timer.service';
@@ -25,6 +26,31 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   timerService = inject(TimerService);
   private lastClickTime = 0;
+
+  readonly radius = 140;
+  readonly center = 150;
+  readonly strokeWidth = 3;
+  readonly circumference = 2 * Math.PI * this.radius;
+
+  private elapsedFraction = computed(() => {
+    const initial = this.timerService.initialTimeSignal();
+    if (initial <= 0) {
+      return 0;
+    }
+    const remaining = this.timerService.timeLeft();
+    return 1 - remaining / initial;
+  });
+
+  dashOffset = computed(() => -this.circumference * this.elapsedFraction());
+
+  dotPosition = computed(() => {
+    const angleDeg = -90 + this.elapsedFraction() * 360;
+    const angleRad = (angleDeg * Math.PI) / 180;
+    return {
+      x: this.center + this.radius * Math.cos(angleRad),
+      y: this.center + this.radius * Math.sin(angleRad)
+    };
+  });
 
   ngOnInit() {
     if (this.timerService.getInitialTime() !== this.timeAmount) {
