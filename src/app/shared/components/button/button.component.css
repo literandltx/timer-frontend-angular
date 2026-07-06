@@ -72,3 +72,21 @@
   background: var(--danger-bg);
   color: var(--danger-hover);
 }
+
+@media (max-width: 768px) {
+  .btn {
+    padding: 4px 10px;
+    font-size: 0.8125rem;
+  }
+
+  .text-btn {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 400px) {
+  .btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}
