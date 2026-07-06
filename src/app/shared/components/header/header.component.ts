@@ -65,6 +65,7 @@ export class HeaderComponent {
   private navigateNext() {
     const currentIndex = this.navRoutes.indexOf(this.router.url);
     if (currentIndex !== -1 && currentIndex < this.navRoutes.length - 1) {
+      this.document.documentElement.className = 'slide-left';
       this.router.navigate([this.navRoutes[currentIndex + 1]]);
     }
   }
@@ -72,6 +73,7 @@ export class HeaderComponent {
   private navigatePrev() {
     const currentIndex = this.navRoutes.indexOf(this.router.url);
     if (currentIndex !== -1 && currentIndex > 0) {
+      this.document.documentElement.className = 'slide-right';
       this.router.navigate([this.navRoutes[currentIndex - 1]]);
     }
   }
