@@ -1,16 +1,32 @@
 import {Routes} from '@angular/router';
-import {HomeComponent} from './features/home/home.component';
-import {RegisterComponent} from './features/register/register.component';
-import {LoginComponent} from './features/login/login.component';
-import {HistoryComponent} from './features/history/history.component';
-import {PresetComponent} from './features/preset/preset.component';
 
 export const routes: Routes = [
-  {path: 'home', component: HomeComponent},
-  {path: 'preset', component: PresetComponent},
-  {path: 'history', component: HistoryComponent},
-  {path: 'register', component: RegisterComponent},
-  {path: 'login', component: LoginComponent},
-  {path: '', redirectTo: '/home', pathMatch: 'full'},
-  {path: '**', redirectTo: '/home'}
+  {
+    path: 'home',
+    loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
+  },
+  {
+    path: 'preset',
+    loadComponent: () => import('./features/preset/preset.component').then(m => m.PresetComponent)
+  },
+  {
+    path: 'history',
+    loadComponent: () => import('./features/history/history.component').then(m => m.HistoryComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./features/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: '',
+    redirectTo: '/home', pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: '/home'
+  }
 ];
