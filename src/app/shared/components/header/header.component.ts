@@ -21,8 +21,12 @@ export class HeaderComponent {
   private document = inject(DOCUMENT);
   private router = inject(Router);
 
-  public isUserMenuOpen = false;
   public isFullscreen = signal(false);
+  public isFullscreenSupported = signal<boolean>(
+    typeof document !== 'undefined' && document.fullscreenEnabled
+  );
+
+  public isUserMenuOpen = false;
 
   private readonly navRoutes = ['/preset', '/home', '/history'];
   private touchStartX = 0;
