@@ -110,3 +110,48 @@ html, body {
   overflow: hidden;
   touch-action: manipulation;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+/* =======================================
+   Slide Left (Navigating Next)
+   ======================================= */
+html.slide-left ::view-transition-old(root) {
+  animation-name: slide-out-left;
+}
+html.slide-left ::view-transition-new(root) {
+  animation-name: slide-in-right;
+}
+
+/* =======================================
+   Slide Right (Navigating Prev)
+   ======================================= */
+html.slide-right ::view-transition-old(root) {
+  animation-name: slide-out-right;
+}
+html.slide-right ::view-transition-new(root) {
+  animation-name: slide-in-left;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-out-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-30%); opacity: 0; }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(30%); opacity: 0; }
+}

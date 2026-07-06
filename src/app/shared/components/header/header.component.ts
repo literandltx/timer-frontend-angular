@@ -1,5 +1,5 @@
 import {Component, inject, HostListener, ElementRef, signal} from '@angular/core';
-import {RouterLink, RouterLinkActive} from '@angular/router';
+import {RouterLink, RouterLinkActive, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
@@ -19,10 +19,64 @@ export class HeaderComponent {
   public authService = inject(AuthService);
   private elementRef = inject(ElementRef);
   private document = inject(DOCUMENT);
+  private router = inject(Router);
 
   public isUserMenuOpen = false;
-
   public isFullscreen = signal(false);
+
+  private readonly navRoutes = ['/preset', '/home', '/history'];
+  private touchStartX = 0;
+  private touchEndX = 0;
+  private readonly swipeThreshold = 50;
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    const activeElement = this.document.activeElement?.tagName.toLowerCase();
+    if (activeElement === 'input' || activeElement === 'textarea') return;
+
+    if (event.key === 'ArrowLeft') {
+      this.navigatePrev();
+    } else if (event.key === 'ArrowRight') {
+      this.navigateNext();
+    }
+  }
+
+  @HostListener('window:touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.changedTouches[0].screenX;
+  }
+
+  @HostListener('window:touchend', ['$event'])
+  onTouchEnd(event: TouchEvent) {
+    this.touchEndX = event.changedTouches[0].screenX;
+    this.handleSwipe();
+  }
+
+  private handleSwipe() {
+    const distance = this.touchStartX - this.touchEndX;
+
+    if (distance > this.swipeThreshold) {
+      this.navigateNext();
+    } else if (distance < -this.swipeThreshold) {
+      this.navigatePrev();
+    }
+  }
+
+  private navigateNext() {
+    const currentIndex = this.navRoutes.indexOf(this.router.url);
+    if (currentIndex !== -1 && currentIndex < this.navRoutes.length - 1) {
+      this.document.documentElement.className = 'slide-left';
+      this.router.navigate([this.navRoutes[currentIndex + 1]]);
+    }
+  }
+
+  private navigatePrev() {
+    const currentIndex = this.navRoutes.indexOf(this.router.url);
+    if (currentIndex !== -1 && currentIndex > 0) {
+      this.document.documentElement.className = 'slide-right';
+      this.router.navigate([this.navRoutes[currentIndex - 1]]);
+    }
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

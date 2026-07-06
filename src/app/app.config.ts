@@ -1,5 +1,5 @@
 import {ApplicationConfig, ErrorHandler, provideAppInitializer, inject} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, withViewTransitions} from '@angular/router';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {catchError, of} from 'rxjs';
 import {routes} from './app.routes';
@@ -11,7 +11,8 @@ import {AuthService} from './core/auth/auth.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions()),
+
     provideHttpClient(
       withInterceptors([authInterceptor, networkStatusInterceptor])
     ),
