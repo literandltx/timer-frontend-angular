@@ -177,6 +177,10 @@
 }
 
 @media (max-width: 768px) {
+  .left-section {
+    gap: 6px;
+  }
+
   .nav-text {
     display: none;
   }
@@ -203,6 +207,10 @@
 @media (max-width: 400px) {
   .main-nav {
     padding: 12px;
+  }
+
+  .left-section {
+    gap: 4px;
   }
 
   .nav-icon {

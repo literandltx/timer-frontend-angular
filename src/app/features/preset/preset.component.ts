@@ -1,7 +1,6 @@
 import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 import {TimerOptionsService} from '../timers/services/timer-options.service';
 import {TimerSettingsService} from '../timers/services/timer-settings.service';
@@ -13,7 +12,7 @@ import {HomeService} from '../home/services/home.service';
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
+  imports: [CommonModule, FormsModule, ListItemComponent],
   providers: [HomeService],
   templateUrl: './preset.component.html',
   styleUrls: ['./preset.component.css']
