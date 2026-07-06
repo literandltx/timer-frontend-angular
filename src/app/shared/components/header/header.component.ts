@@ -1,5 +1,6 @@
-import {Component, inject, HostListener, ElementRef} from '@angular/core';
+import {Component, inject, HostListener, ElementRef, signal} from '@angular/core';
 import {RouterLink, RouterLinkActive} from '@angular/router';
+import {DOCUMENT} from '@angular/common';
 import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
@@ -17,13 +18,35 @@ export class HeaderComponent {
   public themeService = inject(ThemeService);
   public authService = inject(AuthService);
   private elementRef = inject(ElementRef);
+  private document = inject(DOCUMENT);
 
   public isUserMenuOpen = false;
+
+  public isFullscreen = signal(false);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.isUserMenuOpen && !this.elementRef.nativeElement.contains(event.target)) {
       this.closeUserMenu();
+    }
+  }
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.isFullscreen.set(!!this.document.fullscreenElement);
+  }
+
+  toggleFullscreen(): void {
+    const elem = this.document.documentElement;
+
+    if (!this.document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (this.document.exitFullscreen) {
+        this.document.exitFullscreen();
+      }
     }
   }
 
