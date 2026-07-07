@@ -10,6 +10,7 @@ import {
 import {TimerOption} from '../../timers/models/timer-option.model';
 import {Label} from '../../labels/models/label.model';
 import {AppDB} from '../../../core/db/app.db';
+import {LogService} from '../../../core/log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class HistoryService {
@@ -17,6 +18,7 @@ export class HistoryService {
   private labelService = inject(LabelService);
   private optionService = inject(TimerOptionsService);
   private db = inject(AppDB);
+  private log = inject(LogService);
 
   public entries = this.entryService.allEntriesSignal;
   public labels = this.labelService.labels;
@@ -157,7 +159,7 @@ export class HistoryService {
 
       this.loadInitialData();
     } catch (error) {
-      console.error('[HistoryService] Failed to parse or import combined CSV:', error);
+      this.log.error('[HistoryService] Failed to parse or import combined CSV:', error);
     }
   }
 

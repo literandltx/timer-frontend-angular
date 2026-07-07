@@ -4,6 +4,7 @@ import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../core/auth/auth.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
+import {LogService} from '../../core/log/log.service';
 
 @Component({
   selector: 'ns-app-register',
@@ -16,6 +17,7 @@ export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private log = inject(LogService);
 
   isLoading = signal(false);
   errorMessage = signal('');
@@ -52,7 +54,7 @@ export class RegisterComponent {
             this.errorMessage.set('Registration failed. Please check your details and try again.');
           }
 
-          console.error(err);
+          this.log.error(err);
         }
       });
     }
