@@ -99,7 +99,7 @@ export class AuthService {
     return this.accessToken;
   }
 
-  public async resetLocalData(): Promise<void> {
+  private async clearSession(options: {clearStorage?: boolean; redirectHref?: string} = {}): Promise<void> {
     this.accessToken = null;
     this._isAuthenticated.set(false);
 
@@ -107,31 +107,31 @@ export class AuthService {
       await Promise.all(this.db.tables.map(table => table.clear()));
       this.log.log('IndexedDB cleared successfully');
     } catch (err) {
-      this.log.error('Failed to clear IndexedDB during reset', err);
+      this.log.error('Failed to clear IndexedDB', err);
     }
 
-    localStorage.clear();
+    if (options.clearStorage) {
+      localStorage.clear();
+    }
+
+    if (options.redirectHref) {
+      window.location.href = options.redirectHref;
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  public async resetLocalData(): Promise<void> {
+    await this.clearSession({clearStorage: true});
     window.location.reload();
   }
 
   public clearAuthState(): void {
-    this.accessToken = null;
-    this._isAuthenticated.set(false);
-    this.router.navigate(['/login']);
+    this.clearSession();
   }
 
   private async clearAllUserData(): Promise<void> {
-    this.accessToken = null;
-    this._isAuthenticated.set(false);
-
-    try {
-      await Promise.all(this.db.tables.map(table => table.clear()));
-    } catch (err) {
-      this.log.error('Failed to clear IndexedDB on account deletion', err);
-    }
-
-    localStorage.clear();
-    window.location.href = '/login';
+    await this.clearSession({clearStorage: true, redirectHref: '/login'});
   }
 
 }
