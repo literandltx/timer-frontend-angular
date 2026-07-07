@@ -10,8 +10,9 @@ import {
   inject,
   computed
 } from '@angular/core';
-import {noop} from 'rxjs';
 import {TimerService} from './timer.service';
+
+const noop = () => { /* empty */ };
 
 @Component({
   selector: 'ns-app-timer',
