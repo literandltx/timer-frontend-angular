@@ -11,16 +11,28 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
   styles: [`
-    :host {
-      display: block;
-    }
-
+    :host { display: block; }
     .toggle-group {
       display: flex;
       align-items: center;
       border-radius: 12px;
     }
-
+    .group-standard {
+      background: var(--bg-color);
+      border: 1px solid var(--border-light);
+      padding: 4px;
+      gap: 4px;
+    }
+    .group-subtle {
+      background: var(--bg-subtle);
+      padding: 8px;
+      gap: 8px;
+    }
+    .group-transparent {
+      background: transparent;
+      padding: 0;
+      gap: 8px;
+    }
   `]
 })
 export class ToggleGroupComponent {

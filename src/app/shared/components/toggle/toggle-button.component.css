@@ -31,7 +31,6 @@
 .toggle-icon {
   padding: 8px 12px;
 }
-
 .toggle-icon.is-active {
   background: var(--card-bg);
   color: var(--text-color);
@@ -42,7 +41,6 @@
   font-weight: bold;
   color: var(--text-color);
 }
-
 .toggle-solid.is-active {
   background: var(--btn-dark-bg);
   color: var(--btn-dark-text);
