@@ -12,6 +12,24 @@ type ChartType = 'pie' | 'bar';
 const days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+const DAY_X_TICKS = [
+  {label: '00:00', position: 0},
+  {label: '04:00', position: 16.666},
+  {label: '08:00', position: 33.333},
+  {label: '12:00', position: 50},
+  {label: '16:00', position: 66.666},
+  {label: '20:00', position: 83.333},
+  {label: '24:00', position: 100}
+];
+
+function readPreferredChartType(): ChartType {
+  try {
+    return (localStorage.getItem('preferredChartType') as ChartType) || 'pie';
+  } catch {
+    return 'pie';
+  }
+}
+
 interface ChartLegendItem {
   name: string;
   color: string;
@@ -31,7 +49,7 @@ export class HistoryChartComponent {
   public historyService = inject(HistoryService);
 
   timeframe = signal<Timeframe>('day');
-  chartType = signal<ChartType>((localStorage.getItem('preferredChartType') as ChartType) || 'pie');
+  chartType = signal<ChartType>(readPreferredChartType());
   periodOffset = signal<number>(0);
 
   periodRange = computed(() => {
@@ -45,7 +63,7 @@ export class HistoryChartComponent {
       start.setHours(0, 0, 0, 0);
       const end = new Date(start);
       end.setDate(end.getDate() + 1);
-      return { start: start.getTime(), end: end.getTime(), targetDate: start };
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
     } else if (tf === 'week') {
       targetDate.setDate(targetDate.getDate() + offset * 7);
       const start = new Date(targetDate);
@@ -54,24 +72,27 @@ export class HistoryChartComponent {
       start.setDate(start.getDate() - dayOfWeek + 1);
       const end = new Date(start);
       end.setDate(end.getDate() + 7);
-      return { start: start.getTime(), end: end.getTime(), targetDate: start };
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
     } else if (tf === 'month') {
       targetDate.setMonth(targetDate.getMonth() + offset);
       const start = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
       const end = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 1);
-      return { start: start.getTime(), end: end.getTime(), targetDate: start };
+      return {start: start.getTime(), end: end.getTime(), targetDate: start};
     } else {
-      return { start: 0, end: Infinity, targetDate: new Date() };
+      return {start: 0, end: Infinity, targetDate: new Date()};
     }
   });
 
-  chartData = computed(() => {
+  private filteredEntries = computed(() => {
     const entries = this.historyService.entries();
     const range = this.periodRange();
+    return entries.filter((entry: TimerEntry) =>
+      entry.startTime >= range.start && entry.startTime < range.end
+    );
+  });
 
-    const filteredEntries = entries.filter((entry: TimerEntry) => {
-      return entry.startTime >= range.start && entry.startTime < range.end;
-    });
+  chartData = computed(() => {
+    const filteredEntries = this.filteredEntries();
 
     const aggregated = new Map<string, number>();
     let totalSeconds = 0;
@@ -121,13 +142,9 @@ export class HistoryChartComponent {
   });
 
   barChartData = computed(() => {
-    const entries = this.historyService.entries();
+    const filteredEntries = this.filteredEntries();
     const tf = this.timeframe();
     const range = this.periodRange();
-
-    const filteredEntries = entries.filter((entry: TimerEntry) => {
-      return entry.startTime >= range.start && entry.startTime < range.end;
-    });
 
     const buckets: {
       id: number,
@@ -141,15 +158,15 @@ export class HistoryChartComponent {
     let averageValue = 0;
     const daysInMonth = new Date(range.targetDate.getFullYear(), range.targetDate.getMonth() + 1, 0).getDate();
 
-    const dayXTicks = [
-      {label: '00:00', position: 0},
-      {label: '04:00', position: 16.666},
-      {label: '08:00', position: 33.333},
-      {label: '12:00', position: 50},
-      {label: '16:00', position: 66.666},
-      {label: '20:00', position: 83.333},
-      {label: '24:00', position: 100}
-    ];
+    const colorByLabelId = new Map<string, string>();
+    const colorFor = (labelId: string): string => {
+      let color = colorByLabelId.get(labelId);
+      if (color === undefined) {
+        color = this.historyService.getLabelColor(labelId);
+        colorByLabelId.set(labelId, color);
+      }
+      return color;
+    };
 
     if (tf === 'day') {
       averageLabel = 'Hourly average';
@@ -164,7 +181,7 @@ export class HistoryChartComponent {
       }
       for (const entry of filteredEntries) {
         const hour = new Date(entry.startTime).getHours();
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = colorFor(entry.labelId);
         buckets[hour].totalSeconds += entry.durationSeconds;
         buckets[hour].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
@@ -184,7 +201,7 @@ export class HistoryChartComponent {
       for (const entry of filteredEntries) {
         const entryDate = new Date(entry.startTime);
         const dayIdx = (entryDate.getDay() || 7) - 1;
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = colorFor(entry.labelId);
         buckets[dayIdx].totalSeconds += entry.durationSeconds;
         buckets[dayIdx].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
@@ -203,7 +220,7 @@ export class HistoryChartComponent {
       }
       for (const entry of filteredEntries) {
         const date = new Date(entry.startTime).getDate();
-        const color = this.historyService.getLabelColor(entry.labelId);
+        const color = colorFor(entry.labelId);
         buckets[date - 1].totalSeconds += entry.durationSeconds;
         buckets[date - 1].entries.push({color, seconds: entry.durationSeconds});
         totalSeconds += entry.durationSeconds;
@@ -281,7 +298,7 @@ export class HistoryChartComponent {
     return {
       title: titleStr,
       buckets: bucketsView,
-      dayXTicks,
+      dayXTicks: DAY_X_TICKS,
       yLabels,
       averageLabel,
       averageValue,
