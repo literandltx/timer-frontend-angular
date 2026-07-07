@@ -23,7 +23,7 @@ export class HeaderComponent {
 
   public isFullscreen = signal(false);
   public isFullscreenSupported = signal<boolean>(
-    typeof document !== 'undefined' && document.fullscreenEnabled
+    typeof this.document !== 'undefined' && this.document.fullscreenEnabled
   );
 
   public isUserMenuOpen = false;
@@ -127,18 +127,15 @@ export class HeaderComponent {
   }
 
   resetAuth() {
-    this.closeUserMenu();
     this.reset();
   }
 
   logout() {
-    console.log("Apply logout")
     this.closeUserMenu();
     this.authService.logout().subscribe();
   }
 
   deleteAccount() {
-    console.log("Apply deleteAccount")
     this.closeUserMenu();
 
     const isConfirmed = confirm('Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.');
