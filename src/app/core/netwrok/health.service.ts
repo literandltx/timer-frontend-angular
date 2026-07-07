@@ -4,6 +4,7 @@ import {Subscription, of, fromEvent, merge, Observable, timer} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {AuthService} from '../auth/auth.service';
+import {LogService} from '../log/log.service';
 
 interface PublicPingResponse {
   status: 'UP' | 'DOWN';
@@ -25,6 +26,7 @@ export class HealthCheckService {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
+  private log = inject(LogService);
 
   private smartPollingSubscription?: Subscription;
   private baseUrl: string | undefined = environment.base_url;
@@ -44,14 +46,14 @@ export class HealthCheckService {
   public setWsStatus(enabled: boolean): void {
     if (this._isWsEnabled() !== enabled) {
       this._isWsEnabled.set(enabled);
-      console.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+      this.log.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
     }
   }
 
   public setOnlineStatus(isOnline: boolean): void {
     if (this._isHealthy() !== isOnline) {
       this._isHealthy.set(isOnline);
-      console.info(`[HealthCheckService] Network status changed to: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+      this.log.info(`[HealthCheckService] Network status changed to: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
     }
 
     if (isOnline && this.authService.isAuthenticatedSignal() && !this._isWsEnabled()) {
@@ -69,10 +71,10 @@ export class HealthCheckService {
 
     const networkSub = networkStatus$.subscribe((isOnline) => {
       if (isOnline) {
-        console.info('[HealthCheckService] OS reports online. Checking backend connection.');
+        this.log.info('[HealthCheckService] OS reports online. Checking backend connection.');
         this.doSinglePing();
       } else {
-        console.warn('[HealthCheckService] OS reports offline.');
+        this.log.warn('[HealthCheckService] OS reports offline.');
         this.setOnlineStatus(false);
       }
     });
@@ -92,7 +94,7 @@ export class HealthCheckService {
   private startSmartPolling(): void {
     if (this.smartPollingSubscription || !this.baseUrl) return;
 
-    console.info('[HealthCheckService] Starting smart polling to detect 2nd device...');
+    this.log.info('[HealthCheckService] Starting smart polling to detect 2nd device...');
     this.smartPollingSubscription = timer(0, SMART_POLL_INTERVAL_MS)
       .pipe(
         switchMap(() => this.executePing())
@@ -104,7 +106,7 @@ export class HealthCheckService {
 
   private stopSmartPolling(): void {
     if (this.smartPollingSubscription) {
-      console.info('[HealthCheckService] Stopping smart polling.');
+      this.log.info('[HealthCheckService] Stopping smart polling.');
       this.smartPollingSubscription.unsubscribe();
       this.smartPollingSubscription = undefined;
     }
@@ -131,7 +133,7 @@ export class HealthCheckService {
       );
     } else {
       const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
-      console.info('[HealthCheckService] Public ping');
+      this.log.info('[HealthCheckService] Public ping');
       return this.http.get<PublicPingResponse>(publicUrl).pipe(
         tap(() => this.setWsStatus(false)),
         map(response => response.status === 'UP'),
@@ -151,9 +153,9 @@ export class HealthCheckService {
 
   private handlePingError(error: HttpErrorResponse): Observable<boolean> {
     if (error.status === 0) {
-      console.warn('[HealthCheckService] Backend is unreachable. App is currently in offline mode.');
+      this.log.warn('[HealthCheckService] Backend is unreachable. App is currently in offline mode.');
     } else {
-      console.error(`[HealthCheckService] Backend returned error code ${error.status}`);
+      this.log.error(`[HealthCheckService] Backend returned error code ${error.status}`);
     }
 
     return of(false);

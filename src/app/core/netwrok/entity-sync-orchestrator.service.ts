@@ -12,6 +12,7 @@ import {SyncMessage, SyncAction} from './sync-message.model';
 import {isEqual} from '../../shared/utils/object.utils';
 import {SyncEntity} from '../models/sync-entity.model';
 import {SyncApiService} from './sync-api.service';
+import {LogService} from '../log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class EntitySyncOrchestrator {
@@ -20,6 +21,7 @@ export class EntitySyncOrchestrator {
   private wsCore = inject(WebSocketCoreService);
   private syncTimestamp = inject(SyncTimestampService);
   private syncEngine = inject(SyncEngineService);
+  private log = inject(LogService);
 
   public setupSync<T extends SyncEntity, CreateReq, UpdateReq>(
     // entityType: Parameters<SyncEngineService['processQueue']>[0],
@@ -39,34 +41,34 @@ export class EntitySyncOrchestrator {
       .pipe(
         switchMap(({isReady, useWs}) => {
           if (isReady) {
-            console.info(`[SyncOrchestrator][${entityType}] System Ready. Processing offline queue & pulling missed updates...`);
+            this.log.info(`[SyncOrchestrator][${entityType}] System Ready. Processing offline queue & pulling missed updates...`);
             // return from(this.syncEngine.processQueue(entityType, apiService)).pipe(
             return from(this.syncEngine.processQueueV2(entityType)).pipe(
               switchMap(() => this.pullMissedUpdates(entityType, apiService, dbTable)),
               switchMap(() => {
                 onDataChanged();
                 if (useWs) {
-                  console.info(`[SyncOrchestrator][${entityType}] Active devices >= 2. Establishing WebSocket connection to topic: ${wsTopic}`);
+                  this.log.info(`[SyncOrchestrator][${entityType}] Active devices >= 2. Establishing WebSocket connection to topic: ${wsTopic}`);
                   return this.wsCore.watch<SyncMessage<T>>(wsTopic);
                 } else {
-                  console.info(`[SyncOrchestrator][${entityType}] Active devices < 2. WebSocket disabled. Relying on background HTTP sync only.`);
+                  this.log.info(`[SyncOrchestrator][${entityType}] Active devices < 2. WebSocket disabled. Relying on background HTTP sync only.`);
                   return EMPTY;
                 }
               })
             );
           }
-          console.warn(`[SyncOrchestrator][${entityType}] Sync paused: System is either offline or user is not authenticated.`);
+          this.log.warn(`[SyncOrchestrator][${entityType}] Sync paused: System is either offline or user is not authenticated.`);
           return EMPTY;
         }),
         takeUntilDestroyed(destroyRef)
       )
       .subscribe({
         next: async (message) => {
-          console.info(`[SyncOrchestrator][${entityType}] WebSocket message received: [${message.action}] for UUID ${message.payload.uuid}`);
+          this.log.info(`[SyncOrchestrator][${entityType}] WebSocket message received: [${message.action}] for UUID ${message.payload.uuid}`);
           await this.processIncomingSyncMessage(message, entityType, dbTable);
           await onDataChanged();
         },
-        error: (err) => console.error(`[SyncOrchestrator][${entityType}] WebSocket error:`, err)
+        error: (err) => this.log.error(`[SyncOrchestrator][${entityType}] WebSocket error:`, err)
       });
   }
 
@@ -89,19 +91,19 @@ export class EntitySyncOrchestrator {
 
         if (toUpdate.length > 0) {
           await dbTable.bulkPut(toUpdate);
-          console.info(`[SyncOrchestrator][${entityType}] Pulled ${toUpdate.length} new/updated items via HTTP.`);
+          this.log.info(`[SyncOrchestrator][${entityType}] Pulled ${toUpdate.length} new/updated items via HTTP.`);
         }
 
         if (toDeleteIds.length > 0) {
           await dbTable.bulkDelete(toDeleteIds);
-          console.info(`[SyncOrchestrator][${entityType}] Purged ${toDeleteIds.length} deleted items from local DB.`);
+          this.log.info(`[SyncOrchestrator][${entityType}] Purged ${toDeleteIds.length} deleted items from local DB.`);
         }
       } else {
-        console.info(`[SyncOrchestrator][${entityType}] HTTP Pull complete. No new updates found.`);
+        this.log.info(`[SyncOrchestrator][${entityType}] HTTP Pull complete. No new updates found.`);
       }
       this.syncTimestamp.update(entityType);
     } catch (error) {
-      console.error(`[SyncOrchestrator][${entityType}] Failed to pull HTTP updates:`, error);
+      this.log.error(`[SyncOrchestrator][${entityType}] Failed to pull HTTP updates:`, error);
     }
   }
 
@@ -122,25 +124,25 @@ export class EntitySyncOrchestrator {
           const existingRecord = await dbTable.get(payload.uuid);
           if (!existingRecord || !isEqual(existingRecord, payload)) {
             await dbTable.put(payload);
-            console.info(`[SyncOrchestrator][${entityType}] Local DB updated via WebSocket.`);
+            this.log.info(`[SyncOrchestrator][${entityType}] Local DB updated via WebSocket.`);
           } else {
-            console.info(`[SyncOrchestrator][${entityType}] Record already up to date, skipping WS update.`);
+            this.log.info(`[SyncOrchestrator][${entityType}] Record already up to date, skipping WS update.`);
           }
           break;
         }
         case SyncAction.DELETE:
           if (await dbTable.get(payload.uuid)) {
             await dbTable.delete(payload.uuid);
-            console.info(`[SyncOrchestrator][${entityType}] Item deleted via WebSocket.`);
+            this.log.info(`[SyncOrchestrator][${entityType}] Item deleted via WebSocket.`);
           }
           break;
         default:
-          console.warn(`[SyncOrchestrator][${entityType}] Unhandled WS action: ${action}`);
+          this.log.warn(`[SyncOrchestrator][${entityType}] Unhandled WS action: ${action}`);
           return;
       }
       this.syncTimestamp.update(entityType);
     } catch (error) {
-      console.error(`[SyncOrchestrator][${entityType}] Failed to process WS message:`, error);
+      this.log.error(`[SyncOrchestrator][${entityType}] Failed to process WS message:`, error);
     }
   }
 }

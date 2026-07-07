@@ -3,7 +3,8 @@ import { RxStomp } from '@stomp/rx-stomp';
 import { Observable, map, catchError, EMPTY } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
-import { HealthCheckService } from '../netwrok/health.service';
+import { HealthCheckService } from './health.service';
+import { LogService } from '../log/log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import { HealthCheckService } from '../netwrok/health.service';
 export class WebSocketCoreService {
   private authService = inject(AuthService);
   private healthService = inject(HealthCheckService);
+  private log = inject(LogService);
 
   private rxStomp = new RxStomp();
   private isActivated = false;
@@ -41,7 +43,7 @@ export class WebSocketCoreService {
     }
 
     if (this.isActivated && this.activeToken !== jwtToken) {
-      console.info('[WebSocketCoreService] Token changed. Reconnecting...');
+      this.log.info('[WebSocketCoreService] Token changed. Reconnecting...');
       this.disconnect();
     }
 
@@ -50,7 +52,7 @@ export class WebSocketCoreService {
     }
 
     const wsUrl = this.API_URL.replace(/^http(s)?:\/\//, 'ws$1://') + '/ws-stomp';
-    console.info(`[WebSocketCoreService] Initiating connection to: ${wsUrl}`);
+    this.log.info(`[WebSocketCoreService] Initiating connection to: ${wsUrl}`);
 
     this.rxStomp.configure({
       brokerURL: wsUrl,
@@ -59,14 +61,14 @@ export class WebSocketCoreService {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       debug: (msg: string): void => {
-        console.log(new Date().toISOString(), '[RxStomp Debug]', msg);
+        this.log.debug(new Date().toISOString(), '[RxStomp Debug]', msg);
       }
     });
 
     this.rxStomp.activate();
     this.isActivated = true;
     this.activeToken = jwtToken;
-    console.info('[WebSocketCoreService] RxStomp activated.');
+    this.log.info('[WebSocketCoreService] RxStomp activated.');
   }
 
   public disconnect() {
@@ -74,14 +76,14 @@ export class WebSocketCoreService {
       return;
     }
 
-    console.info('[WebSocketCoreService] Disconnecting from WebSocket...');
+    this.log.info('[WebSocketCoreService] Disconnecting from WebSocket...');
     this.rxStomp.deactivate();
     this.isActivated = false;
     this.activeToken = null;
   }
 
   public watch<T>(destination: string): Observable<T> {
-    console.info(`[WebSocketCoreService] Subscribing to: ${destination}`);
+    this.log.info(`[WebSocketCoreService] Subscribing to: ${destination}`);
 
     return this.rxStomp.watch(destination).pipe(
       map(message => {
@@ -92,14 +94,14 @@ export class WebSocketCoreService {
         }
       }),
       catchError(err => {
-        console.error(`[WebSocketCoreService] Error on ${destination}`, err);
+        this.log.error(`[WebSocketCoreService] Error on ${destination}`, err);
         return EMPTY;
       })
     );
   }
 
   public publish(destination: string, body: unknown): void {
-    console.info(`[WebSocketCoreService] Publishing message to: ${destination}`, body);
+    this.log.info(`[WebSocketCoreService] Publishing message to: ${destination}`, body);
 
     this.rxStomp.publish({
       destination,
