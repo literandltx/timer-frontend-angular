@@ -4,6 +4,7 @@ import {timer, Subscription, of, fromEvent, merge, Observable} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {AuthService} from '../auth/auth.service';
+import {LogService} from '../log/log.service';
 
 interface PublicPingResponse {
   status: 'UP' | 'DOWN';
@@ -26,6 +27,7 @@ export class HealthCheckService {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
+  private log = inject(LogService);
 
   private pollingSubscription?: Subscription;
   private baseUrl: string | undefined = environment.base_url;
@@ -44,7 +46,7 @@ export class HealthCheckService {
 
   public setWsStatus(enabled: boolean): void {
     this._isWsEnabled.set(enabled);
-    console.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+    this.log.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
 
   private setupNativeNetworkListeners(): void {
@@ -55,10 +57,10 @@ export class HealthCheckService {
 
     const networkSub = networkStatus$.subscribe((isOnline) => {
       if (isOnline) {
-        console.info('[HealthCheckService] OS reports online. Resuming health checks.');
+        this.log.info('[HealthCheckService] OS reports online. Resuming health checks.');
         this.startHealthCheck();
       } else {
-        console.warn('[HealthCheckService] OS reports offline. Pausing health checks.');
+        this.log.warn('[HealthCheckService] OS reports offline. Pausing health checks.');
         this._isHealthy.set(false);
         this.stopHealthCheck();
       }
@@ -93,7 +95,7 @@ export class HealthCheckService {
       const params = new HttpParams().set('deviceUuid', this.deviceUuid);
       return this.http.post<UserPingResponse>(userUrl, null, {params}).pipe(
         tap((response) => {
-          console.info(`[HealthCheckService] User ping. Active devices count: ${response.activeDevices}`);
+          this.log.info(`[HealthCheckService] User ping. Active devices count: ${response.activeDevices}`);
           const shouldEnableWs = response.activeDevices >= 2;
           if (this._isWsEnabled() !== shouldEnableWs) {
             this.setWsStatus(shouldEnableWs);
@@ -104,7 +106,7 @@ export class HealthCheckService {
       );
     } else {
       const publicUrl = `${this.baseUrl}/api/v1/system/ping/public`;
-      console.info('[HealthCheckService] Public ping');
+      this.log.info('[HealthCheckService] Public ping');
       return this.http.get<PublicPingResponse>(publicUrl).pipe(
         tap(() => {
           if (this._isWsEnabled()) {
@@ -128,9 +130,9 @@ export class HealthCheckService {
 
   private handlePingError(error: HttpErrorResponse): Observable<boolean> {
     if (error.status === 0) {
-      console.warn('[HealthCheckService] Backend is unreachable. App is currently in offline mode.');
+      this.log.warn('[HealthCheckService] Backend is unreachable. App is currently in offline mode.');
     } else {
-      console.error(`[HealthCheckService] Backend returned error code ${error.status}`);
+      this.log.error(`[HealthCheckService] Backend returned error code ${error.status}`);
     }
 
     return of(false);

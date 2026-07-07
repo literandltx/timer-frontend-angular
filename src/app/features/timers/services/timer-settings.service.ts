@@ -5,6 +5,7 @@ import {SyncMessage} from '../../../core/netwrok/sync-message.model';
 import {AppDB} from '../../../core/db/app.db';
 import {AuthService} from '../../../core/auth/auth.service';
 import {TimerSettingApiService} from './timer-setting-api.service';
+import {LogService} from '../../../core/log/log.service';
 
 const STORAGE_KEY = 'activeTimerSetting';
 
@@ -13,6 +14,7 @@ export class TimerSettingsService implements OnDestroy {
   private api = inject(TimerSettingApiService);
   private db = inject(AppDB);
   private auth = inject(AuthService);
+  private log = inject(LogService);
   private subscriptions = new Subscription();
 
   public activeSetting = signal<TimerSetting>(this.readFromLocalStorage() ?? this.createLocalDefault());
@@ -55,14 +57,14 @@ export class TimerSettingsService implements OnDestroy {
             }
           },
           error: (error) => {
-            console.warn('[TimerSettingsService] Sync failed.', error);
+            this.log.warn('[TimerSettingsService] Sync failed.', error);
           }
         });
 
         this.subscriptions.add(sub);
       }
     } catch (err) {
-      console.error('[TimerSettingsService] Failed to load settings from DB:', err);
+      this.log.error('[TimerSettingsService] Failed to load settings from DB:', err);
     }
   }
 
@@ -96,7 +98,7 @@ export class TimerSettingsService implements OnDestroy {
       });
 
       if (!this.auth.isAuthenticatedSignal()) {
-        console.error('User unauthenticated. Skipping HTTP call, kept in queue.');
+        this.log.error('User unauthenticated. Skipping HTTP call, kept in queue.');
         return;
       }
 
@@ -111,7 +113,7 @@ export class TimerSettingsService implements OnDestroy {
       await this.db.syncQueue.delete(syncId);
 
     } catch (error) {
-      console.info(`[TimerSettingsService] Action safely stored offline.`, error);
+      this.log.info(`[TimerSettingsService] Action safely stored offline.`, error);
     }
   }
 
@@ -135,7 +137,7 @@ export class TimerSettingsService implements OnDestroy {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(setting));
     } catch (err) {
-      console.warn('[TimerSettingsService] Failed to cache setting in localStorage.', err);
+      this.log.warn('[TimerSettingsService] Failed to cache setting in localStorage.', err);
     }
   }
 
@@ -144,7 +146,7 @@ export class TimerSettingsService implements OnDestroy {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) as TimerSetting : null;
     } catch (err) {
-      console.warn('[TimerSettingsService] Failed to read cached setting.', err);
+      this.log.warn('[TimerSettingsService] Failed to read cached setting.', err);
       return null;
     }
   }

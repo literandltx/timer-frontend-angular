@@ -7,6 +7,7 @@ import {LabelApiService} from './label-api.service';
 import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {LogService} from '../../../core/log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {
@@ -16,6 +17,7 @@ export class LabelService {
   private syncOrchestrator = inject(EntitySyncOrchestrator);
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
+  private log = inject(LogService);
 
   private readonly ENTITY_TYPE = 'LABEL';
   private readonly WS_LABEL_TOPIC = '/user/queue/labels';
@@ -39,7 +41,7 @@ export class LabelService {
     try {
       this.labels.set(await this.db.labels.toArray());
     } catch (error) {
-      console.error('[LabelService] Failed to load labels:', error);
+      this.log.error('[LabelService] Failed to load labels:', error);
     }
   }
 

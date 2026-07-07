@@ -11,6 +11,7 @@ import {TimerEntryApiService} from './timer-entry-api.service';
 import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {LogService} from '../../../core/log/log.service';
 
 const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 
@@ -22,6 +23,7 @@ export class TimerEntryService {
   private syncOrchestrator = inject(EntitySyncOrchestrator);
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
+  private log = inject(LogService);
 
   private readonly ENTITY_TYPE = 'TIMER_ENTRY';
   private readonly WS_TOPIC = '/user/queue/timer-entries';
@@ -65,7 +67,7 @@ export class TimerEntryService {
       const startIndex = page * size;
       this.entries.set(populatedEntries.slice(startIndex, startIndex + size));
     } catch (error) {
-      console.error('[TimerEntryService] Failed to load entries:', error);
+      this.log.error('[TimerEntryService] Failed to load entries:', error);
     }
   }
 

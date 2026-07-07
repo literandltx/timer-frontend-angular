@@ -11,6 +11,7 @@ import {TimerOptionApiService} from './timer-option-api.service';
 import {SyncEngineService} from '../../../core/services/sync-engine.service';
 import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {LogService} from '../../../core/log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerOptionsService {
@@ -20,6 +21,7 @@ export class TimerOptionsService {
   private syncOrchestrator = inject(EntitySyncOrchestrator);
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
+  private log = inject(LogService);
 
   private readonly ENTITY_TYPE = 'TIMER_OPTION';
   private readonly WS_TOPIC = '/user/queue/timer-options';
@@ -68,7 +70,7 @@ export class TimerOptionsService {
       const finalOptions = Array.from(uniqueMap.values()).sort((a, b) => a.value - b.value);
       this.options.set(finalOptions);
     } catch (error) {
-      console.error('[TimerOptionsService] Failed to load options:', error);
+      this.log.error('[TimerOptionsService] Failed to load options:', error);
     }
   }
 
