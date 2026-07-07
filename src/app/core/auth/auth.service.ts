@@ -7,19 +7,23 @@ import {AppDB} from '../db/app.db';
 import {LogService} from '../log/log.service';
 
 export interface LoginCredentials {
-  email?: string;
-  username?: string;
+  username: string;
   password: string;
 }
 
 export interface RegisterData {
   email: string;
   password: string;
-  name?: string;
+  repeatPassword: string;
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
   token: string;
+}
+
+export interface RegisterResponse {
+  id: number;
+  email: string;
 }
 
 @Injectable({
@@ -38,9 +42,9 @@ export class AuthService {
   private _isAuthenticated = signal<boolean>(false);
   public isAuthenticatedSignal = this._isAuthenticated.asReadonly();
 
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
-      tap((response: AuthResponse) => {
+  login(credentials: LoginCredentials): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
+      tap((response: LoginResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
@@ -48,27 +52,18 @@ export class AuthService {
     );
   }
 
-  register(userData: RegisterData): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/register`, userData);
+  register(userData: RegisterData): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.authApiUrl}/register`, userData);
   }
 
-  refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
-      tap((response: AuthResponse) => {
+  refreshToken(): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
+      tap((response: LoginResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
       })
     );
-  }
-
-  private setToken(token: string): void {
-    this.accessToken = token;
-    this._isAuthenticated.set(true);
-  }
-
-  getToken(): string | null {
-    return this.accessToken;
   }
 
   logout(): Observable<unknown> {
@@ -93,6 +88,15 @@ export class AuthService {
         alert('Failed to delete account. Please try again later.');
       }
     });
+  }
+
+  private setToken(token: string): void {
+    this.accessToken = token;
+    this._isAuthenticated.set(true);
+  }
+
+  getToken(): string | null {
+    return this.accessToken;
   }
 
   public async resetLocalData(): Promise<void> {
