@@ -4,6 +4,7 @@ import {Observable, tap, catchError, of} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
+import {LogService} from '../log/log.service';
 
 export interface LoginCredentials {
   email?: string;
@@ -28,6 +29,7 @@ export class AuthService {
   private http: HttpClient = inject(HttpClient);
   private router: Router = inject(Router);
   private db: AppDB = inject(AppDB);
+  private log: LogService = inject(LogService);
 
   private authApiUrl = `${environment.base_url}/api/v1/auth`;
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
@@ -73,7 +75,7 @@ export class AuthService {
     return this.http.post(`${this.authApiUrl}/logout`, {}, {withCredentials: true}).pipe(
       tap(() => this.clearAuthState()),
       catchError((err) => {
-        console.error('Server logout failed, but cleaning local auth state anyway', err);
+        this.log.error('Server logout failed, but cleaning local auth state anyway', err);
         this.clearAuthState();
         return of(null);
       })
@@ -83,11 +85,11 @@ export class AuthService {
   deleteAccount(): void {
     this.http.delete(`${this.usersApiUrl}/me`, {withCredentials: true}).subscribe({
       next: async () => {
-        console.log('Account deleted successfully');
+        this.log.log('Account deleted successfully');
         await this.clearAllUserData();
       },
       error: (err) => {
-        console.error('Account deletion failed', err);
+        this.log.error('Account deletion failed', err);
         alert('Failed to delete account. Please try again later.');
       }
     });
@@ -99,9 +101,9 @@ export class AuthService {
 
     try {
       await Promise.all(this.db.tables.map(table => table.clear()));
-      console.log('IndexedDB cleared successfully');
+      this.log.log('IndexedDB cleared successfully');
     } catch (err) {
-      console.error('Failed to clear IndexedDB during reset', err);
+      this.log.error('Failed to clear IndexedDB during reset', err);
     }
 
     localStorage.clear();
@@ -121,7 +123,7 @@ export class AuthService {
     try {
       await Promise.all(this.db.tables.map(table => table.clear()));
     } catch (err) {
-      console.error('Failed to clear IndexedDB on account deletion', err);
+      this.log.error('Failed to clear IndexedDB on account deletion', err);
     }
 
     localStorage.clear();

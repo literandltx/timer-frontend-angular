@@ -11,6 +11,7 @@ import {DEFAULT_TIMER_OPTIONS} from '../../features/timers/models/timer-option.c
 import {CreateLabelRequest, Label} from '../../features/labels/models/label.model';
 import {CreateTimerOptionRequest, TimerOption} from '../../features/timers/models/timer-option.model';
 import {TimerSettingRequest, TimerSetting} from '../../features/timers/models/timer-setting.model';
+import {LogService} from '../log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class DatabaseInitializer {
@@ -19,12 +20,13 @@ export class DatabaseInitializer {
   private labelApi = inject(LabelApiService);
   private optionsApi = inject(TimerOptionApiService);
   private settingsApi = inject(TimerSettingApiService);
+  private log = inject(LogService);
 
   private readonly SEEDED_KEY = 'app_db_seeded_v1';
 
   async seedInitialData(): Promise<void> {
     if (localStorage.getItem(this.SEEDED_KEY) === 'true') {
-      console.log('[Seeder] Database already seeded. Skipping initialization.');
+      this.log.log('[Seeder] Database already seeded. Skipping initialization.');
       return;
     }
 
@@ -37,16 +39,16 @@ export class DatabaseInitializer {
           const EPOCH = new Date(0).toISOString();
           const existingOptions = await firstValueFrom(this.optionsApi.pullUpdates(EPOCH));
           if (existingOptions && existingOptions.length > 0) {
-            console.log('[Seeder] Existing user data found. Skipping default seeds.');
+            this.log.log('[Seeder] Existing user data found. Skipping default seeds.');
             localStorage.setItem(this.SEEDED_KEY, 'true');
             return;
           }
         } catch (e) {
-          console.warn('[Seeder] Could not verify backend data. Proceeding to seed offline.', e);
+          this.log.warn('[Seeder] Could not verify backend data. Proceeding to seed offline.', e);
         }
       }
 
-      console.info('[Seeder] Starting strict sequential data seeding...');
+      this.log.info('[Seeder] Starting strict sequential data seeding...');
 
       for (const defaultLabel of DEFAULT_LABELS) {
         const labelUuid = defaultLabel.uuid || crypto.randomUUID();
@@ -88,9 +90,9 @@ export class DatabaseInitializer {
       await this.pushOrQueue('TIMER_SETTING', 'UPDATE', settingReq, isAuthed, () => firstValueFrom(this.settingsApi.save(settingReq)));
 
       localStorage.setItem(this.SEEDED_KEY, 'true');
-      console.info('[Seeder] Initialization complete.');
+      this.log.info('[Seeder] Initialization complete.');
     } catch (error) {
-      console.error('[Seeder] CRITICAL: Failed to seed default data', error);
+      this.log.error('[Seeder] CRITICAL: Failed to seed default data', error);
     }
   }
 
@@ -99,7 +101,7 @@ export class DatabaseInitializer {
       try {
         await apiCall();
       } catch (error) {
-        console.warn(`[Seeder] Backend save failed for ${entityType}, queuing offline.`, error);
+        this.log.warn(`[Seeder] Backend save failed for ${entityType}, queuing offline.`, error);
         await this.queueAction(entityType, action, payload);
       }
     } else {

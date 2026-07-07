@@ -1,12 +1,15 @@
-import {ErrorHandler, Injectable} from '@angular/core';
+import {ErrorHandler, Injectable, inject} from '@angular/core';
+import {LogService} from '../log/log.service';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
+  private log: LogService = inject(LogService);
+
   handleError(error: unknown): void {
     try {
-      console.error('Error: \n', JSON.stringify(error, null, 2));
+      this.log.error('Error: \n', JSON.stringify(error, null, 2));
     } catch {
-      console.error('Error: ', error);
+      this.log.error('Error: ', error);
     }
   }
 }
