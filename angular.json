@@ -37,6 +37,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/app/core/log/log.service.ts",
+                  "with": "src/app/core/log/log.service.prod.ts"
                 }
               ],
               "budgets": [
