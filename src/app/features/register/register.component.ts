@@ -5,7 +5,6 @@ import {AuthService} from '../../core/auth/auth.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {LogService} from '../../core/log/log.service';
-import {mapAuthError} from '../../core/auth/auth-error.util';
 
 @Component({
   selector: 'ns-app-register',
@@ -48,7 +47,13 @@ export class RegisterComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.errorMessage.set(mapAuthError(err, 'register'));
+
+          if (err.status === 0 || err.status >= 500) {
+            this.errorMessage.set('Servers are currently offline. Cannot register right now.');
+          } else {
+            this.errorMessage.set('Registration failed. Please check your details and try again.');
+          }
+
           this.log.error(err);
         }
       });
