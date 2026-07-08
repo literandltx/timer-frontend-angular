@@ -1,26 +1,16 @@
 import {Injectable, inject, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable, tap, catchError, of} from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, tap, catchError, of, throwError, finalize, shareReplay} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
 import {LogService} from '../log/log.service';
+import {LoginCredentials, LoginResponse, RegisterData, RegisterResponse} from './auth.model';
 
-export interface LoginCredentials {
-  email?: string;
-  username?: string;
-  password: string;
-}
-
-export interface RegisterData {
-  email: string;
-  password: string;
-  name?: string;
-}
-
-export interface AuthResponse {
-  token: string;
-}
+const REFRESH_BUFFER_MS = 60_000;
+const FALLBACK_REFRESH_MS = 13 * 60_000;
+const MIN_RETRY_DELAY_MS = 5_000;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 @Injectable({
   providedIn: 'root'
@@ -35,12 +25,22 @@ export class AuthService {
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
   private accessToken: string | null = null;
 
+  private refreshTimerId?: ReturnType<typeof setTimeout>;
+  private retryDelayMs = MIN_RETRY_DELAY_MS;
+  private refreshInProgress$: Observable<LoginResponse> | null = null;
+
   private _isAuthenticated = signal<boolean>(false);
   public isAuthenticatedSignal = this._isAuthenticated.asReadonly();
 
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
-      tap((response: AuthResponse) => {
+  constructor() {
+    this.refreshToken().subscribe({
+      error: () => this.log.info('[AuthService] No active session to restore on startup.')
+    });
+  }
+
+  login(credentials: LoginCredentials): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
+      tap((response: LoginResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
@@ -48,27 +48,36 @@ export class AuthService {
     );
   }
 
-  register(userData: RegisterData): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/register`, userData);
+  register(userData: RegisterData): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.authApiUrl}/register`, userData);
   }
 
-  refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
-      tap((response: AuthResponse) => {
+  refreshToken(): Observable<LoginResponse> {
+    if (this.refreshInProgress$) {
+      return this.refreshInProgress$;
+    }
+
+    const request$ = this.http.post<LoginResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
+      tap((response: LoginResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
-      })
+      }),
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 401 || err.status === 403) {
+          this.log.warn('[AuthService] Refresh token invalid or expired. Logging out.');
+          this.clearAuthState();
+        }
+        return throwError(() => err);
+      }),
+      finalize(() => {
+        this.refreshInProgress$ = null;
+      }),
+      shareReplay({bufferSize: 1, refCount: false})
     );
-  }
 
-  private setToken(token: string): void {
-    this.accessToken = token;
-    this._isAuthenticated.set(true);
-  }
-
-  getToken(): string | null {
-    return this.accessToken;
+    this.refreshInProgress$ = request$;
+    return request$;
   }
 
   logout(): Observable<unknown> {
@@ -95,7 +104,60 @@ export class AuthService {
     });
   }
 
-  public async resetLocalData(): Promise<void> {
+  private setToken(token: string): void {
+    this.accessToken = token;
+    this._isAuthenticated.set(true);
+    this.retryDelayMs = MIN_RETRY_DELAY_MS;
+    this.scheduleProactiveRefresh(token);
+  }
+
+  getToken(): string | null {
+    return this.accessToken;
+  }
+
+  private scheduleProactiveRefresh(token: string): void {
+    this.clearRefreshTimer();
+
+    const expiresAt = AuthService.decodeJwtExpiry(token);
+    const delay = expiresAt
+      ? Math.max(expiresAt - Date.now() - REFRESH_BUFFER_MS, 0)
+      : FALLBACK_REFRESH_MS;
+
+    this.refreshTimerId = setTimeout(() => this.attemptProactiveRefresh(), delay);
+  }
+
+  private attemptProactiveRefresh(): void {
+    this.refreshToken().subscribe({
+      error: (err: HttpErrorResponse) => {
+        if (err.status !== 401 && err.status !== 403) {
+          this.log.warn(`[AuthService] Proactive refresh failed (status ${err.status}). Retry in ${this.retryDelayMs}ms`);
+          this.refreshTimerId = setTimeout(() => this.attemptProactiveRefresh(), this.retryDelayMs);
+          this.retryDelayMs = Math.min(this.retryDelayMs * 2, MAX_RETRY_DELAY_MS);
+        }
+      }
+    });
+  }
+
+  private clearRefreshTimer(): void {
+    if (this.refreshTimerId) {
+      clearTimeout(this.refreshTimerId);
+      this.refreshTimerId = undefined;
+    }
+  }
+
+  private static decodeJwtExpiry(token: string): number | null {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadJson) as {exp?: number};
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async clearSession(options: {clearStorage?: boolean; redirectHref?: string} = {}): Promise<void> {
+    this.clearRefreshTimer();
     this.accessToken = null;
     this._isAuthenticated.set(false);
 
@@ -103,31 +165,31 @@ export class AuthService {
       await Promise.all(this.db.tables.map(table => table.clear()));
       this.log.log('IndexedDB cleared successfully');
     } catch (err) {
-      this.log.error('Failed to clear IndexedDB during reset', err);
+      this.log.error('Failed to clear IndexedDB', err);
     }
 
-    localStorage.clear();
+    if (options.clearStorage) {
+      localStorage.clear();
+    }
+
+    if (options.redirectHref) {
+      window.location.href = options.redirectHref;
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  public async resetLocalData(): Promise<void> {
+    await this.clearSession({clearStorage: true});
     window.location.reload();
   }
 
   public clearAuthState(): void {
-    this.accessToken = null;
-    this._isAuthenticated.set(false);
-    this.router.navigate(['/login']);
+    this.clearSession();
   }
 
   private async clearAllUserData(): Promise<void> {
-    this.accessToken = null;
-    this._isAuthenticated.set(false);
-
-    try {
-      await Promise.all(this.db.tables.map(table => table.clear()));
-    } catch (err) {
-      this.log.error('Failed to clear IndexedDB on account deletion', err);
-    }
-
-    localStorage.clear();
-    window.location.href = '/login';
+    await this.clearSession({clearStorage: true, redirectHref: '/login'});
   }
 
 }
