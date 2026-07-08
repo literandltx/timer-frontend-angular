@@ -5,28 +5,27 @@ import {
   HttpHandlerFn
 } from '@angular/common/http';
 import {inject} from '@angular/core';
-import {Router} from '@angular/router';
 import {AuthService} from '../auth/auth.service';
-import {BehaviorSubject, throwError, catchError, filter, switchMap, take} from 'rxjs';
+import {Subject, throwError, catchError, switchMap, take} from 'rxjs';
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+let refreshTokenSubject = new Subject<string>();
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
   const token = authService.getToken();
-
-  if (
+  const isPublicAuthCall =
     req.url.includes('/api/v1/auth/login') ||
-    req.url.includes('/api/v1/auth/register') ||
-    req.url.includes('/api/v1/auth/refresh')
-  ) {
+    req.url.includes('/api/v1/auth/register');
+  const isRefreshCall = req.url.includes('/api/v1/auth/refresh');
+
+  let authReq = req;
+
+  if (isPublicAuthCall) {
     return next(req);
   }
 
-  let authReq = req;
-  if (token) {
+  if (token && !isRefreshCall) {
     authReq = req.clone({
       setHeaders: {Authorization: `Bearer ${token}`}
     });
@@ -34,13 +33,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/api/v1/auth/refresh')) {
-        return handle401Error(authReq, next, authService);
+      if (isRefreshCall && (error.status === 401 || error.status === 403)) {
+        authService.clearAuthState();
+        return throwError(() => error);
       }
 
-      if ((error.status === 401 || error.status === 403) && req.url.includes('/api/v1/auth/refresh')) {
-        authService.logout();
-        router.navigate(['/login']);
+      if (error.status === 401 && !isRefreshCall) {
+        return handle401Error(authReq, next, authService);
       }
 
       return throwError(() => error);
@@ -51,12 +50,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) {
   if (!isRefreshing) {
     isRefreshing = true;
-    refreshTokenSubject.next(null);
+    const currentSubject = refreshTokenSubject;
 
     return authService.refreshToken().pipe(
       switchMap((response) => {
         isRefreshing = false;
-        refreshTokenSubject.next(response.token);
+        currentSubject.next(response.token);
+        currentSubject.complete();
+        refreshTokenSubject = new Subject<string>();
 
         const newReq = req.clone({
           setHeaders: {Authorization: `Bearer ${response.token}`}
@@ -65,20 +66,21 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
       }),
       catchError((err) => {
         isRefreshing = false;
+        currentSubject.error(err);
+        refreshTokenSubject = new Subject<string>();
         authService.clearAuthState();
         return throwError(() => err);
       })
     );
-  } else {
-    return refreshTokenSubject.pipe(
-      filter(token => token !== null),
-      take(1),
-      switchMap((token) => {
-        const newReq = req.clone({
-          setHeaders: {Authorization: `Bearer ${token}`}
-        });
-        return next(newReq);
-      })
-    );
   }
+
+  return refreshTokenSubject.pipe(
+    take(1),
+    switchMap((token) => {
+      const newReq = req.clone({
+        setHeaders: {Authorization: `Bearer ${token}`}
+      });
+      return next(newReq);
+    })
+  );
 }
