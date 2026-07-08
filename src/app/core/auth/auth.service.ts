@@ -1,11 +1,16 @@
 import {Injectable, inject, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable, tap, catchError, of} from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, tap, catchError, of, throwError, finalize, shareReplay} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
 import {LogService} from '../log/log.service';
 import {LoginCredentials, LoginResponse, RegisterData, RegisterResponse} from './auth.model';
+
+const REFRESH_BUFFER_MS = 60_000;
+const FALLBACK_REFRESH_MS = 13 * 60_000;
+const MIN_RETRY_DELAY_MS = 5_000;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +25,18 @@ export class AuthService {
   private usersApiUrl = `${environment.base_url}/api/v1/users`;
   private accessToken: string | null = null;
 
+  private refreshTimerId?: ReturnType<typeof setTimeout>;
+  private retryDelayMs = MIN_RETRY_DELAY_MS;
+  private refreshInProgress$: Observable<LoginResponse> | null = null;
+
   private _isAuthenticated = signal<boolean>(false);
   public isAuthenticatedSignal = this._isAuthenticated.asReadonly();
+
+  constructor() {
+    this.refreshToken().subscribe({
+      error: () => this.log.info('[AuthService] No active session to restore on startup.')
+    });
+  }
 
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.authApiUrl}/login`, credentials, {withCredentials: true}).pipe(
@@ -38,13 +53,31 @@ export class AuthService {
   }
 
   refreshToken(): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
+    if (this.refreshInProgress$) {
+      return this.refreshInProgress$;
+    }
+
+    const request$ = this.http.post<LoginResponse>(`${this.authApiUrl}/refresh`, {}, {withCredentials: true}).pipe(
       tap((response: LoginResponse) => {
         if (response && response.token) {
           this.setToken(response.token);
         }
-      })
+      }),
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 401 || err.status === 403) {
+          this.log.warn('[AuthService] Refresh token invalid or expired. Logging out.');
+          this.clearAuthState();
+        }
+        return throwError(() => err);
+      }),
+      finalize(() => {
+        this.refreshInProgress$ = null;
+      }),
+      shareReplay({bufferSize: 1, refCount: false})
     );
+
+    this.refreshInProgress$ = request$;
+    return request$;
   }
 
   logout(): Observable<unknown> {
@@ -74,13 +107,57 @@ export class AuthService {
   private setToken(token: string): void {
     this.accessToken = token;
     this._isAuthenticated.set(true);
+    this.retryDelayMs = MIN_RETRY_DELAY_MS;
+    this.scheduleProactiveRefresh(token);
   }
 
   getToken(): string | null {
     return this.accessToken;
   }
 
+  private scheduleProactiveRefresh(token: string): void {
+    this.clearRefreshTimer();
+
+    const expiresAt = AuthService.decodeJwtExpiry(token);
+    const delay = expiresAt
+      ? Math.max(expiresAt - Date.now() - REFRESH_BUFFER_MS, 0)
+      : FALLBACK_REFRESH_MS;
+
+    this.refreshTimerId = setTimeout(() => this.attemptProactiveRefresh(), delay);
+  }
+
+  private attemptProactiveRefresh(): void {
+    this.refreshToken().subscribe({
+      error: (err: HttpErrorResponse) => {
+        if (err.status !== 401 && err.status !== 403) {
+          this.log.warn(`[AuthService] Proactive refresh failed (status ${err.status}). Retry in ${this.retryDelayMs}ms`);
+          this.refreshTimerId = setTimeout(() => this.attemptProactiveRefresh(), this.retryDelayMs);
+          this.retryDelayMs = Math.min(this.retryDelayMs * 2, MAX_RETRY_DELAY_MS);
+        }
+      }
+    });
+  }
+
+  private clearRefreshTimer(): void {
+    if (this.refreshTimerId) {
+      clearTimeout(this.refreshTimerId);
+      this.refreshTimerId = undefined;
+    }
+  }
+
+  private static decodeJwtExpiry(token: string): number | null {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadJson) as {exp?: number};
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+
   private async clearSession(options: {clearStorage?: boolean; redirectHref?: string} = {}): Promise<void> {
+    this.clearRefreshTimer();
     this.accessToken = null;
     this._isAuthenticated.set(false);
 
