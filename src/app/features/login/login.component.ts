@@ -5,8 +5,6 @@ import {Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../core/auth/auth.service';
 import {CommonModule} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {LogService} from '../../core/log/log.service';
-import {mapAuthError} from '../../core/auth/auth-error.util';
 
 @Component({
   selector: 'ns-app-login',
@@ -20,7 +18,6 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private log = inject(LogService);
 
   isLoading = signal(false);
   isLoggingOut = signal(false);
@@ -48,8 +45,12 @@ export class LoginComponent {
           },
           error: (err: HttpErrorResponse) => {
             this.isLoading.set(false);
-            this.errorMessage.set(mapAuthError(err, 'login'));
-            this.log.error(err);
+
+            if (err.status === 0 || err.status >= 500) {
+              this.errorMessage.set('Servers are currently offline. Cannot log in right now.');
+            } else {
+              this.errorMessage.set('Invalid email or password.');
+            }
           }
         });
     }
