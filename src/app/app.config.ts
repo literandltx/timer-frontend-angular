@@ -1,13 +1,14 @@
 import {ApplicationConfig, ErrorHandler, provideAppInitializer, inject} from '@angular/core';
 import {provideRouter, withViewTransitions} from '@angular/router';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {catchError, of} from 'rxjs';
+import {catchError, of, switchMap} from 'rxjs';
 import {routes} from './app.routes';
 import {authInterceptor} from './core/interceptors/auth.interceptor';
 import {networkStatusInterceptor} from './core/interceptors/network-status.interceptor';
 import {GlobalErrorHandler} from './core/errors/global-error-handler';
 import {DatabaseInitializer} from './core/services/database-initializer.service';
 import {AuthService} from './core/auth/auth.service';
+import {HealthCheckService} from './core/netwrok/health.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,8 +27,23 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
-      return authService.refreshToken().pipe(
-        catchError(() => of(null))
+      const healthCheckService = inject(HealthCheckService);
+
+      const authCheck$ = localStorage.getItem('hasSession') === 'true'
+        ? authService.refreshToken().pipe(
+          catchError(() => {
+            authService.clearAuthState();
+            return of(null);
+          })
+        )
+        : of(null);
+
+      return authCheck$.pipe(
+        switchMap(() => healthCheckService.doInitialPing()),
+        catchError((err) => {
+          console.warn('Initial ping failed on startup', err);
+          return of(null);
+        })
       );
     })
   ]

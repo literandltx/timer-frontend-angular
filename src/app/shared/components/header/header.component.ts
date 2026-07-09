@@ -116,7 +116,7 @@ export class HeaderComponent {
     this.isUserMenuOpen = false;
   }
 
-  reset() {
+  reset(): void {
     this.closeUserMenu();
 
     const isConfirmed = confirm('Are you sure you want to reset all local data? This will clear your offline database and local settings.');
@@ -126,22 +126,35 @@ export class HeaderComponent {
     }
   }
 
-  resetAuth() {
-    this.reset();
-  }
-
-  logout() {
+  resetAuth(): void {
     this.closeUserMenu();
-    this.authService.logout().subscribe();
+    const isConfirmed = confirm('Are you sure you want to clear your auth state?');
+    if (isConfirmed) {
+      this.authService.clearAuthState();
+    }
   }
 
-  deleteAccount() {
+  logout(): void {
+    this.closeUserMenu();
+    this.authService.logout().subscribe({
+      error: (err) => console.error('Logout error:', err)
+    });
+  }
+
+  deleteAccount(): void {
     this.closeUserMenu();
 
     const isConfirmed = confirm('Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.');
 
     if (isConfirmed) {
-      this.authService.deleteAccount();
+      this.authService.deleteAccount().subscribe({
+        next: () => { /* empty */
+        },
+        error: (err) => {
+          console.error('Account deletion failed', err);
+          alert('Failed to delete account. Please try again later.');
+        }
+      });
     }
   }
 }
