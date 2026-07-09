@@ -5,26 +5,7 @@ import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
 import {LogService} from '../log/log.service';
-
-export interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-export interface RegisterData {
-  email: string;
-  password: string;
-  repeatPassword: string;
-}
-
-export interface LoginResponse {
-  token: string;
-}
-
-export interface RegisterResponse {
-  id: number;
-  email: string;
-}
+import {LoginCredentials, LoginResponse, RegisterData, RegisterResponse} from './auth.models';
 
 @Injectable({
   providedIn: 'root'
