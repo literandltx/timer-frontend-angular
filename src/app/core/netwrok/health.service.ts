@@ -16,7 +16,7 @@ interface UserPingResponse {
   activeDevices: number;
 }
 
-const SMART_POLL_INTERVAL_MS = 10_000;
+const SMART_POLL_INTERVAL_MS = 60_000;
 const DEVICE_ID_KEY = 'app_device_uuid';
 
 @Injectable({
@@ -46,6 +46,10 @@ export class HealthCheckService {
     if (this._isWsEnabled() !== enabled) {
       this._isWsEnabled.set(enabled);
       this.log.info(`[HealthCheckService] WebSocket status updated to: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+    }
+
+    if (!enabled && this._isHealthy() && this.authService.isAuthenticatedSignal()) {
+      this.startSmartPolling();
     }
   }
 
