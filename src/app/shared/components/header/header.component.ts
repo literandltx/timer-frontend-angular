@@ -30,8 +30,11 @@ export class HeaderComponent {
 
   private readonly navRoutes = ['/preset', '/home', '/history'];
   private touchStartX = 0;
+  private touchStartY = 0;
   private touchEndX = 0;
+  private touchEndY = 0;
   private readonly swipeThreshold = 50;
+  private ignoreSwipe = false;
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -47,22 +50,61 @@ export class HeaderComponent {
 
   @HostListener('window:touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
+    if (this.shouldIgnoreSwipe(event.target as HTMLElement)) {
+      this.ignoreSwipe = true;
+      return;
+    }
+    this.ignoreSwipe = false;
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
   }
 
   @HostListener('window:touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
+    if (this.ignoreSwipe) return;
     this.touchEndX = event.changedTouches[0].screenX;
+    this.touchEndY = event.changedTouches[0].screenY;
     this.handleSwipe();
   }
 
-  private handleSwipe() {
-    const distance = this.touchStartX - this.touchEndX;
+  @HostListener('window:touchcancel')
+  onTouchCancel() {
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.touchEndX = 0;
+    this.touchEndY = 0;
+    this.ignoreSwipe = false;
+  }
 
-    if (distance > this.swipeThreshold) {
-      this.navigateNext();
-    } else if (distance < -this.swipeThreshold) {
-      this.navigatePrev();
+  private shouldIgnoreSwipe(element: HTMLElement | null): boolean {
+    while (element && element !== this.document.body && element !== this.document.documentElement) {
+      if (element.classList.contains('no-swipe')) return true;
+
+      const style = window.getComputedStyle(element);
+      if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && element.scrollWidth > element.clientWidth) {
+        return true;
+      }
+
+      const tagName = element.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
+        return true;
+      }
+
+      element = element.parentElement;
+    }
+    return false;
+  }
+
+  private handleSwipe() {
+    const distanceX = this.touchStartX - this.touchEndX;
+    const distanceY = this.touchStartY - this.touchEndY;
+
+    if (Math.abs(distanceX) > Math.abs(distanceY)) {
+      if (distanceX > this.swipeThreshold) {
+        this.navigateNext();
+      } else if (distanceX < -this.swipeThreshold) {
+        this.navigatePrev();
+      }
     }
   }
 

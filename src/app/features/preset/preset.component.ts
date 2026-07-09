@@ -44,18 +44,23 @@ export class PresetComponent implements OnInit {
     const target = event.target as HTMLElement;
 
     if (this.isAdding) {
-      const clickedInsideTimerEdit = target.closest('.timer-edit-section');
+      const clickedInsideTimerEdit = target.closest('.edit-section');
       const clickedTrigger = target.closest('.option-chip-default');
-      if (!clickedInsideTimerEdit && !clickedTrigger) {
+      const clickedChipDelete = target.closest('.chip-delete');
+
+      if (!clickedInsideTimerEdit && !clickedTrigger && !clickedChipDelete) {
         this.cancelAdd();
       }
     }
 
     if (this.editingLabel) {
-      const clickedInsideLabelEdit = target.closest('.label-edit-section');
+      const clickedInsideLabelEdit = target.closest('.edit-section2');
       const clickedAddTrigger = target.closest('.add-icon-btn');
       const clickedEditTrigger = target.closest('.edit-icon-btn');
-      if (!clickedInsideLabelEdit && !clickedAddTrigger && !clickedEditTrigger) {
+      const clickedDeleteTrigger = target.closest('.delete-icon-btn');
+      const clickedActiveTrigger = target.closest('.active-toggle-btn');
+
+      if (!clickedInsideLabelEdit && !clickedAddTrigger && !clickedEditTrigger && !clickedDeleteTrigger && !clickedActiveTrigger) {
         this.cancelLabel();
       }
     }
