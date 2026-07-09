@@ -71,11 +71,6 @@ export class AuthService {
     });
   }
 
-  private setToken(token: string): void {
-    this.accessToken = token;
-    this._isAuthenticated.set(true);
-  }
-
   getToken(): string | null {
     return this.accessToken;
   }
@@ -95,9 +90,16 @@ export class AuthService {
     window.location.reload();
   }
 
+  private setToken(token: string): void {
+    this.accessToken = token;
+    this._isAuthenticated.set(true);
+    localStorage.setItem('hasSession', 'true');
+  }
+
   public clearAuthState(): void {
     this.accessToken = null;
     this._isAuthenticated.set(false);
+    localStorage.removeItem('hasSession');
     this.router.navigate(['/login']);
   }
 

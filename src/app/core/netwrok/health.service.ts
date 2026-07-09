@@ -40,7 +40,6 @@ export class HealthCheckService {
 
   constructor() {
     this.setupNativeNetworkListeners();
-    this.doSinglePing();
   }
 
   public setWsStatus(enabled: boolean): void {
@@ -83,6 +82,12 @@ export class HealthCheckService {
       networkSub.unsubscribe();
       this.stopSmartPolling();
     });
+  }
+
+  public doInitialPing(): Observable<boolean> {
+    return this.executePing().pipe(
+      tap(isUp => this.setOnlineStatus(isUp))
+    );
   }
 
   private doSinglePing(): void {
