@@ -5,6 +5,7 @@ import {ThemeService} from '../../../core/services/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {AuthService} from '../../../core/auth/auth.service';
+import {ConfirmDialogService} from '../confirm/confirm-dialog.service';
 
 @Component({
   selector: 'ns-app-header',
@@ -17,6 +18,7 @@ export class HeaderComponent {
   public healthService = inject(HealthCheckService);
   public themeService = inject(ThemeService);
   public authService = inject(AuthService);
+  private confirmDialog = inject(ConfirmDialogService);
   private elementRef = inject(ElementRef);
   private document = inject(DOCUMENT);
   private router = inject(Router);
@@ -27,6 +29,7 @@ export class HeaderComponent {
   );
 
   public isUserMenuOpen = false;
+  public errorMessage: string | null = null;
 
   private readonly navRoutes = ['/preset', '/home', '/history'];
   private touchStartX = 0;
@@ -158,20 +161,20 @@ export class HeaderComponent {
     this.isUserMenuOpen = false;
   }
 
-  reset(): void {
+  async reset(): Promise<void> {
     this.closeUserMenu();
-
-    const isConfirmed = confirm('Are you sure you want to reset all local data? This will clear your offline database and local settings.');
-
-    if (isConfirmed) {
+    const ok = await this.confirmDialog.confirm(
+      'Are you sure you want to reset all local data? This action will clear all your local database and presets.'
+    );
+    if (ok) {
       this.authService.resetLocalData();
     }
   }
 
-  resetAuth(): void {
+  async resetAuth(): Promise<void> {
     this.closeUserMenu();
-    const isConfirmed = confirm('Are you sure you want to clear your auth state?');
-    if (isConfirmed) {
+    const ok = await this.confirmDialog.confirm('Are you sure you want to reset all local data? This action will clear all your local database and presets.');
+    if (ok) {
       this.authService.clearAuthState();
     }
   }
@@ -183,20 +186,25 @@ export class HeaderComponent {
     });
   }
 
-  deleteAccount(): void {
+  async deleteAccount(): Promise<void> {
     this.closeUserMenu();
+    const ok = await this.confirmDialog.confirm(
+      'Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.',
+      { confirmLabel: 'Delete', variant: 'danger' }
+    );
+    if (!ok) return;
 
-    const isConfirmed = confirm('Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.');
+    this.authService.deleteAccount().subscribe({
+      next: () => { /* empty */
+      },
+      error: (err) => {
+        console.error('Account deletion failed', err);
+        this.errorMessage = 'Failed to delete account. Please try again later.';
+      }
+    });
+  }
 
-    if (isConfirmed) {
-      this.authService.deleteAccount().subscribe({
-        next: () => { /* empty */
-        },
-        error: (err) => {
-          console.error('Account deletion failed', err);
-          alert('Failed to delete account. Please try again later.');
-        }
-      });
-    }
+  dismissError(): void {
+    this.errorMessage = null;
   }
 }

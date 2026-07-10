@@ -1,0 +1,71 @@
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+
+.confirm-box {
+  background-color: var(--nav-bg, #fff);
+  color: var(--text-color, #111);
+  border: 1px solid var(--nav-border, #ddd);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.confirm-message {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: var(--text-color, #111);
+  border: 1px solid var(--nav-border, #ddd);
+}
+
+.cancel-btn:hover {
+  background-color: var(--link-hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+.confirm-action-btn {
+  background-color: var(--link-active-bg, #1c7ed6);
+  color: #fff;
+}
+
+.confirm-action-btn:hover {
+  opacity: 0.9;
+}
+
+.confirm-action-btn.danger {
+  background-color: #c92a2a;
+}
+
+.confirm-action-btn.danger:hover {
+  background-color: #a61e1e;
+}
