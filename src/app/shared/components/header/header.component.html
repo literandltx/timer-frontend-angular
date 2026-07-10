@@ -82,3 +82,10 @@
     </div>
   </div>
 </nav>
+
+@if (errorMessage) {
+  <div class="header-error-toast" role="alert">
+    <span>{{ errorMessage }}</span>
+    <button type="button" class="error-dismiss-btn" (click)="dismissError()" aria-label="Dismiss">&times;</button>
+  </div>
+}
