@@ -1,35 +1,34 @@
 <div class="history-container">
   <div class="top-section">
+
     <div class="header-row">
-      <h2 class="page-title">{{ activeView === 'activity' ? 'Activity' : 'Logs' }}</h2>
+      <h2 class="page-title">{{ activeView === 'activity' ? 'Activity' : 'History' }}</h2>
 
-      <div class="header-controls">
-        @if (activeView === 'logs') {
-          <div class="header-actions">
-            <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
-                   style="display: none;"/>
-            <ns-app-button variant="outline-btn" (click)="triggerImport()">Import CSV</ns-app-button>
-            <ns-app-button variant="outline-btn" (click)="exportCSV()">Export CSV</ns-app-button>
-            <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Session</ns-app-button>
-          </div>
-        }
-
-        <div class="view-toggles-wrapper">
-          <ns-app-toggle-group variant="standard">
-            <ns-app-toggle-button
-              [active]="activeView === 'activity'"
-              (toggled)="setView('activity')">
-              Activity
-            </ns-app-toggle-button>
-            <ns-app-toggle-button
-              [active]="activeView === 'logs'"
-              (toggled)="setView('logs')">
-              Logs
-            </ns-app-toggle-button>
-          </ns-app-toggle-group>
-        </div>
+      <div class="view-toggles-wrapper">
+        <ns-app-toggle-group variant="standard">
+          <ns-app-toggle-button
+            [active]="activeView === 'activity'"
+            (toggled)="setView('activity')">
+            Activity
+          </ns-app-toggle-button>
+          <ns-app-toggle-button
+            [active]="activeView === 'logs'"
+            (toggled)="setView('logs')">
+            History
+          </ns-app-toggle-button>
+        </ns-app-toggle-group>
       </div>
     </div>
+
+    @if (activeView === 'logs') {
+      <div class="actions-row">
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
+               style="display: none;"/>
+        <ns-app-button variant="outline-btn" (click)="triggerImport()">Import CSV</ns-app-button>
+        <ns-app-button variant="outline-btn" (click)="exportCSV()">Export CSV</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Session</ns-app-button>
+      </div>
+    }
 
     @if (editingEntry) {
       <div class="edit-section">
