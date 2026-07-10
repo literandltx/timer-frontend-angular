@@ -1,0 +1,112 @@
+<div class="history-container">
+  <div class="top-section">
+
+    <div class="header-row">
+      <h2 class="page-title">{{ activeView === 'activity' ? 'Activity' : 'History' }}</h2>
+
+      <div class="view-toggles-wrapper">
+        <ns-app-toggle-group variant="standard">
+          <ns-app-toggle-button
+            [active]="activeView === 'activity'"
+            (toggled)="setView('activity')">
+            Activity
+          </ns-app-toggle-button>
+          <ns-app-toggle-button
+            [active]="activeView === 'logs'"
+            (toggled)="setView('logs')">
+            History
+          </ns-app-toggle-button>
+        </ns-app-toggle-group>
+      </div>
+    </div>
+
+    @if (activeView === 'logs') {
+      <div class="actions-row">
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".csv"
+               style="display: none;"/>
+        <ns-app-button variant="outline-btn" (click)="triggerImport()">Import CSV</ns-app-button>
+        <ns-app-button variant="outline-btn" (click)="exportCSV()">Export CSV</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="startAdd()">+ Add Session</ns-app-button>
+      </div>
+    }
+
+    @if (editingEntry) {
+      <div class="edit-section">
+        <div class="input-group">
+          <span class="edit-label">{{ editingEntry.uuid ? 'Edit Session:' : 'New Session:' }}</span>
+
+          <select class="modern-input" [(ngModel)]="editingEntry.labelId">
+            <option [ngValue]="undefined" disabled>Select Label...</option>
+            @for (label of historyService.labels(); track label.uuid) {
+              <option [ngValue]="label.uuid">{{ label.name }}</option>
+            }
+          </select>
+
+          <input class="modern-input" type="datetime-local" [(ngModel)]="formDateStr"/>
+
+          <input class="modern-input duration-input" type="number" [(ngModel)]="formDurationMins"
+                 placeholder="Duration (mins)"/>
+
+          <div class="edit-actions">
+            <ns-app-button variant="primary-btn" (click)="editingEntry.uuid ? updateEntry() : createEntry()">Save</ns-app-button>
+            <ns-app-button variant="ghost-btn" (click)="cancel()">Cancel</ns-app-button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (activeView === 'activity') {
+    <ng-content></ng-content>
+  }
+
+  @if (activeView === 'logs') {
+    <div class="options-list">
+      @for (entry of pageViewEntries; track entry.uuid) {
+        <ns-app-list-item>
+          <ng-container info>
+            <span class="duration-text">{{ (entry.durationSeconds / 60) | number:'1.0-0' }}mins</span>
+
+            <div class="label-wrapper">
+              <span class="label-pill" [style.background-color]="getLabelColor(entry.labelId)">
+                {{ getLabelName(entry.labelId) }}
+              </span>
+            </div>
+
+            <span class="date-text">{{ entry.startTime | date:'medium' }}</span>
+
+          </ng-container>
+
+          <ng-container actions>
+            <div class="action-group">
+              <ns-app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</ns-app-button>
+              <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry($event, entry.uuid)">Delete</ns-app-button>
+            </div>
+          </ng-container>
+        </ns-app-list-item>
+      } @empty {
+        <div class="empty-state">
+          <p class="empty-text">No timer history found. Complete a session or log one manually!</p>
+        </div>
+      }
+    </div>
+
+    @if (pageViewEntries.length > 0 || currentPage > 0) {
+      <div class="pagination-controls">
+        <ns-app-button variant="outline-btn"
+                       [disabled]="currentPage === 0"
+                       (click)="prevPage()">
+          Previous
+        </ns-app-button>
+
+        <span class="page-info">Page {{ currentPage + 1 }}</span>
+
+        <ns-app-button variant="outline-btn"
+                       [disabled]="pageViewEntries.length < pageSize"
+                       (click)="nextPage()">
+          Next
+        </ns-app-button>
+      </div>
+    }
+  }
+</div>
