@@ -24,11 +24,24 @@
   gap: 16px;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.view-toggles-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 .page-title {
@@ -216,6 +229,15 @@ app-list-item:last-child {
 @media (max-width: 640px) {
   .date-text, .label-wrapper, .duration-text {
     min-width: auto;
+  }
+
+  .header-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .view-toggles-wrapper {
+    margin-left: auto;
   }
 
   .pagination-controls {

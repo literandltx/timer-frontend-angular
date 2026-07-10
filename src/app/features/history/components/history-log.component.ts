@@ -5,6 +5,8 @@ import {HistoryService} from '../services/history.service';
 import {TimerEntry, CreateTimerEntryRequest, UpdateTimerEntryRequest} from '../../timers/models/timer-entry.model';
 import {ButtonComponent} from '../../../shared/components/button/button.component';
 import {ListItemComponent} from '../../../shared/components/list-item/list-item.component';
+import {ToggleGroupComponent} from '../../../shared/components/toggle/toggle-group.component';
+import {ToggleButtonComponent} from '../../../shared/components/toggle/toggle-button.component';
 
 const INITIAL_PAGE = 0;
 const DEFAULT_PAGE_SIZE = 20;
@@ -12,7 +14,14 @@ const DEFAULT_PAGE_SIZE = 20;
 @Component({
   selector: 'ns-history-log',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    ListItemComponent,
+    ToggleGroupComponent,
+    ToggleButtonComponent
+  ],
   templateUrl: './history-log.component.html',
   styleUrl: './history-log.component.css'
 })
@@ -27,6 +36,9 @@ export class HistoryLogComponent implements OnInit {
   currentPage = INITIAL_PAGE;
   pageSize = DEFAULT_PAGE_SIZE;
 
+  // Added view state
+  activeView: 'activity' | 'logs' = 'activity';
+
   get pageViewEntries() {
     return this.historyService.paginatedEntries();
   }
@@ -34,6 +46,11 @@ export class HistoryLogComponent implements OnInit {
   ngOnInit() {
     this.historyService.loadInitialData();
     this.loadPage();
+  }
+
+  // Toggle function
+  setView(view: 'activity' | 'logs') {
+    this.activeView = view;
   }
 
   loadPage() {
