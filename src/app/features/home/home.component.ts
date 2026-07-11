@@ -63,6 +63,7 @@ export class HomeComponent implements OnInit {
 
     this.saveHistory(event.durationUsed);
     this.blinkerService.startBlinking('Finished!');
+    this.playSound();
   }
 
   onTimerReset(event: { durationUsed: number }) {
@@ -79,5 +80,21 @@ export class HomeComponent implements OnInit {
     const currentUuid = this.homeService.activeLabelUuid();
 
     this.entryService.recordTimerFinish(durationSeconds, currentUuid, fallbackLabel);
+  }
+
+  private playSound() {
+    const audioPath = '/sounds/timer-finish.mp3';
+    console.log(`[Timer] Attempting to load and play sound from: ${audioPath}`);
+
+    const audio = new Audio(audioPath);
+
+    audio.play()
+      .then(() => {
+        console.log('[Timer] Audio playback started successfully.');
+      })
+      .catch(error => {
+        console.error('[Timer] Audio playback failed. Details:', error);
+        console.warn(`[Timer] Troubleshooting: Ensure the file exists and is accessible at http://localhost:4200${audioPath}`);
+      });
   }
 }
