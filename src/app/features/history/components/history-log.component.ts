@@ -36,7 +36,6 @@ export class HistoryLogComponent implements OnInit {
   currentPage = INITIAL_PAGE;
   pageSize = DEFAULT_PAGE_SIZE;
 
-  // Added view state
   activeView: 'activity' | 'logs' = 'activity';
 
   get pageViewEntries() {
@@ -48,7 +47,6 @@ export class HistoryLogComponent implements OnInit {
     this.loadPage();
   }
 
-  // Toggle function
   setView(view: 'activity' | 'logs') {
     this.activeView = view;
   }

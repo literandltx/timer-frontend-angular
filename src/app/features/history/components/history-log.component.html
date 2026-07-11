@@ -79,8 +79,24 @@
 
           <ng-container actions>
             <div class="action-group">
-              <ns-app-button variant="text-btn edit-btn" (click)="startEdit(entry)">Edit</ns-app-button>
-              <ns-app-button variant="text-btn delete-btn" (click)="deleteEntry($event, entry.uuid)">Delete</ns-app-button>
+              <button type="button" class="icon-btn edit-icon-btn" (click)="startEdit(entry)"
+                      aria-label="Edit entry" title="Edit entry">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+
+              <button type="button" class="icon-btn delete-icon-btn" (click)="deleteEntry($event, entry.uuid)"
+                      aria-label="Delete entry" title="Delete entry">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
+                </svg>
+              </button>
             </div>
           </ng-container>
         </ns-app-list-item>
