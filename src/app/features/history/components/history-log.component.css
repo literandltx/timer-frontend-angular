@@ -48,6 +48,41 @@
   animation: slideDown 0.2s ease-out;
 }
 
+/* --- ICON BUTTON STYLES --- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn:hover {
+  transform: translateY(-1px);
+}
+
+.edit-icon-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--primary-color);
+}
+
+.delete-icon-btn:hover {
+  background: var(--error-bg, #fee2e2);
+  color: var(--error-color, #dc2626);
+}
+
 .view-toggles-wrapper {
   display: flex;
   align-items: center;
