@@ -5,6 +5,7 @@ import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {AuthService} from '../auth/auth.service';
 import {LogService} from '../log/log.service';
+import {DeviceStorageService} from '../storage/device-storage.service';
 
 interface PublicPingResponse {
   status: 'UP' | 'DOWN';
@@ -26,11 +27,12 @@ export class HealthCheckService {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
+  private deviceStorage = inject(DeviceStorageService);
   private log = inject(LogService);
 
   private smartPollingSubscription?: Subscription;
   private baseUrl: string | undefined = environment.base_url;
-  private deviceUuid: string = this.getOrCreateDeviceUuid();
+  private deviceUuid: string = this.deviceStorage.getOrCreateDeviceUuid();
 
   private _isHealthy: WritableSignal<boolean> = signal<boolean>(false);
   public isHealthy: Signal<boolean> = this._isHealthy.asReadonly();
@@ -149,15 +151,6 @@ export class HealthCheckService {
         catchError((error: HttpErrorResponse) => this.handlePingError(error))
       );
     }
-  }
-
-  private getOrCreateDeviceUuid(): string {
-    let uuid = localStorage.getItem(DEVICE_ID_KEY);
-    if (!uuid) {
-      uuid = crypto.randomUUID();
-      localStorage.setItem(DEVICE_ID_KEY, uuid);
-    }
-    return uuid;
   }
 
   private handlePingError(error: HttpErrorResponse): Observable<boolean> {

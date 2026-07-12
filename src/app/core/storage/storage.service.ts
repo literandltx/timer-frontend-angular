@@ -24,6 +24,14 @@ export class StorageService {
     }
   }
 
+  keys(prefix?: string): string[] {
+    return Object.keys(localStorage).filter(key => !prefix || key.startsWith(prefix));
+  }
+
+  removeByPrefix(prefix: string): void {
+    this.keys(prefix).forEach(key => localStorage.removeItem(key));
+  }
+
   remove(key: string): void {
     localStorage.removeItem(key);
   }
