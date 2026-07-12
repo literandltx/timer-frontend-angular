@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
   }
 
   private playSound() {
-    const audioPath = '/sounds/timer-finish.mp3';
+    const audioPath = './sounds/timer-finish.mp3';
     console.log(`[Timer] Attempting to load and play sound from: ${audioPath}`);
 
     const audio = new Audio(audioPath);
