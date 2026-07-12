@@ -5,6 +5,9 @@ import {TimerEntry} from '../../timers/models/timer-entry.model';
 import {ButtonComponent} from '../../../shared/components/button/button.component';
 import {ToggleGroupComponent} from '../../../shared/components/toggle/toggle-group.component';
 import {ToggleButtonComponent} from '../../../shared/components/toggle/toggle-button.component';
+import {
+  ChartPreferenceStorageService
+} from '../../../core/storage/chart-preference-storage.service';
 
 type Timeframe = 'day' | 'week' | 'month' | 'all';
 type ChartType = 'pie' | 'bar';
@@ -47,9 +50,10 @@ interface ChartLegendItem {
 })
 export class HistoryChartComponent {
   public historyService = inject(HistoryService);
+  private chartPreferenceStorage = inject(ChartPreferenceStorageService);
 
   timeframe = signal<Timeframe>('day');
-  chartType = signal<ChartType>(readPreferredChartType());
+  chartType = signal<ChartType>(this.chartPreferenceStorage.preferredChartType);
   periodOffset = signal<number>(0);
 
   periodRange = computed(() => {
@@ -314,7 +318,7 @@ export class HistoryChartComponent {
 
   setChartType(type: ChartType) {
     this.chartType.set(type);
-    localStorage.setItem('preferredChartType', type);
+    this.chartPreferenceStorage.setPreferredChartType(type);
   }
 
   navigatePrevious() {

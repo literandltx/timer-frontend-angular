@@ -1,11 +1,13 @@
 import {Injectable, inject, signal, computed} from '@angular/core';
 import {LabelService} from '../../labels/services/label.service';
-import {Label} from "../../labels/models/label.model";
+import {Label} from '../../labels/models/label.model';
+import {ActiveLabelStorageService} from '../../../core/storage/active-label-storage.service';
 
 @Injectable()
 export class HomeService {
   private labelService = inject(LabelService);
-  private rawLabelUuid = signal<string | undefined>(this.getSavedlabelUuid());
+  private activeLabelStorage = inject(ActiveLabelStorageService);
+  private rawLabelUuid = signal<string | undefined>(this.activeLabelStorage.activeLabelUuid);
 
   public activeLabelUuid = computed(() => {
     const labels: Label[] = this.labelService.labels();
@@ -21,15 +23,7 @@ export class HomeService {
 
   public setActiveLabel(id: string | undefined): void {
     this.rawLabelUuid.set(id);
-    if (id !== undefined) {
-      localStorage.setItem('activelabelUuid', id);
-    } else {
-      localStorage.removeItem('activelabelUuid');
-    }
+    this.activeLabelStorage.setActiveLabelUuid(id);
   }
 
-  private getSavedlabelUuid(): string | undefined {
-    const saved: string | null = localStorage.getItem('activelabelUuid');
-    return saved ? saved : undefined;
-  }
 }
