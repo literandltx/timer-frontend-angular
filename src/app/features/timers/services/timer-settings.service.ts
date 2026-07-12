@@ -6,8 +6,7 @@ import {AppDB} from '../../../core/db/app.db';
 import {AuthService} from '../../../core/auth/auth.service';
 import {TimerSettingApiService} from './timer-setting-api.service';
 import {LogService} from '../../../core/log/log.service';
-
-const STORAGE_KEY = 'activeTimerSetting';
+import {TimerSettingStorageService} from '../../../core/storage/timer-setting-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerSettingsService implements OnDestroy {
@@ -15,9 +14,10 @@ export class TimerSettingsService implements OnDestroy {
   private db = inject(AppDB);
   private auth = inject(AuthService);
   private log = inject(LogService);
+  private settingStorage = inject(TimerSettingStorageService);
   private subscriptions = new Subscription();
 
-  public activeSetting = signal<TimerSetting>(this.readFromLocalStorage() ?? this.createLocalDefault());
+  public activeSetting = signal<TimerSetting>(this.settingStorage.activeSetting ?? this.createLocalDefault());
 
   constructor() {
     this.loadSettings();
@@ -134,21 +134,7 @@ export class TimerSettingsService implements OnDestroy {
 
   private setActiveSetting(setting: TimerSetting): void {
     this.activeSetting.set(setting);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(setting));
-    } catch (err) {
-      this.log.warn('[TimerSettingsService] Failed to cache setting in localStorage.', err);
-    }
-  }
-
-  private readFromLocalStorage(): TimerSetting | null {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) as TimerSetting : null;
-    } catch (err) {
-      this.log.warn('[TimerSettingsService] Failed to read cached setting.', err);
-      return null;
-    }
+    this.settingStorage.setActiveSetting(setting);
   }
 
   private createLocalDefault(): TimerSetting {

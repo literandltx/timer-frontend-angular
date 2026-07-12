@@ -12,6 +12,7 @@ import {CreateLabelRequest, Label} from '../../features/labels/models/label.mode
 import {CreateTimerOptionRequest, TimerOption} from '../../features/timers/models/timer-option.model';
 import {TimerSettingRequest, TimerSetting} from '../../features/timers/models/timer-setting.model';
 import {LogService} from '../log/log.service';
+import {InitStorageService} from '../storage/init-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class DatabaseInitializer {
@@ -21,11 +22,10 @@ export class DatabaseInitializer {
   private optionsApi = inject(TimerOptionApiService);
   private settingsApi = inject(TimerSettingApiService);
   private log = inject(LogService);
-
-  private readonly SEEDED_KEY = 'app_db_seeded_v1';
+  private initStorage = inject(InitStorageService);
 
   async seedInitialData(): Promise<void> {
-    if (localStorage.getItem(this.SEEDED_KEY) === 'true') {
+    if (this.initStorage.isDatabaseSeeded) {
       this.log.log('[Seeder] Database already seeded. Skipping initialization.');
       return;
     }
@@ -40,7 +40,7 @@ export class DatabaseInitializer {
           const existingOptions = await firstValueFrom(this.optionsApi.pullUpdates(EPOCH));
           if (existingOptions && existingOptions.length > 0) {
             this.log.log('[Seeder] Existing user data found. Skipping default seeds.');
-            localStorage.setItem(this.SEEDED_KEY, 'true');
+            this.initStorage.markDatabaseSeeded();
             return;
           }
         } catch (e) {
@@ -89,7 +89,7 @@ export class DatabaseInitializer {
       } as TimerSetting);
       await this.pushOrQueue('TIMER_SETTING', 'UPDATE', settingReq, isAuthed, () => firstValueFrom(this.settingsApi.save(settingReq)));
 
-      localStorage.setItem(this.SEEDED_KEY, 'true');
+      this.initStorage.markDatabaseSeeded();
       this.log.info('[Seeder] Initialization complete.');
     } catch (error) {
       this.log.error('[Seeder] CRITICAL: Failed to seed default data', error);

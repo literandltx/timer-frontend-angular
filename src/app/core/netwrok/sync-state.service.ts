@@ -1,26 +1,26 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
+import {StorageService} from '../storage/storage.service';
 
 @Injectable({providedIn: 'root'})
 export class SyncTimestampService {
-
   private readonly PREFIX: string = 'last_sync_';
 
+  private storage: StorageService = inject(StorageService);
+
   update(entityType: string): void {
-    localStorage.setItem(this.getKey(entityType), new Date().toISOString());
+    this.storage.set(this.getKey(entityType), new Date().toISOString());
   }
 
   get(entityType: string): string | null {
-    return localStorage.getItem(this.getKey(entityType));
+    return this.storage.get<string>(this.getKey(entityType));
   }
 
   clear(entityType: string): void {
-    localStorage.removeItem(this.getKey(entityType));
+    this.storage.remove(this.getKey(entityType));
   }
 
   clearAll(): void {
-    Object.keys(localStorage)
-      .filter(key => key.startsWith(this.PREFIX))
-      .forEach(key => localStorage.removeItem(key));
+    this.storage.removeByPrefix(this.PREFIX);
   }
 
   private getKey(entityType: string): string {
