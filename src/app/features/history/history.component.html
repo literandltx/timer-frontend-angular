@@ -1,3 +1,7 @@
 <ns-history-log>
-  <ns-history-chart></ns-history-chart>
+  <div class="widgets-stack">
+    @for (widget of widgets; track widget.id) {
+      <ng-container *ngComponentOutlet="widget.component"></ng-container>
+    }
+  </div>
 </ns-history-log>

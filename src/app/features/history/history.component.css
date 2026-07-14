@@ -1,3 +1,5 @@
-ns-history-chart {
-  flex-shrink: 0;
+.widgets-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
