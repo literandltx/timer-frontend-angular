@@ -16,7 +16,7 @@ interface ChartLegendItem {
 @Component({
   selector: 'ns-pie-chart-widget',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ToggleGroupComponent, ToggleButtonComponent],
+  imports: [CommonModule, ToggleGroupComponent, ToggleButtonComponent],
   templateUrl: './pie-chart-widget.component.html',
   styleUrl: './pie-chart-widget.component.css'
 })
