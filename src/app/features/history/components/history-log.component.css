@@ -6,13 +6,6 @@
   padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
-  /* NOTE: previously this had `height: calc(100dvh - 100px)` which pinned
-     the container to the viewport and forced `.options-list` to scroll
-     internally. That's removed so the container grows with its content
-     and the whole page scrolls normally. If the page still doesn't
-     scroll, check your root app shell / body / html CSS for something
-     like `overflow: hidden` or a fixed `height: 100dvh` - that's usually
-     the actual culprit and it lives outside these files. */
 }
 
 .top-section {
@@ -54,7 +47,6 @@
   animation: slideDown 0.2s ease-out;
 }
 
-/* --- ICON BUTTON STYLES --- */
 .icon-btn {
   display: inline-flex;
   align-items: center;
@@ -184,9 +176,6 @@
   padding-right: 4px;
   margin-bottom: 8px;
   scroll-behavior: smooth;
-  /* Previously `flex: 1; overflow-y: auto` which made this list scroll
-     inside its own fixed-height box. Removed so it just flows with the
-     rest of the page, which now scrolls as a whole. */
 }
 
 app-list-item:last-child {
