@@ -7,10 +7,12 @@ export const routes: Routes = [
   },
   {
     path: 'preset',
+    data: {scrollable: true},
     loadComponent: () => import('./features/preset/preset.component').then(m => m.PresetComponent)
   },
   {
     path: 'history',
+    data: {scrollable: true},
     loadComponent: () => import('./features/history/history.component').then(m => m.HistoryComponent)
   },
   {

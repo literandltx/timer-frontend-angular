@@ -3,10 +3,9 @@
   color: var(--text-color);
   max-width: 700px;
   margin: 16px auto;
-  padding: 0 16px;
+  padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 100px);
 }
 
 .top-section {
@@ -48,7 +47,6 @@
   animation: slideDown 0.2s ease-out;
 }
 
-/* --- ICON BUTTON STYLES --- */
 .icon-btn {
   display: inline-flex;
   align-items: center;
@@ -97,6 +95,8 @@
 
 .pagination-controls {
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
   background-color: var(--bg-color);
   z-index: 10;
   display: flex;
@@ -173,13 +173,9 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding-right: 4px;
   margin-bottom: 8px;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
 }
 
 app-list-item:last-child {
