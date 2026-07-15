@@ -1,6 +1,7 @@
 import {Type} from '@angular/core';
 import {PieChartWidgetComponent} from './pie-chart-widget.component';
 import {BarChartWidgetComponent} from './bar-chart-widget.component';
+import {HeatmapWidgetComponent} from './heatmap-widget.component';
 
 export interface WidgetDefinition {
   id: string;
@@ -18,6 +19,7 @@ export interface WidgetDefinition {
  * whatever is in this array.
  */
 export const ACTIVITY_WIDGETS: WidgetDefinition[] = [
+  {id: 'heatmap', component: HeatmapWidgetComponent},
   {id: 'pie-chart', component: PieChartWidgetComponent},
   {id: 'bar-chart', component: BarChartWidgetComponent},
 ];
