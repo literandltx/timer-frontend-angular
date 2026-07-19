@@ -1,4 +1,4 @@
-import {SyncEntity} from '../../../core/models/sync-entity.model';
+import {SyncEntity} from './sync-entity.model';
 
 export interface Label extends SyncEntity {
   userId?: number;

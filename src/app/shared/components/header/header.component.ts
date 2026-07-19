@@ -1,7 +1,7 @@
 import {Component, inject, HostListener, ElementRef, signal} from '@angular/core';
 import {RouterLink, RouterLinkActive, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
-import {ThemeService} from '../../../core/services/theme.service';
+import {ThemeService} from '../../../core/services/core/theme.service';
 import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {AuthService} from '../../../core/auth/auth.service';

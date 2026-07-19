@@ -1,4 +1,4 @@
-import {CreateTimerOptionRequest} from './timer-option.model';
+import {CreateTimerOptionRequest} from '../timer-option.model';
 
 export const DEFAULT_TIMER_OPTIONS: Partial<CreateTimerOptionRequest>[] = [
   {

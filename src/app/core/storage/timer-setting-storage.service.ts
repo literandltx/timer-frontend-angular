@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {TimerSetting} from '../../features/timers/models/timer-setting.model';
+import {TimerSetting} from '../models/timer-setting.model';
 import {StorageService} from './storage.service';
 
 @Injectable({

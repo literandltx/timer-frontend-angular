@@ -5,8 +5,8 @@ import {
   TimerOption,
   CreateTimerOptionRequest,
   UpdateTimerOptionRequest
-} from '../models/timer-option.model';
-import {SyncApiService} from '../../../core/netwrok/sync-api.service';
+} from '../../models/timer-option.model';
+import {SyncApiService} from '../../netwrok/sync-api.service';
 import {environment} from '../../../../environments/environment';
 
 @Injectable({

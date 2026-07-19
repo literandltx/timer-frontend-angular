@@ -1,6 +1,6 @@
 import {Injectable, inject, signal, computed} from '@angular/core';
-import {LabelService} from '../../labels/services/label.service';
-import {Label} from '../../labels/models/label.model';
+import {LabelService} from '../../../core/services/label.service';
+import {Label} from '../../../core/models/label.model';
 import {ActiveLabelStorageService} from '../../../core/storage/active-label-storage.service';
 
 @Injectable()

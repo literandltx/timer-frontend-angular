@@ -1,12 +1,12 @@
 import {Injectable, signal, inject, OnDestroy} from '@angular/core';
 import {Subscription, firstValueFrom} from 'rxjs';
 import {TimerSetting, TimerSettingRequest} from '../models/timer-setting.model';
-import {SyncMessage} from '../../../core/netwrok/sync-message.model';
-import {AppDB} from '../../../core/db/app.db';
-import {AuthService} from '../../../core/auth/auth.service';
-import {TimerSettingApiService} from './timer-setting-api.service';
-import {LogService} from '../../../core/log/log.service';
-import {TimerSettingStorageService} from '../../../core/storage/timer-setting-storage.service';
+import {SyncMessage} from '../netwrok/sync-message.model';
+import {AppDB} from '../db/app.db';
+import {AuthService} from '../auth/auth.service';
+import {TimerSettingApiService} from './api/timer-setting-api.service';
+import {LogService} from '../log/log.service';
+import {TimerSettingStorageService} from '../storage/timer-setting-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerSettingsService implements OnDestroy {

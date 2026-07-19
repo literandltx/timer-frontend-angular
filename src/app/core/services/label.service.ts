@@ -2,12 +2,12 @@ import {Injectable, signal, inject, DestroyRef} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
-import {AppDB} from '../../../core/db/app.db';
-import {LabelApiService} from './label-api.service';
-import {SyncEngineService} from '../../../core/services/sync-engine.service';
-import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
-import {AuthService} from '../../../core/auth/auth.service';
-import {LogService} from '../../../core/log/log.service';
+import {AppDB} from '../db/app.db';
+import {LabelApiService} from './api/label-api.service';
+import {SyncEngineService} from './sync-engine.service';
+import {EntitySyncOrchestrator} from '../netwrok/entity-sync-orchestrator.service';
+import {AuthService} from '../auth/auth.service';
+import {LogService} from '../log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class LabelService {

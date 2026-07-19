@@ -1,18 +1,18 @@
 import {Injectable, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
-import {AppDB, EntityType, SyncActionType} from '../db/app.db';
-import {AuthService} from '../auth/auth.service';
-import {LabelApiService} from '../../features/labels/services/label-api.service';
-import {TimerOptionApiService} from '../../features/timers/services/timer-option-api.service';
-import {TimerSettingApiService} from '../../features/timers/services/timer-setting-api.service';
-import {DEFAULT_LABELS} from '../../features/labels/models/label.constants';
-import {DEFAULT_TIMER_OPTIONS} from '../../features/timers/models/timer-option.constants';
-import {CreateLabelRequest, Label} from '../../features/labels/models/label.model';
-import {CreateTimerOptionRequest, TimerOption} from '../../features/timers/models/timer-option.model';
-import {TimerSettingRequest, TimerSetting} from '../../features/timers/models/timer-setting.model';
-import {LogService} from '../log/log.service';
-import {InitStorageService} from '../storage/init-storage.service';
+import {AppDB, EntityType, SyncActionType} from '../../db/app.db';
+import {AuthService} from '../../auth/auth.service';
+import {LabelApiService} from '../api/label-api.service';
+import {TimerOptionApiService} from '../api/timer-option-api.service';
+import {TimerSettingApiService} from '../api/timer-setting-api.service';
+import {DEFAULT_LABELS} from '../../models/constants/label.constants';
+import {DEFAULT_TIMER_OPTIONS} from '../../models/constants/timer-option.constants';
+import {CreateLabelRequest, Label} from '../../models/label.model';
+import {CreateTimerOptionRequest, TimerOption} from '../../models/timer-option.model';
+import {TimerSettingRequest, TimerSetting} from '../../models/timer-setting.model';
+import {LogService} from '../../log/log.service';
+import {InitStorageService} from '../../storage/init-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class DatabaseInitializer {

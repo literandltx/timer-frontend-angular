@@ -1,6 +1,6 @@
 import {inject, signal, computed} from '@angular/core';
 import {HistoryService} from '../../services/history.service';
-import {TimerEntry} from '../../../timers/models/timer-entry.model';
+import {TimerEntry} from '../../../../core/models/timer-entry.model';
 
 export type Timeframe = 'day' | 'week' | 'month' | 'all';
 

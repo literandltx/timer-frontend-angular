@@ -1,7 +1,7 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../services/history.service';
-import {TimerEntry} from '../../timers/models/timer-entry.model';
+import {TimerEntry} from '../../../core/models/timer-entry.model';
 import {ButtonComponent} from '../../../shared/components/button/button.component';
 import {ToggleGroupComponent} from '../../../shared/components/toggle/toggle-group.component';
 import {ToggleButtonComponent} from '../../../shared/components/toggle/toggle-button.component';

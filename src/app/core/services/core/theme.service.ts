@@ -1,6 +1,6 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {AppSettingsStorageService, Theme} from '../storage/app-settings-storage.service';
+import {AppSettingsStorageService, Theme} from '../../storage/app-settings-storage.service';
 
 @Injectable({
   providedIn: 'root'

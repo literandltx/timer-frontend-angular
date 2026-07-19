@@ -1,4 +1,4 @@
-import {CreateLabelRequest} from './label.model';
+import {CreateLabelRequest} from '../label.model';
 
 export const DEFAULT_LABELS: Partial<CreateLabelRequest>[] = [
   {

@@ -5,8 +5,8 @@ import {
   TimerEntry,
   CreateTimerEntryRequest,
   UpdateTimerEntryRequest
-} from '../models/timer-entry.model';
-import {SyncApiService} from '../../../core/netwrok/sync-api.service';
+} from '../../models/timer-entry.model';
+import {SyncApiService} from '../../netwrok/sync-api.service';
 import {environment} from '../../../../environments/environment';
 
 @Injectable({
