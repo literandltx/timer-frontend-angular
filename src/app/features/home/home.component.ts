@@ -25,6 +25,7 @@ export class HomeComponent implements OnInit {
   public entryService = inject(TimerEntryService);
   public homeService = inject(HomeService);
   private blinkerService = inject(TitleBlinkerService);
+
   private isTimerFinished = false;
 
   private activeLabel = computed(() => {

@@ -23,6 +23,10 @@ export class TimerPresetService implements OnDestroy {
     this.loadSettings();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   async loadSettings(): Promise<void> {
     try {
       const localSettings = await this.db.timerSettings.toArray();
@@ -66,10 +70,6 @@ export class TimerPresetService implements OnDestroy {
     } catch (err) {
       this.log.error('[TimerSettingsService] Failed to load settings from DB:', err);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 
   async setActiveTimerOption(timerOptionUuid: string): Promise<void> {

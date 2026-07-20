@@ -35,8 +35,12 @@ export class PresetComponent implements OnInit {
     this.labelService.loadLabels();
   }
 
-  get activeUuid(): string | undefined {
+  get activeTimerOptionUuid(): string | undefined {
     return this.activePreset().timerOptionUuid;
+  }
+
+  get activeLabelUuid(): string | undefined {
+    return this.homeService.activeLabelUuid();
   }
 
   @HostListener('document:click', ['$event'])
@@ -66,7 +70,7 @@ export class PresetComponent implements OnInit {
     }
   }
 
-  async setActive(uuid: string) {
+  async setActiveTimerOption(uuid: string) {
     await this.presetService.setActiveTimerOption(uuid);
   }
 
