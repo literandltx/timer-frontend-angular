@@ -103,9 +103,16 @@ export class TimerPresetService implements OnDestroy {
       ...currentSetting,
       uuid: currentSetting.uuid ?? crypto.randomUUID(),
       createdAt: currentSetting.createdAt ?? now,
-      ...partial,
       updatedAt: now
     };
+
+    if (partial.labelUuid !== undefined) {
+      updatedSetting.labelUuid = partial.labelUuid;
+    }
+
+    if (partial.timerOptionUuid !== undefined) {
+      updatedSetting.timerOptionUuid = partial.timerOptionUuid;
+    }
 
     this.setActiveSetting(updatedSetting);
 
