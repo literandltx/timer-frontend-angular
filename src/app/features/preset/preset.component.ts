@@ -3,29 +3,26 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
-import {TimerSettingsService} from '../../core/services/timer-settings.service';
+import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
-import {HomeService} from '../home/home.service';
 
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
   imports: [CommonModule, FormsModule, ListItemComponent],
-  providers: [HomeService],
   templateUrl: './preset.component.html',
   styleUrls: ['./preset.component.css']
 })
 export class PresetComponent implements OnInit {
   private optionsService = inject(TimerOptionsService);
-  private settingsService = inject(TimerSettingsService);
   private labelService = inject(LabelService);
-  public homeService = inject(HomeService);
+  private presetService = inject(TimerPresetService);
 
   labels = this.labelService.labels;
   options = this.optionsService.options;
-  activeSetting = this.settingsService.activeSetting;
+  activePreset = this.presetService.activePreset;
 
   isAdding = false;
   newValue: number | null = null;
@@ -35,8 +32,12 @@ export class PresetComponent implements OnInit {
     this.labelService.loadLabels();
   }
 
-  get activeUuid(): string | undefined {
-    return this.activeSetting().timerOptionUuid;
+  get activeTimerOptionUuid(): string | undefined {
+    return this.activePreset().timerOptionUuid;
+  }
+
+  get activeLabelUuid(): string | undefined {
+    return this.presetService.activeLabelUuid();
   }
 
   @HostListener('document:click', ['$event'])
@@ -66,8 +67,8 @@ export class PresetComponent implements OnInit {
     }
   }
 
-  async setActive(uuid: string) {
-    await this.settingsService.setActiveOption(uuid);
+  async setActiveTimerOption(uuid: string) {
+    await this.presetService.setActiveTimerOption(uuid);
   }
 
   startAdd() {
@@ -159,7 +160,7 @@ export class PresetComponent implements OnInit {
     await this.labelService.delete(uuid);
   }
 
-  setActiveLabel(uuid: string) {
-    this.homeService.setActiveLabel(uuid);
+  async setActiveLabel(uuid: string) {
+    await this.presetService.setActiveLabel(uuid);
   }
 }

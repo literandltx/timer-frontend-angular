@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Dexie, Table} from 'dexie';
 import {Label} from '../models/label.model';
 import {TimerOption} from '../models/timer-option.model';
-import {TimerSetting} from '../models/timer-setting.model';
+import {TimerPreset} from '../models/timer-setting.model';
 import {TimerEntry} from '../models/timer-entry.model';
 
 export type EntityType = 'LABEL' | 'TIMER_OPTION' | 'TIMER_ENTRY' | 'TIMER_SETTING';
@@ -27,7 +27,7 @@ export interface SyncAction {
 export class AppDB extends Dexie {
   labels!: Table<Label, string>;
   timerOptions!: Table<TimerOption, string>;
-  timerSettings!: Table<TimerSetting, string>;
+  timerSettings!: Table<TimerPreset, string>;
   timerEntries!: Table<TimerEntry, string>;
   syncQueue!: Table<SyncAction, number>;
 
@@ -40,6 +40,11 @@ export class AppDB extends Dexie {
       timerSettings: 'uuid, timerOptionUuid, createdAt, updatedAt',
       timerEntries: 'uuid, labelUuid, startTime, createdAt, updatedAt',
       syncQueue: '++id, timestamp, status, entityType'
+    });
+
+    this.version(2).stores({
+      timerSettings: 'uuid, timerOptionUuid, labelUuid, createdAt, updatedAt',
+      timerEntries: 'uuid, labelId, startTime, createdAt, updatedAt'
     });
   }
 }

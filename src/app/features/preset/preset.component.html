@@ -13,10 +13,10 @@
           class="option-chip"
           role="button"
           tabindex="0"
-          [class.active]="option.uuid === activeUuid"
-          (click)="setActive(option.uuid)"
-          (keydown.enter)="setActive(option.uuid)"
-          (keydown.space)="setActive(option.uuid); $event.preventDefault()">
+          [class.active]="option.uuid === activeTimerOptionUuid"
+          (click)="setActiveTimerOption(option.uuid)"
+          (keydown.enter)="setActiveTimerOption(option.uuid)"
+          (keydown.space)="setActiveTimerOption(option.uuid); $event.preventDefault()">
           <span class="chip-value">{{ option.value }}m</span>
           <button
             type="button"
@@ -124,11 +124,11 @@
             <button
               type="button"
               class="active-toggle-btn"
-              [class.active]="label.uuid === homeService.activeLabelUuid()"
+              [class.active]="label.uuid === activeLabelUuid"
               (click)="setActiveLabel(label.uuid)"
-              [attr.aria-label]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'"
-              [attr.title]="label.uuid === homeService.activeLabelUuid() ? 'Active' : 'Set active'">
-              @if (label.uuid === homeService.activeLabelUuid()) {
+              [attr.aria-label]="label.uuid === activeLabelUuid ? 'Active' : 'Set active'"
+              [attr.title]="label.uuid === activeLabelUuid ? 'Active' : 'Set active'">
+              @if (label.uuid === activeLabelUuid) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
