@@ -5,7 +5,7 @@ import {AppDB, EntityType, SyncActionType} from '../../db/app.db';
 import {AuthService} from '../../auth/auth.service';
 import {LabelApiService} from '../api/label-api.service';
 import {TimerOptionApiService} from '../api/timer-option-api.service';
-import {TimerSettingApiService} from '../api/timer-setting-api.service';
+import {TimerPresetApiService} from '../api/timer-preset-api.service';
 import {DEFAULT_LABELS} from '../../models/constants/label.constants';
 import {DEFAULT_TIMER_OPTIONS} from '../../models/constants/timer-option.constants';
 import {CreateLabelRequest, Label} from '../../models/label.model';
@@ -20,7 +20,7 @@ export class DatabaseInitializer {
   private auth = inject(AuthService);
   private labelApi = inject(LabelApiService);
   private optionsApi = inject(TimerOptionApiService);
-  private settingsApi = inject(TimerSettingApiService);
+  private settingsApi = inject(TimerPresetApiService);
   private log = inject(LogService);
   private initStorage = inject(InitStorageService);
 
