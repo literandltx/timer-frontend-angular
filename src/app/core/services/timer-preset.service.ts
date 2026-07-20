@@ -101,7 +101,7 @@ export class TimerPresetService implements OnDestroy {
     const now = new Date().toISOString();
     const updatedSetting: TimerPreset = {
       ...currentSetting,
-      uuid: currentSetting.uuid ?? this.generateUuid(),
+      uuid: currentSetting.uuid ?? crypto.randomUUID(),
       createdAt: currentSetting.createdAt ?? now,
       ...partial,
       updatedAt: now
@@ -165,19 +165,13 @@ export class TimerPresetService implements OnDestroy {
   private createLocalDefault(): TimerPreset {
     const now = new Date().toISOString();
     return {
-      uuid: this.generateUuid(),
+      uuid: crypto.randomUUID(),
       labelUuid: undefined as unknown as string,
       timerOptionUuid: undefined as unknown as string,
       createdAt: now,
       updatedAt: now,
       deleted: false
     } as TimerPreset;
-  }
-
-  private generateUuid(): string {
-    return typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
 }
