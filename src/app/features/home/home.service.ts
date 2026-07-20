@@ -1,17 +1,16 @@
-import {Injectable, inject, signal, computed} from '@angular/core';
+import {Injectable, inject, computed} from '@angular/core';
 import {LabelService} from '../../core/services/label.service';
 import {Label} from '../../core/models/label.model';
-import {ActiveLabelStorageService} from '../../core/storage/active-label-storage.service';
+import {TimerPresetService} from '../../core/services/timer-preset.service';
 
 @Injectable()
 export class HomeService {
   private labelService = inject(LabelService);
-  private activeLabelStorage = inject(ActiveLabelStorageService);
-  private rawLabelUuid = signal<string | undefined>(this.activeLabelStorage.activeLabelUuid);
+  private presetService = inject(TimerPresetService);
 
   public activeLabelUuid = computed(() => {
     const labels: Label[] = this.labelService.labels();
-    const currentId: string | undefined = this.rawLabelUuid();
+    const currentId: string | undefined = this.presetService.activePreset().labelUuid;
 
     if (labels.length === 0) {
       return undefined;
@@ -22,8 +21,11 @@ export class HomeService {
   });
 
   public setActiveLabel(id: string | undefined): void {
-    this.rawLabelUuid.set(id);
-    this.activeLabelStorage.setActiveLabelUuid(id);
+    if (!id) {
+      return;
+    }
+
+    this.presetService.setActiveLabel(id);
   }
 
 }

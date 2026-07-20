@@ -10,7 +10,7 @@ import {DEFAULT_LABELS} from '../../models/constants/label.constants';
 import {DEFAULT_TIMER_OPTIONS} from '../../models/constants/timer-option.constants';
 import {CreateLabelRequest, Label} from '../../models/label.model';
 import {CreateTimerOptionRequest, TimerOption} from '../../models/timer-option.model';
-import {TimerSettingRequest, TimerSetting} from '../../models/timer-setting.model';
+import {TimerPresetRequest, TimerPreset} from '../../models/timer-setting.model';
 import {LogService} from '../../log/log.service';
 import {InitStorageService} from '../../storage/init-storage.service';
 
@@ -50,8 +50,13 @@ export class DatabaseInitializer {
 
       this.log.info('[Seeder] Starting strict sequential data seeding...');
 
+      let defaultLabelUuid: string | undefined;
+
       for (const defaultLabel of DEFAULT_LABELS) {
         const labelUuid = defaultLabel.uuid || crypto.randomUUID();
+        if (!defaultLabelUuid) {
+          defaultLabelUuid = labelUuid;
+        }
         const req: CreateLabelRequest = { ...defaultLabel, uuid: labelUuid, createdAt: now, updatedAt: now } as CreateLabelRequest;
 
         await this.db.labels.put({ ...req, deleted: false } as Label);
@@ -76,8 +81,9 @@ export class DatabaseInitializer {
       }
 
       const initialSettingId = crypto.randomUUID();
-      const settingReq: TimerSettingRequest = {
+      const settingReq: TimerPresetRequest = {
         uuid: initialSettingId,
+        labelUuid: defaultLabelUuid as string,
         timerOptionUuid: defaultOptionUuid,
         createdAt: now,
         updatedAt: now
@@ -86,7 +92,7 @@ export class DatabaseInitializer {
       await this.db.timerSettings.put({
         ...settingReq,
         deleted: false
-      } as TimerSetting);
+      } as TimerPreset);
       await this.pushOrQueue('TIMER_SETTING', 'UPDATE', settingReq, isAuthed, () => firstValueFrom(this.settingsApi.save(settingReq)));
 
       this.initStorage.markDatabaseSeeded();

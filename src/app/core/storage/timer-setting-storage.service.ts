@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {TimerSetting} from '../models/timer-setting.model';
+import {TimerPreset} from '../models/timer-setting.model';
 import {StorageService} from './storage.service';
 
 @Injectable({
@@ -10,11 +10,11 @@ export class TimerSettingStorageService {
 
   private storage: StorageService = inject(StorageService);
 
-  get activeSetting(): TimerSetting | null {
-    return this.storage.get<TimerSetting>(this.ACTIVE_SETTING);
+  get activeSetting(): TimerPreset | null {
+    return this.storage.get<TimerPreset>(this.ACTIVE_SETTING);
   }
 
-  setActiveSetting(setting: TimerSetting): void {
+  setActiveSetting(setting: TimerPreset): void {
     this.storage.set(this.ACTIVE_SETTING, setting);
   }
 

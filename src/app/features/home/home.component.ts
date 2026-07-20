@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
 
 import {LabelService} from '../../core/services/label.service';
-import {TimerSettingsService} from '../../core/services/timer-settings.service';
+import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {TimerEntryService} from '../../core/services/timer-entry.service';
 import {TitleBlinkerService} from '../../core/services/core/title-blinker.service';
@@ -20,7 +20,7 @@ import {HomeService} from './home.service';
 })
 export class HomeComponent implements OnInit {
   public labelService = inject(LabelService);
-  public settingService = inject(TimerSettingsService);
+  public settingService = inject(TimerPresetService);
   public optionsService = inject(TimerOptionsService);
   public entryService = inject(TimerEntryService);
   public homeService = inject(HomeService);
@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
   activeLabelName = computed(() => this.activeLabel()?.name ?? 'No label');
 
   currentTimerSeconds = computed(() => {
-    const activeSetting = this.settingService.activeSetting();
+    const activeSetting = this.settingService.activePreset();
     const options = this.optionsService.options();
 
     if (!activeSetting || !options) {

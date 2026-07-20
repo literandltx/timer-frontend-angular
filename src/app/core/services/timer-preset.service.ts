@@ -1,6 +1,6 @@
 import {Injectable, signal, inject, OnDestroy} from '@angular/core';
 import {Subscription, firstValueFrom} from 'rxjs';
-import {TimerSetting, TimerSettingRequest} from '../models/timer-setting.model';
+import {TimerPreset, TimerPresetRequest} from '../models/timer-setting.model';
 import {SyncMessage} from '../netwrok/sync-message.model';
 import {AppDB} from '../db/app.db';
 import {AuthService} from '../auth/auth.service';
@@ -9,7 +9,7 @@ import {LogService} from '../log/log.service';
 import {TimerSettingStorageService} from '../storage/timer-setting-storage.service';
 
 @Injectable({providedIn: 'root'})
-export class TimerSettingsService implements OnDestroy {
+export class TimerPresetService implements OnDestroy {
   private api = inject(TimerSettingApiService);
   private db = inject(AppDB);
   private auth = inject(AuthService);
@@ -17,7 +17,7 @@ export class TimerSettingsService implements OnDestroy {
   private settingStorage = inject(TimerSettingStorageService);
   private subscriptions = new Subscription();
 
-  public activeSetting = signal<TimerSetting>(this.settingStorage.activeSetting ?? this.createLocalDefault());
+  public activePreset = signal<TimerPreset>(this.settingStorage.activeSetting ?? this.createLocalDefault());
 
   constructor() {
     this.loadSettings();
@@ -33,20 +33,20 @@ export class TimerSettingsService implements OnDestroy {
           (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         )[0];
 
-        const current = this.activeSetting();
+        const current = this.activePreset();
         if (!current.updatedAt || new Date(latest.updatedAt).getTime() >= new Date(current.updatedAt).getTime()) {
           this.setActiveSetting(latest);
         }
         latestUpdatedAt = latest.updatedAt;
       } else {
-        await this.db.timerSettings.put(this.activeSetting());
+        await this.db.timerSettings.put(this.activePreset());
       }
 
       if (this.auth.isAuthenticatedSignal()) {
         const sub = this.api.pullUpdates(latestUpdatedAt).subscribe({
           next: async (response) => {
             if (response) {
-              const current = this.activeSetting();
+              const current = this.activePreset();
               const isNewer = !current.updatedAt ||
                 new Date(response.updatedAt).getTime() > new Date(current.updatedAt).getTime();
 
@@ -72,14 +72,24 @@ export class TimerSettingsService implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  async setActiveOption(timerOptionUuid: string): Promise<void> {
-    const currentSetting = this.activeSetting();
+  async setActiveTimerOption(timerOptionUuid: string): Promise<void> {
+    await this.updateActivePreset({timerOptionUuid});
+  }
+
+  async setActiveLabel(labelUuid: string): Promise<void> {
+    await this.updateActivePreset({labelUuid});
+  }
+
+  private async updateActivePreset(
+    partial: Partial<Pick<TimerPreset, 'labelUuid' | 'timerOptionUuid'>>
+  ): Promise<void> {
+    const currentSetting = this.activePreset();
     const now = new Date().toISOString();
-    const updatedSetting: TimerSetting = {
+    const updatedSetting: TimerPreset = {
       ...currentSetting,
       uuid: currentSetting.uuid ?? this.generateUuid(),
       createdAt: currentSetting.createdAt ?? now,
-      timerOptionUuid: timerOptionUuid,
+      ...partial,
       updatedAt: now
     };
 
@@ -102,9 +112,10 @@ export class TimerSettingsService implements OnDestroy {
         return;
       }
 
-      const request: TimerSettingRequest = {
+      const request: TimerPresetRequest = {
         uuid: updatedSetting.uuid,
-        timerOptionUuid: timerOptionUuid,
+        labelUuid: updatedSetting.labelUuid,
+        timerOptionUuid: updatedSetting.timerOptionUuid,
         createdAt: updatedSetting.createdAt,
         updatedAt: now
       };
@@ -117,13 +128,13 @@ export class TimerSettingsService implements OnDestroy {
     }
   }
 
-  async handleIncomingSync(incomingMessage: SyncMessage<TimerSetting>): Promise<void> {
+  async handleIncomingSync(incomingMessage: SyncMessage<TimerPreset>): Promise<void> {
     if (!incomingMessage || !incomingMessage.payload) {
       return;
     }
 
     const incomingSetting = incomingMessage.payload;
-    const currentSetting = this.activeSetting();
+    const currentSetting = this.activePreset();
     const isNewer = !currentSetting.updatedAt || new Date(incomingSetting.updatedAt).getTime() > new Date(currentSetting.updatedAt).getTime();
 
     if (isNewer && !incomingSetting.deleted) {
@@ -132,19 +143,21 @@ export class TimerSettingsService implements OnDestroy {
     }
   }
 
-  private setActiveSetting(setting: TimerSetting): void {
-    this.activeSetting.set(setting);
+  private setActiveSetting(setting: TimerPreset): void {
+    this.activePreset.set(setting);
     this.settingStorage.setActiveSetting(setting);
   }
 
-  private createLocalDefault(): TimerSetting {
+  private createLocalDefault(): TimerPreset {
     const now = new Date().toISOString();
     return {
       uuid: this.generateUuid(),
+      labelUuid: undefined as unknown as string,
       timerOptionUuid: undefined as unknown as string,
       createdAt: now,
-      updatedAt: now
-    } as TimerSetting;
+      updatedAt: now,
+      deleted: false
+    } as TimerPreset;
   }
 
   private generateUuid(): string {

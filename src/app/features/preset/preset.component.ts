@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
-import {TimerSettingsService} from '../../core/services/timer-settings.service';
+import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
@@ -19,13 +19,13 @@ import {HomeService} from '../home/home.service';
 })
 export class PresetComponent implements OnInit {
   private optionsService = inject(TimerOptionsService);
-  private settingsService = inject(TimerSettingsService);
   private labelService = inject(LabelService);
+  private presetService = inject(TimerPresetService);
   public homeService = inject(HomeService);
 
   labels = this.labelService.labels;
   options = this.optionsService.options;
-  activeSetting = this.settingsService.activeSetting;
+  activePreset = this.presetService.activePreset;
 
   isAdding = false;
   newValue: number | null = null;
@@ -36,7 +36,7 @@ export class PresetComponent implements OnInit {
   }
 
   get activeUuid(): string | undefined {
-    return this.activeSetting().timerOptionUuid;
+    return this.activePreset().timerOptionUuid;
   }
 
   @HostListener('document:click', ['$event'])
@@ -67,7 +67,7 @@ export class PresetComponent implements OnInit {
   }
 
   async setActive(uuid: string) {
-    await this.settingsService.setActiveOption(uuid);
+    await this.presetService.setActiveTimerOption(uuid);
   }
 
   startAdd() {
