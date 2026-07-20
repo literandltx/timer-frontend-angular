@@ -1,7 +1,7 @@
 import {Component, OnInit, inject, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {HistoryService} from '../services/history.service';
+import {HistoryService} from '../history.service';
 import {TimerEntry, CreateTimerEntryRequest, UpdateTimerEntryRequest} from '../../../core/models/timer-entry.model';
 import {ButtonComponent} from '../../../shared/components/button/button.component';
 import {ListItemComponent} from '../../../shared/components/list-item/list-item.component';

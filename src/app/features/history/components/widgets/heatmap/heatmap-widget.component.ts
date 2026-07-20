@@ -1,6 +1,6 @@
 import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HistoryService} from '../../../services/history.service';
+import {HistoryService} from '../../../history.service';
 
 const WEEKS_TO_SHOW = 16;
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
