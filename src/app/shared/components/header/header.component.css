@@ -80,11 +80,20 @@
 
 .user-link-btn {
   background: none;
-  border: none;
-  padding: 0;
+  border: 1px solid var(--nav-border);
+  padding: 6px;
   cursor: pointer;
   outline: none;
-  border-radius: 50%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  color: var(--text-color);
+}
+
+.user-link-btn:hover {
+  background-color: var(--link-hover-bg);
 }
 
 .user-link-btn:focus-visible {
@@ -92,26 +101,10 @@
   outline-offset: 2px;
 }
 
-.user-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid;
-  transition: border-color 0.3s ease;
-  background-color: var(--nav-bg);
-  color: var(--text-color);
-}
-
-.user-avatar:hover {
-  background-color: var(--link-hover-bg);
-}
-
-.avatar-icon {
-  width: 20px;
-  height: 20px;
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  transition: color 0.3s ease;
 }
 
 .dropdown-menu {
