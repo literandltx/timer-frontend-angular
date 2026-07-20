@@ -57,15 +57,26 @@ export class DatabaseInitializer {
         if (!defaultLabelUuid) {
           defaultLabelUuid = labelUuid;
         }
-        const req: CreateLabelRequest = { ...defaultLabel, uuid: labelUuid, createdAt: now, updatedAt: now } as CreateLabelRequest;
+        const req: CreateLabelRequest = {
+          ...defaultLabel,
+          uuid: labelUuid,
+          createdAt: now,
+          updatedAt: now
+        } as CreateLabelRequest;
 
-        await this.db.labels.put({ ...req, deleted: false } as Label);
+        await this.db.labels.put({...req, deleted: false} as Label);
         await this.pushOrQueue('LABEL', 'CREATE', req, isAuthed, () => firstValueFrom(this.labelApi.save(req)));
       }
 
-      const defaultOptionUuid = DEFAULT_TIMER_OPTIONS[0].uuid as string;
+      let defaultOptionUuid: string | undefined;
+
       for (const defaultOption of DEFAULT_TIMER_OPTIONS) {
         const optionUuid = defaultOption.uuid || crypto.randomUUID();
+
+        if (!defaultOptionUuid) {
+          defaultOptionUuid = optionUuid;
+        }
+
         const req: CreateTimerOptionRequest = {
           ...defaultOption,
           uuid: optionUuid,
@@ -84,7 +95,7 @@ export class DatabaseInitializer {
       const settingReq: TimerPresetRequest = {
         uuid: initialSettingId,
         labelUuid: defaultLabelUuid as string,
-        timerOptionUuid: defaultOptionUuid,
+        timerOptionUuid: defaultOptionUuid as string,
         createdAt: now,
         updatedAt: now
       };
