@@ -7,7 +7,7 @@ import {TimerSettingsService} from '../../core/services/timer-settings.service';
 import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
-import {HomeService} from '../home/services/home.service';
+import {HomeService} from '../home/home.service';
 
 @Component({
   selector: 'ns-app-preset-config',

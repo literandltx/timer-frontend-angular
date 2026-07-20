@@ -1,7 +1,7 @@
 import {Injectable, inject, signal, computed} from '@angular/core';
-import {LabelService} from '../../../core/services/label.service';
-import {Label} from '../../../core/models/label.model';
-import {ActiveLabelStorageService} from '../../../core/storage/active-label-storage.service';
+import {LabelService} from '../../core/services/label.service';
+import {Label} from '../../core/models/label.model';
+import {ActiveLabelStorageService} from '../../core/storage/active-label-storage.service';
 
 @Injectable()
 export class HomeService {

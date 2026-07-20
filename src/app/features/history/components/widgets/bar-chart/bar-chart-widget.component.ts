@@ -1,9 +1,9 @@
 import {Component, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ChartWidgetBase} from './chart-widget-base';
-import {ButtonComponent} from '../../../../shared/components/button/button.component';
-import {ToggleGroupComponent} from '../../../../shared/components/toggle/toggle-group.component';
-import {ToggleButtonComponent} from '../../../../shared/components/toggle/toggle-button.component';
+import {ChartWidgetBase} from '../chart-widget-base';
+import {ButtonComponent} from '../../../../../shared/components/button/button.component';
+import {ToggleGroupComponent} from '../../../../../shared/components/toggle/toggle-group.component';
+import {ToggleButtonComponent} from '../../../../../shared/components/toggle/toggle-button.component';
 
 const days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

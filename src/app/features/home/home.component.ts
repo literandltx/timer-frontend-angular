@@ -8,7 +8,7 @@ import {TimerSettingsService} from '../../core/services/timer-settings.service';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {TimerEntryService} from '../../core/services/timer-entry.service';
 import {TitleBlinkerService} from '../../core/services/core/title-blinker.service';
-import {HomeService} from './services/home.service';
+import {HomeService} from './home.service';
 
 @Component({
   selector: 'ns-app-home',

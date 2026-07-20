@@ -4,12 +4,6 @@ import {TimerEntry} from '../../../../core/models/timer-entry.model';
 
 export type Timeframe = 'day' | 'week' | 'month' | 'all';
 
-/**
- * Base class for all "activity widgets" (pie chart, bar chart, and any future
- * widget). Holds the timeframe/navigation state and the entry-filtering logic
- * that's identical across widgets, so a new widget only needs to implement
- * its own data-shaping computed() and template.
- */
 export abstract class ChartWidgetBase {
   protected historyService = inject(HistoryService);
 
