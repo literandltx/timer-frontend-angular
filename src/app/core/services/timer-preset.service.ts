@@ -1,4 +1,4 @@
-import {Injectable, signal, inject, OnDestroy} from '@angular/core';
+import {Injectable, signal, computed, inject, OnDestroy} from '@angular/core';
 import {Subscription, firstValueFrom} from 'rxjs';
 import {TimerPreset, TimerPresetRequest} from '../models/timer-setting.model';
 import {SyncMessage} from '../netwrok/sync-message.model';
@@ -7,6 +7,7 @@ import {AuthService} from '../auth/auth.service';
 import {TimerSettingApiService} from './api/timer-setting-api.service';
 import {LogService} from '../log/log.service';
 import {TimerSettingStorageService} from '../storage/timer-setting-storage.service';
+import {LabelService} from './label.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerPresetService implements OnDestroy {
@@ -15,9 +16,22 @@ export class TimerPresetService implements OnDestroy {
   private auth = inject(AuthService);
   private log = inject(LogService);
   private settingStorage = inject(TimerSettingStorageService);
+  private labelService = inject(LabelService);
   private subscriptions = new Subscription();
 
   public activePreset = signal<TimerPreset>(this.settingStorage.activeSetting ?? this.createLocalDefault());
+
+  public activeLabelUuid = computed<string | undefined>(() => {
+    const labels = this.labelService.labels();
+    const currentId = this.activePreset().labelUuid;
+
+    if (labels.length === 0) {
+      return undefined;
+    }
+
+    const exists = labels.some(l => l.uuid === currentId);
+    return exists ? currentId : labels[0].uuid;
+  });
 
   constructor() {
     this.loadSettings();

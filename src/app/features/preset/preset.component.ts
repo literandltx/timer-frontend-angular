@@ -7,13 +7,11 @@ import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
-import {HomeService} from '../home/home.service';
 
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
   imports: [CommonModule, FormsModule, ListItemComponent],
-  providers: [HomeService],
   templateUrl: './preset.component.html',
   styleUrls: ['./preset.component.css']
 })
@@ -21,7 +19,6 @@ export class PresetComponent implements OnInit {
   private optionsService = inject(TimerOptionsService);
   private labelService = inject(LabelService);
   private presetService = inject(TimerPresetService);
-  public homeService = inject(HomeService);
 
   labels = this.labelService.labels;
   options = this.optionsService.options;
@@ -40,7 +37,7 @@ export class PresetComponent implements OnInit {
   }
 
   get activeLabelUuid(): string | undefined {
-    return this.homeService.activeLabelUuid();
+    return this.presetService.activeLabelUuid();
   }
 
   @HostListener('document:click', ['$event'])
@@ -163,7 +160,7 @@ export class PresetComponent implements OnInit {
     await this.labelService.delete(uuid);
   }
 
-  setActiveLabel(uuid: string) {
-    this.homeService.setActiveLabel(uuid);
+  async setActiveLabel(uuid: string) {
+    await this.presetService.setActiveLabel(uuid);
   }
 }
