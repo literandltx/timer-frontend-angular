@@ -8,37 +8,33 @@ import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {TimerEntryService} from '../../core/services/timer-entry.service';
 import {TitleBlinkerService} from '../../core/services/core/title-blinker.service';
-import {HomeService} from './home.service';
 
 @Component({
   selector: 'ns-app-home',
   standalone: true,
   imports: [CommonModule, RouterModule, TimerComponent],
-  providers: [HomeService],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  public labelService = inject(LabelService);
-  public settingService = inject(TimerPresetService);
-  public optionsService = inject(TimerOptionsService);
-  public entryService = inject(TimerEntryService);
-  public homeService = inject(HomeService);
+  protected labelService = inject(LabelService);
+  protected presetService = inject(TimerPresetService); // Renamed from settingService
+  protected optionsService = inject(TimerOptionsService);
+  protected entryService = inject(TimerEntryService);
+
   private blinkerService = inject(TitleBlinkerService);
 
   private isTimerFinished = false;
-
   private activeLabel = computed(() => {
-    const labels = this.labelService.labels();
-    const uuid = this.homeService.activeLabelUuid();
-    return labels.find(l => l.uuid === uuid);
+    return this.labelService.labels()
+      .find(l => l.uuid === this.presetService.activeLabelUuid());
   });
 
   activeLabelColor = computed(() => this.activeLabel()?.color ?? '#000000');
   activeLabelName = computed(() => this.activeLabel()?.name ?? 'No label');
 
   currentTimerSeconds = computed(() => {
-    const activeSetting = this.settingService.activePreset();
+    const activeSetting = this.presetService.activePreset();
     const options = this.optionsService.options();
 
     if (!activeSetting || !options) {
@@ -52,7 +48,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.labelService.loadLabels();
     this.optionsService.loadOptions();
-    this.settingService.loadSettings();
+    this.presetService.loadSettings();
     this.entryService.loadEntries();
   }
 
@@ -78,7 +74,7 @@ export class HomeComponent implements OnInit {
   private saveHistory(durationSeconds: number) {
     const labels = this.labelService.labels();
     const fallbackLabel = labels.length > 0 ? labels[0].uuid : undefined;
-    const currentUuid = this.homeService.activeLabelUuid();
+    const currentUuid = this.presetService.activeLabelUuid();
 
     this.entryService.recordTimerFinish(durationSeconds, currentUuid, fallbackLabel);
   }
