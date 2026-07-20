@@ -4,14 +4,14 @@ import {TimerPreset, TimerPresetRequest} from '../models/timer-setting.model';
 import {SyncMessage} from '../netwrok/sync-message.model';
 import {AppDB} from '../db/app.db';
 import {AuthService} from '../auth/auth.service';
-import {TimerSettingApiService} from './api/timer-setting-api.service';
+import {TimerPresetApiService} from './api/timer-preset-api.service';
 import {LogService} from '../log/log.service';
 import {TimerSettingStorageService} from '../storage/timer-setting-storage.service';
 import {LabelService} from './label.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerPresetService implements OnDestroy {
-  private api = inject(TimerSettingApiService);
+  private api = inject(TimerPresetApiService);
   private db = inject(AppDB);
   private auth = inject(AuthService);
   private log = inject(LogService);
