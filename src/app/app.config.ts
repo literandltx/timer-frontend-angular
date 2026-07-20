@@ -6,7 +6,7 @@ import {routes} from './app.routes';
 import {authInterceptor} from './core/interceptors/auth.interceptor';
 import {networkStatusInterceptor} from './core/interceptors/network-status.interceptor';
 import {GlobalErrorHandler} from './core/errors/global-error-handler';
-import {DatabaseInitializer} from './core/services/database-initializer.service';
+import {DatabaseInitializer} from './core/services/db/database-initializer.service';
 import {AuthService} from './core/auth/auth.service';
 import {HealthCheckService} from './core/netwrok/health.service';
 

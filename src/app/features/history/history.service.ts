@@ -1,16 +1,16 @@
 import {Injectable, inject} from '@angular/core';
-import {TimerEntryService} from '../../timers/services/timer-entry.service';
-import {LabelService} from '../../labels/services/label.service';
-import {TimerOptionsService} from '../../timers/services/timer-options.service';
+import {TimerEntryService} from '../../core/services/timer-entry.service';
+import {LabelService} from '../../core/services/label.service';
+import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {
   TimerEntry,
   CreateTimerEntryRequest,
   UpdateTimerEntryRequest
-} from '../../timers/models/timer-entry.model';
-import {TimerOption} from '../../timers/models/timer-option.model';
-import {Label} from '../../labels/models/label.model';
-import {AppDB} from '../../../core/db/app.db';
-import {LogService} from '../../../core/log/log.service';
+} from '../../core/models/timer-entry.model';
+import {TimerOption} from '../../core/models/timer-option.model';
+import {Label} from '../../core/models/label.model';
+import {AppDB} from '../../core/db/app.db';
+import {LogService} from '../../core/log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class HistoryService {

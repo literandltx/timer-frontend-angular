@@ -6,12 +6,12 @@ import {
   CreateTimerEntryRequest,
   UpdateTimerEntryRequest
 } from '../models/timer-entry.model';
-import {AppDB} from '../../../core/db/app.db';
-import {TimerEntryApiService} from './timer-entry-api.service';
-import {SyncEngineService} from '../../../core/services/sync-engine.service';
-import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
-import {AuthService} from '../../../core/auth/auth.service';
-import {LogService} from '../../../core/log/log.service';
+import {AppDB} from '../db/app.db';
+import {TimerEntryApiService} from './api/timer-entry-api.service';
+import {SyncEngineService} from './sync-engine.service';
+import {EntitySyncOrchestrator} from '../netwrok/entity-sync-orchestrator.service';
+import {AuthService} from '../auth/auth.service';
+import {LogService} from '../log/log.service';
 
 const DEFAULT_MINIMUM_TIMER_DURATION = 60;
 

@@ -6,12 +6,12 @@ import {
   CreateTimerOptionRequest,
   UpdateTimerOptionRequest
 } from '../models/timer-option.model';
-import {AppDB} from '../../../core/db/app.db';
-import {TimerOptionApiService} from './timer-option-api.service';
-import {SyncEngineService} from '../../../core/services/sync-engine.service';
-import {EntitySyncOrchestrator} from '../../../core/netwrok/entity-sync-orchestrator.service';
-import {AuthService} from '../../../core/auth/auth.service';
-import {LogService} from '../../../core/log/log.service';
+import {AppDB} from '../db/app.db';
+import {TimerOptionApiService} from './api/timer-option-api.service';
+import {SyncEngineService} from './sync-engine.service';
+import {EntitySyncOrchestrator} from '../netwrok/entity-sync-orchestrator.service';
+import {AuthService} from '../auth/auth.service';
+import {LogService} from '../log/log.service';
 
 @Injectable({providedIn: 'root'})
 export class TimerOptionsService {

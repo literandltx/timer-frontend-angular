@@ -3,12 +3,12 @@ import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
 
-import {LabelService} from '../labels/services/label.service';
-import {TimerSettingsService} from '../timers/services/timer-settings.service';
-import {TimerOptionsService} from '../timers/services/timer-options.service';
-import {TimerEntryService} from '../timers/services/timer-entry.service';
-import {TitleBlinkerService} from '../../core/services/title-blinker.service';
-import {HomeService} from './services/home.service';
+import {LabelService} from '../../core/services/label.service';
+import {TimerSettingsService} from '../../core/services/timer-settings.service';
+import {TimerOptionsService} from '../../core/services/timer-options.service';
+import {TimerEntryService} from '../../core/services/timer-entry.service';
+import {TitleBlinkerService} from '../../core/services/core/title-blinker.service';
+import {HomeService} from './home.service';
 
 @Component({
   selector: 'ns-app-home',

@@ -1,8 +1,8 @@
 import {Component, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ChartWidgetBase} from './chart-widget-base';
-import {ToggleGroupComponent} from '../../../../shared/components/toggle/toggle-group.component';
-import {ToggleButtonComponent} from '../../../../shared/components/toggle/toggle-button.component';
+import {ChartWidgetBase} from '../chart-widget-base';
+import {ToggleGroupComponent} from '../../../../../shared/components/toggle/toggle-group.component';
+import {ToggleButtonComponent} from '../../../../../shared/components/toggle/toggle-button.component';
 
 interface ChartLegendItem {
   name: string;

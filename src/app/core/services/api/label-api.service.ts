@@ -1,8 +1,8 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Label, CreateLabelRequest, UpdateLabelRequest} from '../models/label.model';
-import {SyncApiService} from '../../../core/netwrok/sync-api.service';
+import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../models/label.model';
+import {SyncApiService} from '../../netwrok/sync-api.service';
 import {environment} from '../../../../environments/environment';
 
 @Injectable({

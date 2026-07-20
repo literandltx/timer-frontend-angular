@@ -2,12 +2,12 @@ import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
-import {TimerOptionsService} from '../timers/services/timer-options.service';
-import {TimerSettingsService} from '../timers/services/timer-settings.service';
-import {CreateTimerOptionRequest} from '../timers/models/timer-option.model';
-import {LabelService} from '../labels/services/label.service';
-import {Label, CreateLabelRequest, UpdateLabelRequest} from '../labels/models/label.model';
-import {HomeService} from '../home/services/home.service';
+import {TimerOptionsService} from '../../core/services/timer-options.service';
+import {TimerSettingsService} from '../../core/services/timer-settings.service';
+import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
+import {LabelService} from '../../core/services/label.service';
+import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
+import {HomeService} from '../home/home.service';
 
 @Component({
   selector: 'ns-app-preset-config',
