@@ -55,7 +55,7 @@
           <input class="modern-input" type="datetime-local" [(ngModel)]="formDateStr"/>
 
           <input class="modern-input duration-input" type="number" [(ngModel)]="formDurationMins"
-                 placeholder="Duration (mins)"/>
+                 placeholder="e.g. 25"/>
 
           <div class="edit-actions">
             <ns-app-button variant="primary-btn" (click)="editingEntry.uuid ? updateEntry() : createEntry()">Save</ns-app-button>

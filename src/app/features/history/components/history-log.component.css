@@ -165,6 +165,17 @@
   max-width: 120px;
 }
 
+.duration-input::-webkit-outer-spin-button,
+.duration-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.duration-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .modern-input:focus {
   outline: none;
   border-color: var(--primary-color);

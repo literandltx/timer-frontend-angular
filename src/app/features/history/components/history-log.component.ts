@@ -32,7 +32,7 @@ export class HistoryLogComponent implements OnInit {
 
   editingEntry: Partial<TimerEntry> | null = null;
   formDateStr = '';
-  formDurationMins = 0;
+  formDurationMins: number | null = null;
   currentPage = INITIAL_PAGE;
   pageSize = DEFAULT_PAGE_SIZE;
 
@@ -73,7 +73,7 @@ export class HistoryLogComponent implements OnInit {
     } else {
       this.editingEntry = {labelId: undefined, durationSeconds: 0};
       this.formDateStr = this.formatDateForInput(Date.now());
-      this.formDurationMins = 25;
+      this.formDurationMins = null;
     }
   }
 
@@ -101,7 +101,7 @@ export class HistoryLogComponent implements OnInit {
     const request: CreateTimerEntryRequest = {
       uuid: crypto.randomUUID(),
       labelId: this.editingEntry.labelId,
-      durationSeconds: this.formDurationMins * 60,
+      durationSeconds: (this.formDurationMins || 0) * 60,
       startTime: new Date(this.formDateStr).getTime(),
       createdAt: now,
       updatedAt: now
@@ -119,7 +119,7 @@ export class HistoryLogComponent implements OnInit {
 
     const request: UpdateTimerEntryRequest = {
       labelId: this.editingEntry.labelId,
-      durationSeconds: this.formDurationMins * 60,
+      durationSeconds: (this.formDurationMins || 0) * 60,
       startTime: new Date(this.formDateStr).getTime(),
       updatedAt: new Date().toISOString()
     };
