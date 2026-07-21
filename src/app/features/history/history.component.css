@@ -1,5 +1,6 @@
 .widgets-stack {
   display: flex;
   flex-direction: column;
+  margin-top: 18px;
   gap: 18px;
 }

@@ -9,7 +9,7 @@ export interface WidgetDefinition {
 }
 
 export const ACTIVITY_WIDGETS: WidgetDefinition[] = [
-  {id: 'heatmap', component: HeatmapWidgetComponent},
   {id: 'pie-chart', component: PieChartWidgetComponent},
   {id: 'bar-chart', component: BarChartWidgetComponent},
+  {id: 'heatmap', component: HeatmapWidgetComponent},
 ];

@@ -25,26 +25,34 @@
             aria-label="Delete option"
             title="Delete option">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
             </svg>
           </button>
         </div>
       }
 
-      @if (!isAdding) {
-        <button type="button" class="option-chip-default" (click)="startAdd()" aria-label="Add timer option" title="Add timer option"></button>
-      }
+      <button
+        type="button"
+        class="option-chip-default"
+        [class.active]="isAdding"
+        (click)="isAdding ? cancelAdd() : startAdd()"
+        aria-label="Add timer option"
+        title="Add timer option">
+      </button>
     </div>
 
     @if (isAdding) {
       <div class="edit-section">
-        <div class="input-group">
+        <div class="input-card">
           <input
-            class="modern-input"
+            class="modern-input pill-input"
             type="number"
             [(ngModel)]="newValue"
-            placeholder="Duration (e.g., 25)"
+            placeholder="e.g. 25"
             (keyup.enter)="confirmAdd()"
             (keyup.escape)="cancelAdd()"/>
 
@@ -56,8 +64,11 @@
             </button>
             <button type="button" class="icon-btn cancel-btn" (click)="cancelAdd()" aria-label="Cancel" title="Cancel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
               </svg>
             </button>
           </div>
@@ -83,11 +94,9 @@
 
     @if (editingLabel) {
       <div class="edit-section2">
-        <div class="input-group">
-          <!--          <span class="edit-label">{{ editingLabel.uuid ? 'Edit Label:' : 'New Label:' }}</span>-->
-
-          <input class="modern-input" type="text" [(ngModel)]="editingLabel.name"
-                 placeholder="Label Name"/>
+        <div class="input-card">
+          <input class="modern-input pill-input" type="text" [(ngModel)]="editingLabel.name"
+                 placeholder="label name"/>
 
           <input class="modern-color-input" type="color" [(ngModel)]="editingLabel.color"
                  title="Choose label color"/>
@@ -102,8 +111,11 @@
             </button>
             <button type="button" class="icon-btn cancel-btn" (click)="cancelLabel()" aria-label="Cancel" title="Cancel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
               </svg>
             </button>
           </div>
@@ -129,8 +141,12 @@
               [attr.aria-label]="label.uuid === activeLabelUuid ? 'Active' : 'Set active'"
               [attr.title]="label.uuid === activeLabelUuid ? 'Active' : 'Set active'">
               @if (label.uuid === activeLabelUuid) {
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              } @else {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
+                  <circle cx="12" cy="12" r="9"></circle>
                 </svg>
               }
             </button>

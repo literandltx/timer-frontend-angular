@@ -9,9 +9,6 @@
 }
 
 .top-section {
-  margin-bottom: 16px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid var(--border-light);
   flex-shrink: 0;
 }
 
@@ -21,6 +18,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-light);
 }
 
 .header-controls {
@@ -44,6 +43,7 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 16px;
+  margin-bottom: 16px;
   animation: slideDown 0.2s ease-out;
 }
 
@@ -54,12 +54,12 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
+  border: 1px solid var(--border-light);
   border-radius: 8px;
-  background: transparent;
+  background: var(--card-bg);
   color: var(--text-muted);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .icon-btn svg {
@@ -74,16 +74,24 @@
 .edit-icon-btn:hover {
   background: var(--bg-subtle);
   color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .delete-icon-btn:hover {
   background: var(--error-bg, #fee2e2);
   color: var(--error-color, #dc2626);
+  border-color: var(--error-color, #dc2626);
 }
 
 .view-toggles-wrapper {
   display: flex;
   align-items: center;
+}
+
+.view-toggles-wrapper svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .page-title {
@@ -117,58 +125,6 @@
   text-align: center;
 }
 
-.edit-section {
-  margin-top: 20px;
-  animation: slideDown 0.2s ease-out;
-}
-
-.input-group {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  background: var(--bg-subtle);
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.edit-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  width: 100%;
-  margin-bottom: 4px;
-}
-
-.modern-input {
-  flex: 1;
-  min-width: 120px;
-  padding: 8px 12px;
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  font-family: inherit;
-  font-size: 0.95rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.duration-input {
-  max-width: 120px;
-}
-
-.modern-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-ring);
-}
-
-.edit-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-
 .options-list {
   display: flex;
   flex-direction: column;
@@ -199,14 +155,29 @@ app-list-item:last-child {
   background-color: var(--text-muted);
 }
 
-.date-text {
-  min-width: 100px;
-  color: var(--text-muted);
-  font-size: 0.95rem;
+.entry-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.duration-text {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-heading);
+  white-space: nowrap;
 }
 
 .label-wrapper {
-  min-width: 60px;
+  display: inline-flex;
 }
 
 .label-pill {
@@ -218,15 +189,13 @@ app-list-item:last-child {
   letter-spacing: 0.3px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: inline-block;
+  white-space: nowrap;
 }
 
-.duration-text {
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: var(--text-heading);
-  min-width: 70px;
-  text-align: right;
+.date-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .action-group {
@@ -255,6 +224,71 @@ app-list-item:last-child {
   font-style: italic;
 }
 
+.inline-edit-item {
+  display: block;
+  transition: all 0.2s ease;
+  animation: slideDown 0.2s ease-out;
+}
+
+.inline-input {
+  border-radius: 9999px;
+  padding: 6px 14px;
+  border: 1px solid var(--border-input, #404040);
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.inline-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.duration-input {
+  width: 80px;
+  text-align: center;
+}
+
+.duration-input::-webkit-outer-spin-button,
+.duration-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.duration-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.label-select {
+  min-width: 140px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  padding-right: 14px;
+}
+
+.label-select.placeholder-active {
+  color: var(--text-muted);
+}
+
+.date-input {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  width: 100%;
+  max-width: 200px;
+}
+
+.save-icon-btn {
+  color: var(--success-color, #16a34a);
+}
+
+.save-icon-btn:hover {
+  background: var(--success-bg, #dcfce7);
+  border-color: var(--success-color, #16a34a);
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -267,10 +301,6 @@ app-list-item:last-child {
 }
 
 @media (max-width: 640px) {
-  .date-text, .label-wrapper, .duration-text {
-    min-width: auto;
-  }
-
   .header-row {
     gap: 12px;
   }
@@ -290,13 +320,7 @@ app-list-item:last-child {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px));
   }
 
-  .edit-label {
-    width: auto;
-    margin-bottom: 0;
-  }
-
   .actions-row {
     justify-content: flex-end;
   }
-
 }
