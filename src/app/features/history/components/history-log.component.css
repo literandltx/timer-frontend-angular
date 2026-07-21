@@ -278,7 +278,7 @@ app-list-item:last-child {
   color: var(--text-muted);
   font-size: 0.85rem;
   width: 100%;
-  max-width: 250px;
+  max-width: 200px;
 }
 
 .save-icon-btn {
