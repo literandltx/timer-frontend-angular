@@ -155,8 +155,6 @@ app-list-item:last-child {
   background-color: var(--text-muted);
 }
 
-/* --- Shared Layout Styles for Both Modes --- */
-
 .entry-details {
   display: flex;
   flex-direction: column;
@@ -170,8 +168,6 @@ app-list-item:last-child {
   gap: 12px;
   flex-wrap: nowrap;
 }
-
-/* --- Info/View Styles --- */
 
 .duration-text {
   font-weight: 700;
@@ -228,8 +224,6 @@ app-list-item:last-child {
   font-style: italic;
 }
 
-/* --- Inline Edit Styles --- */
-
 .inline-edit-item {
   display: block;
   transition: all 0.2s ease;
@@ -268,6 +262,11 @@ app-list-item:last-child {
 
 .label-select {
   min-width: 140px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  padding-right: 14px;
 }
 
 .label-select.placeholder-active {
