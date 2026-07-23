@@ -6,6 +6,9 @@ import { ToggleButtonComponent } from '../../shared/components/toggle/toggle-but
 import { HistoryService } from './history.service';
 import {ActivityWidgetComponent} from './components/widgets/activity-widget.component';
 import {PieChartComponent} from './components/widgets/pie-chart-v1/pie-chart.component';
+import {
+  LineChartHistogramComponent
+} from './components/widgets/line-chart-v1/line-chart-histogram.component';
 
 @Component({
   selector: 'ns-app-history',
@@ -16,7 +19,8 @@ import {PieChartComponent} from './components/widgets/pie-chart-v1/pie-chart.com
     ToggleGroupComponent,
     ToggleButtonComponent,
     ActivityWidgetComponent,
-    PieChartComponent
+    PieChartComponent,
+    LineChartHistogramComponent
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'
