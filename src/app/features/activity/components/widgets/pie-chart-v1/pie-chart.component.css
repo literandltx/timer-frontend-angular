@@ -16,7 +16,7 @@
   top: 0; left: 0; right: 0; bottom: 0;
   padding: 24px;
   display: grid;
-  grid-template-columns: 60% 40%;
+  grid-template-columns: 55% 45%;
 }
 
 /* Left Side: Chart */
@@ -29,7 +29,7 @@
 }
 
 .donut-chart {
-  width: clamp(25px, 100%, 325px);
+  width: clamp(25px, 100%, 275px);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   display: flex;
@@ -91,6 +91,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  padding-top: 24px;
   min-width: 0;
 }
 
@@ -165,6 +166,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-top: 16px;
   padding-right: 8px;
 }
 
@@ -251,17 +253,22 @@
   }
 
   .widget-content {
-    grid-template-columns: 45% 55% !important;
+    grid-template-columns: 46% 54% !important;
     padding: 12px;
     gap: 4px;
   }
 
   .donut-chart {
-    width: clamp(100px, 80%, 160px);
+    width: clamp(120px, 95%, 200px);
+  }
+
+  .donut-hole {
+    width: 90%;
+    height: 90%;
   }
 
   .total-value {
-    font-size: 1rem;
+    font-size: 1.15rem;
   }
 
   .total-label {
