@@ -1,0 +1,42 @@
+<div class="history-container">
+  <div class="top-section">
+    <div class="header-row">
+      <h2 class="page-title">{{ activeView === 'activity' ? 'Activity' : 'History' }}</h2>
+      <div class="view-toggles-wrapper">
+        <ns-app-toggle-group variant="standard">
+          <ns-app-toggle-button
+            [active]="activeView === 'activity'"
+            (toggled)="setView('activity')"
+            aria-label="Activity view"
+            title="Activity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h4l3 8 4-16 3 8h4"></path>
+            </svg>
+          </ns-app-toggle-button>
+          <ns-app-toggle-button
+            [active]="activeView === 'logs'"
+            (toggled)="setView('logs')"
+            aria-label="History view"
+            title="History">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v5h5"></path>
+              <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
+              <path d="M12 7v5l4 2"></path>
+            </svg>
+          </ns-app-toggle-button>
+        </ns-app-toggle-group>
+      </div>
+    </div>
+  </div>
+
+  @if (activeView === 'activity') {
+    <div class="widgets-stack">
+      <ns-pie-chart></ns-pie-chart>
+      <ns-activity-widget></ns-activity-widget>
+    </div>
+  }
+
+  @if (activeView === 'logs') {
+    <ns-history-log></ns-history-log>
+  }
+</div>
