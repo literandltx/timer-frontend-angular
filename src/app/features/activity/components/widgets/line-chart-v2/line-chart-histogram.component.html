@@ -1,0 +1,43 @@
+<div class="widget-container">
+  <div class="widget-content">
+
+    <div class="header">
+      <h3>Activity History</h3>
+      <div class="nav-controls">
+        <button class="nav-btn" (click)="navigate(-1)">&lt;</button>
+        <span class="range-label">This Week</span>
+        <button class="nav-btn" (click)="navigate(1)" [disabled]="offset() === 0">&gt;</button>
+      </div>
+    </div>
+
+    <div class="histogram-area">
+      <div class="bars-container">
+        @for (day of daysData(); track day.date.getTime()) {
+          <div class="bar-group">
+            <div class="bar-track">
+
+              <div class="tooltip-container" [style.height.%]="day.heightPercentage" [style.opacity]="day.durationSeconds > 0 ? 1 : 0">
+                <div class="tooltip">{{ day.formattedDuration }}</div>
+              </div>
+
+              <div class="bar-fill"
+                   [style.height.%]="day.heightPercentage"
+                   [style.opacity]="day.durationSeconds > 0 ? 1 : 0">
+
+                @for (segment of day.segments; track segment.color) {
+                  <div class="bar-segment"
+                       [style.height.%]="segment.percentage"
+                       [style.backgroundColor]="segment.color">
+                  </div>
+                }
+
+              </div>
+            </div>
+            <span class="day-label">{{ day.label }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="widget-container chart-container">
+  <div class="widget-content chart-content-layout">
+
+    <!-- Left Side: Chart -->
+    <div class="chart-section pie-chart-wrapper">
+      <div class="donut-chart pie-chart" [style.background]="conicGradient()">
+        <div class="donut-hole">
+          <div class="center-text">
+            <span class="total-value total-time">{{ formatTotalDuration(totalDuration()) }}</span>
+            <span class="total-label">TOTAL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Controls and Data -->
+    <div class="data-section">
+
+      <!-- Top Header Controls -->
+      <div class="header-controls chart-header">
+        <div class="nav-row">
+          <button class="nav-btn" (click)="navigate(-1)">&lt;</button>
+          <select [value]="range()" (change)="onRangeChange($event)">
+            <option value="day">day</option>
+            <option value="week">week</option>
+            <option value="month">month</option>
+            <option value="all">all</option>
+          </select>
+          <button class="nav-btn" (click)="navigate(1)" [disabled]="range() === 'all'">&gt;</button>
+        </div>
+
+        <div class="stats-row">
+          <span class="stats-text">{{ currentDateStr() }} • average: {{ avgDuration() }}</span>
+        </div>
+      </div>
+
+      <!-- Bottom Data List / Legend -->
+      <div class="data-list chart-legend">
+        @for (item of groupedData(); track item.labelName) {
+          <div class="list-item legend-row">
+            <div class="label-info legend-left">
+              <span class="color-dot" [style.backgroundColor]="item.color"></span>
+              <span class="label-name item-name">{{ item.labelName }}</span>
+            </div>
+            <div class="legend-right">
+              <span class="duration item-time">{{ formatDuration(item.duration) }}</span>
+              <span class="item-badge">{{ item.percentage }}%</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state empty-chart">
+            <p>No activity logged for this period.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

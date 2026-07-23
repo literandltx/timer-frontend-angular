@@ -11,9 +11,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/preset/preset.component').then(m => m.PresetComponent)
   },
   {
-    path: 'history',
+    path: 'activity',
     data: {scrollable: true},
-    loadComponent: () => import('./features/history/history.component').then(m => m.HistoryComponent)
+    loadComponent: () => import('./features/activity/history.component').then(m => m.HistoryComponent)
   },
   {
     path: 'register',
