@@ -25,7 +25,6 @@ import {
     PieChartComponent,
     LineChartHistogramComponentV1,
     LineChartHistogramComponentV2,
-    LineChartHistogramComponentV2,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'

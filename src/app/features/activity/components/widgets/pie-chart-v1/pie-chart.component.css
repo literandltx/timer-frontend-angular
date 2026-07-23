@@ -78,8 +78,9 @@
 /* Right Side: Data and Controls */
 .data-section {
   display: grid;
-  grid-template-rows: 4fr 8fr;
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
+  gap: 12px;
 
   /*border: 2px solid #414b5a; !* to-remove *!*/
 }
@@ -89,6 +90,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .nav-row {
@@ -151,6 +154,10 @@
   color: var(--text-muted, #6b7280);
   padding-top: 8px;
   text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .data-list {
@@ -233,19 +240,104 @@
   margin: auto;
 }
 
+/* =========================================
+   Mobile Version
+   ========================================= */
 @media (max-width: 768px) {
   .widget-container {
     aspect-ratio: auto;
-    min-height: 400px;
+    min-height: 280px;
+    padding: 12px;
   }
+
   .widget-content {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 45% 55% !important;
+    padding: 12px;
+    gap: 4px;
   }
+
+  .donut-chart {
+    width: clamp(100px, 80%, 160px);
+  }
+
+  .total-value {
+    font-size: 1rem;
+  }
+
+  .total-label {
+    font-size: 0.6rem;
+  }
+
   .header-controls {
+    padding: 24px 8px 12px;
     align-items: center !important;
   }
+
   .data-section {
     grid-template-rows: auto 1fr !important;
-    gap: 16px;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .nav-row {
+    gap: 4px;
+  }
+
+  .nav-row select {
+    height: 28px;
+    font-size: 0.75rem;
+    padding: 0 8px;
+    min-width: 60px;
+  }
+
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .stats-row {
+    font-size: 0.65rem;
+    padding-top: 4px;
+  }
+
+  .data-list {
+    padding: 0 8px 8px;
+    gap: 6px;
+  }
+
+  .label-info {
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .color-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+
+  .label-name {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .legend-right {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .duration {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .item-badge {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    min-width: 32px;
   }
 }
