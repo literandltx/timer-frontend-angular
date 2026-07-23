@@ -3,29 +3,35 @@ import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../../history.service';
 
 @Component({
-  selector: 'ns-line-chart-histogram-v1',
+  selector: 'ns-line-chart-histogram-v2',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './line-chart-histogram.component.html',
   styleUrls: ['./line-chart-histogram.component.css']
 })
-export class LineChartHistogramComponentV1 {
+export class LineChartHistogramComponentV2 {
   public historyService = inject(HistoryService);
   private entries = this.historyService.entries;
 
   offset = signal<number>(0);
+
   daysData = computed(() => {
     const currentOffset = this.offset();
-    const today = new Date();
-    today.setDate(today.getDate() + (currentOffset * 7));
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+
+    const dayOfWeek = now.getDay();
+    const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - distanceToMonday + (currentOffset * 7));
+    startOfWeek.setHours(0, 0, 0, 0);
 
     const days = [];
     let maxDuration = 0;
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(d.getDate() + i);
       const start = d.getTime();
       const end = start + 86400000;
 
@@ -39,12 +45,31 @@ export class LineChartHistogramComponentV1 {
         maxDuration = totalSeconds;
       }
 
+      const segments: { color: string, percentage: number }[] = [];
+
+      if (dayEntries.length > 0) {
+        const colorTotals = new Map<string, number>();
+        for (const entry of dayEntries) {
+          const color = entry.label?.color || '#3b82f6';
+          const currentTotal = colorTotals.get(color) || 0;
+          colorTotals.set(color, currentTotal + entry.durationSeconds);
+        }
+
+        for (const [color, total] of colorTotals.entries()) {
+          segments.push({
+            color: color,
+            percentage: (total / totalSeconds) * 100
+          });
+        }
+      }
+
       days.push({
         date: d,
         label: d.toLocaleDateString('en-US', { weekday: 'short' }),
         durationSeconds: totalSeconds,
         formattedDuration: this.formatDuration(totalSeconds),
-        heightPercentage: 0
+        heightPercentage: 0,
+        segments: segments
       });
     }
 

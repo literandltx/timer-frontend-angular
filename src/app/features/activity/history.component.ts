@@ -7,8 +7,11 @@ import { HistoryService } from './history.service';
 import {ActivityWidgetComponent} from './components/widgets/activity-widget.component';
 import {PieChartComponent} from './components/widgets/pie-chart-v1/pie-chart.component';
 import {
-  LineChartHistogramComponent
+  LineChartHistogramComponentV1
 } from './components/widgets/line-chart-v1/line-chart-histogram.component';
+import {
+  LineChartHistogramComponentV2
+} from './components/widgets/line-chart-v2/line-chart-histogram.component';
 
 @Component({
   selector: 'ns-app-history',
@@ -20,7 +23,9 @@ import {
     ToggleButtonComponent,
     ActivityWidgetComponent,
     PieChartComponent,
-    LineChartHistogramComponent
+    LineChartHistogramComponentV1,
+    LineChartHistogramComponentV2,
+    LineChartHistogramComponentV2,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'
