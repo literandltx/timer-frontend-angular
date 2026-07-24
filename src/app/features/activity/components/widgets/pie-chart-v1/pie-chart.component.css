@@ -196,10 +196,10 @@
   gap: 16px;
 }
 
-.color-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+.label-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .label-name {
@@ -319,9 +319,9 @@
     flex: 1;
   }
 
-  .color-dot {
-    width: 8px;
-    height: 8px;
+  .label-icon {
+    width: 12px;
+    height: 12px;
     flex-shrink: 0;
   }
 

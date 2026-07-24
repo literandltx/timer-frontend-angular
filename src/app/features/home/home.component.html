@@ -9,14 +9,46 @@
   }
 
   <div class="bottom-controls-wrapper">
-    <div class="label-selector-wrapper">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-           [attr.stroke]="activeLabelColor()" class="label-icon">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
-      </svg>
+    <div class="label-selector-container">
+      <button
+        type="button"
+        class="label-selector-wrapper"
+        (click)="toggleLabelMenu()"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="isLabelMenuOpen()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+             [attr.stroke]="activeLabelColor()" class="label-icon">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+        </svg>
 
-      <span class="label-name">{{ activeLabelName() }}</span>
+        <span class="label-name">{{ activeLabelName() }}</span>
+      </button>
+
+      @if (isLabelMenuOpen()) {
+        <div class="label-menu-backdrop" (click)="isLabelMenuOpen.set(false)"></div>
+
+        <div class="label-menu" role="listbox">
+          @for (label of labelService.labels(); track label.uuid) {
+            <button
+              type="button"
+              class="label-menu-item"
+              role="option"
+              [class.active]="label.uuid === presetService.activeLabelUuid()"
+              [attr.aria-selected]="label.uuid === presetService.activeLabelUuid()"
+              (click)="selectLabel(label.uuid)">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                   [attr.stroke]="label.color" class="label-icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+              </svg>
+              <span class="label-name">{{ label.name }}</span>
+            </button>
+          } @empty {
+            <div class="label-menu-empty">No labels yet</div>
+          }
+        </div>
+      }
     </div>
   </div>
 </div>

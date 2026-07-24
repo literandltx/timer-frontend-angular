@@ -1,13 +1,32 @@
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../../core/auth/auth.service';
+import {ButtonComponent} from '../../shared/components/button/button.component';
 
 @Component({
   selector: 'ns-app-profile',
   standalone: true,
-  template: `
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%;">
-      <h1 style="margin: 0;">Coming soon</h1>
-    </div>
-  `
+  templateUrl: './profile.component.html',
+  imports: [
+    ButtonComponent
+  ],
+  styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
+  private authService = inject(AuthService);
+
+  onChangeEmail(): void {
+    // TODO: Wire up to email change modal or service
+    console.log('Change email initiated');
+  }
+
+  onChangePassword(): void {
+    // TODO: Wire up to password change modal or service
+    console.log('Change password initiated');
+  }
+
+  onDeleteAccount(): void {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      this.authService.deleteAccount().subscribe();
+    }
+  }
 }
