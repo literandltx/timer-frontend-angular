@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, computed} from '@angular/core';
+import {Component, OnInit, inject, computed, signal, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
@@ -32,6 +32,31 @@ export class HomeComponent implements OnInit {
 
   activeLabelColor = computed(() => this.activeLabel()?.color ?? '#000000');
   activeLabelName = computed(() => this.activeLabel()?.name ?? 'No label');
+
+  isLabelMenuOpen = signal(false);
+
+  toggleLabelMenu() {
+    this.isLabelMenuOpen.update(open => !open);
+  }
+
+  async selectLabel(uuid: string) {
+    await this.presetService.setActiveLabel(uuid);
+    this.isLabelMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.isLabelMenuOpen()) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    const clickedInsideSelector = target.closest('.label-selector-container');
+
+    if (!clickedInsideSelector) {
+      this.isLabelMenuOpen.set(false);
+    }
+  }
 
   currentTimerSeconds = computed(() => {
     const activeSetting = this.presetService.activePreset();

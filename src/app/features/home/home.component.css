@@ -21,6 +21,10 @@
   gap: 16px;
 }
 
+.label-selector-container {
+  position: relative;
+}
+
 .label-selector-wrapper {
   /*background: var(--bg-subtle);*/
   padding: 8px 16px;
@@ -30,6 +34,81 @@
   align-items: center;
   gap: 10px;
   border-radius: 12px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.label-selector-wrapper:hover {
+  background: var(--bg-subtle, rgba(127, 127, 127, 0.12));
+}
+
+.label-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 30;
+}
+
+.label-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 220px;
+  max-width: min(320px, calc(100vw - 48px));
+  max-height: min(340px, calc(100dvh - 96px));
+  overflow-y: auto;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-light, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md, 0 8px 20px rgba(0, 0, 0, 0.15));
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 31;
+}
+
+.label-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--text-color);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+}
+
+.label-menu-item .label-name {
+  font-size: 16px;
+  max-width: none;
+}
+
+.label-menu-item:hover {
+  background: var(--bg-subtle, rgba(127, 127, 127, 0.12));
+}
+
+.label-menu-item.active {
+  background: var(--success-bg, #dcfce7);
+  color: var(--success-color, #16a34a);
+}
+
+.label-menu-empty {
+  padding: 12px;
+  color: var(--text-muted, #6b7280);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .label-icon {
