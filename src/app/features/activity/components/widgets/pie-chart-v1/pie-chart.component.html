@@ -19,14 +19,26 @@
       <!-- Top Header Controls -->
       <div class="header-controls chart-header">
         <div class="nav-row">
-          <button class="nav-btn" (click)="navigate(-1)">&lt;</button>
-          <select [value]="range()" (change)="onRangeChange($event)">
+          <button class="icon-btn" (click)="navigate(-1)" aria-label="Previous period" title="Previous">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+          </button>
+
+          <select class="granularity-select" [value]="range()" (change)="onRangeChange($event)">
             <option value="day">day</option>
             <option value="week">week</option>
             <option value="month">month</option>
             <option value="all">all</option>
           </select>
-          <button class="nav-btn" (click)="navigate(1)" [disabled]="range() === 'all'">&gt;</button>
+
+          <button class="icon-btn" (click)="navigate(1)" [disabled]="range() === 'all'" aria-label="Next period" title="Next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"></path>
+            </svg>
+          </button>
         </div>
 
         <div class="stats-row">
