@@ -1,0 +1,159 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <div class="header-top">
+      <h3 class="current-label">History</h3>
+
+      <div class="header-controls">
+        <button class="icon-btn" (click)="prev()" aria-label="Previous period" title="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+
+        <select class="granularity-select" [value]="granularity()"
+                (change)="setGranularity($any($event.target).value)">
+          <option value="day">days</option>
+          <option value="week">weeks</option>
+          <option value="month">months</option>
+        </select>
+
+        <button class="icon-btn" (click)="next()" aria-label="Next period" title="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+
+        <div class="label-btn-gap">
+          <button class="icon-btn" (click)="toggleLabelMenu()" aria-label="Labels"
+                  title="Labels" aria-haspopup="listbox"
+                  [attr.aria-expanded]="isLabelMenuOpen()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-bot">
+      <span class="range-label">{{ rangeLabel() }}</span>
+      <span class="dot-sep">&bull;</span>
+      <span class="avg-label">avg: {{ avgMinutes() }} mins</span>
+    </div>
+    @if (hardLimitMinutes !== null) {
+      <div class="hint-note">(dynamic + hard limit)</div>
+    }
+  </div>
+
+  <div class="chart-wrap">
+    <svg [attr.viewBox]="viewBox" class="chart-svg">
+      <defs>
+        <pattern id="hatchFill" patternUnits="userSpaceOnUse" width="6" height="6"
+                 patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--accent-muted, #9ca3af)"
+                stroke-width="1"></line>
+        </pattern>
+      </defs>
+
+      <!-- gridlines -->
+      @for (g of gridLines(); track g.value) {
+        <line
+          [attr.x1]="paddingLeft"
+          [attr.x2]="chartWidth - paddingRight"
+          [attr.y1]="g.y"
+          [attr.y2]="g.y"
+          class="grid-line">
+        </line>
+        <text [attr.x]="paddingLeft - 8" [attr.y]="g.y + 4" class="grid-label"
+              text-anchor="end">{{ g.value }}
+        </text>
+      }
+
+      <!-- hard limit line -->
+      @if (hardLimitY() !== null) {
+        <line
+          [attr.x1]="paddingLeft"
+          [attr.x2]="chartWidth - paddingRight"
+          [attr.y1]="hardLimitY()"
+          [attr.y2]="hardLimitY()"
+          class="hard-limit-line">
+        </line>
+        <text [attr.x]="chartWidth - paddingRight" [attr.y]="hardLimitY()! - 4"
+              class="hard-limit-label" text-anchor="end">limit
+        </text>
+      }
+
+      <!-- area fill -->
+      <path [attr.d]="areaPath()" class="area-fill"></path>
+      <path [attr.d]="areaPath()" fill="url(#hatchFill)" opacity="0.75"></path>
+
+      <!-- comparison (previous period) line -->
+      @if (showComparison && compareLinePath()) {
+        <path [attr.d]="compareLinePath()" class="compare-line"></path>
+      }
+
+      <!-- current line -->
+      <path [attr.d]="linePath()" class="main-line"></path>
+
+      <!-- data points -->
+      @for (p of points(); track $index) {
+        <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" class="data-dot"></circle>
+      }
+
+      <!-- x-axis baseline -->
+      <line
+        [attr.x1]="paddingLeft"
+        [attr.x2]="chartWidth - paddingRight"
+        [attr.y1]="chartHeight - paddingBottom"
+        [attr.y2]="chartHeight - paddingBottom"
+        class="axis-line">
+      </line>
+
+      <!-- x-axis labels -->
+      @for (lbl of visibleXLabels(); track lbl.key) {
+        <text [attr.x]="lbl.x" [attr.y]="chartHeight - paddingBottom + 24" class="axis-label"
+              text-anchor="middle">{{ lbl.label }}
+        </text>
+      }
+    </svg>
+  </div>
+
+  @if (isLabelMenuOpen()) {
+    <div class="label-menu-backdrop" (click)="isLabelMenuOpen.set(false)"></div>
+
+    <div class="label-menu" role="listbox">
+      <div class="label-menu-header">
+        <h4 class="label-menu-title">Labels</h4>
+        <button class="label-menu-toggle-btn" (click)="toggleAllLabels()">
+          {{ hiddenLabelIds().size === 0 ? 'Deselect All' : 'Select All' }}
+        </button>
+      </div>
+
+      <div class="label-menu-list">
+        @for (label of labelService.labels(); track label.uuid) {
+          <button
+            type="button"
+            class="label-menu-item"
+            role="option"
+            [class.active]="!hiddenLabelIds().has(label.uuid)"
+            [attr.aria-selected]="!hiddenLabelIds().has(label.uuid)"
+            (click)="toggleLabel(label.uuid)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="1.5"
+                 [attr.stroke]="label.color" class="label-icon">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+            </svg>
+            <span class="label-name">{{ label.name }}</span>
+          </button>
+        } @empty {
+          <div class="label-menu-empty">No labels yet</div>
+        }
+      </div>
+    </div>
+  }
+</div>
