@@ -97,6 +97,10 @@
   height: 16px;
 }
 
+.label-btn-gap {
+  padding-left: 4px;
+}
+
 .granularity-select {
   height: 30px;
   padding: 0 10px;
