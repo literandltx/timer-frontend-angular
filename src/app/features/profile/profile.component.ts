@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { AuthService } from '../../core/auth/auth.service';
+import {Component, inject} from '@angular/core';
+import {AuthService} from '../../core/auth/auth.service';
 import {ButtonComponent} from '../../shared/components/button/button.component';
+import {ConfirmDialogService} from '../../shared/components/confirm/confirm-dialog.service';
+import {LogService} from '../../core/log/log.service';
 
 @Component({
   selector: 'ns-app-profile',
@@ -12,7 +14,9 @@ import {ButtonComponent} from '../../shared/components/button/button.component';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
+  private log = inject(LogService);
   private authService = inject(AuthService);
+  private confirmDialog = inject(ConfirmDialogService);
 
   onChangeEmail(): void {
     // TODO: Wire up to email change modal or service
@@ -24,9 +28,26 @@ export class ProfileComponent {
     console.log('Change password initiated');
   }
 
-  onDeleteAccount(): void {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      this.authService.deleteAccount().subscribe();
-    }
+  async onResetLocalData(): Promise<void> {
+    const ok = await this.confirmDialog.confirm(
+      'Are you sure you want to reset your local data? This will restore all default values and settings.',
+      {confirmLabel: 'Reset', variant: 'danger'}
+    );
+    if (!ok) return;
+
+    await this.authService.resetLocalData();
+    console.log('Local data reset confirmed');
+  }
+
+  async onDeleteAccount(): Promise<void> {
+    const ok = await this.confirmDialog.confirm(
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      {confirmLabel: 'Delete', variant: 'danger'}
+    );
+    if (!ok) return;
+
+    this.authService.deleteAccount().subscribe({
+      error: (err) => this.log.error('Failed to delete account', err)
+    });
   }
 }
