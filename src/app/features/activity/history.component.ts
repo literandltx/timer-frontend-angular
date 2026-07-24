@@ -12,6 +12,9 @@ import {
 import {
   LineChartHistogramComponentV2
 } from './components/widgets/line-chart-v2/line-chart-histogram.component';
+import {
+  LineChartHistogramComponentV3
+} from './components/widgets/line-chart-v3/line-chart-histogram-v3.component';
 
 @Component({
   selector: 'ns-app-history',
@@ -25,6 +28,7 @@ import {
     PieChartComponent,
     LineChartHistogramComponentV1,
     LineChartHistogramComponentV2,
+    LineChartHistogramComponentV3,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'

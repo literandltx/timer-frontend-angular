@@ -1,0 +1,121 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <div class="header-top">
+      <h3 class="current-label">History</h3>
+
+      <div class="header-controls">
+        <button class="icon-btn" (click)="prev()" aria-label="Previous period" title="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+
+        <select class="granularity-select" [value]="granularity()"
+                (change)="setGranularity($any($event.target).value)">
+          <option value="day">days</option>
+          <option value="week">weeks</option>
+          <option value="month">months</option>
+        </select>
+
+        <button class="icon-btn" (click)="next()" aria-label="Next period" title="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+
+        <button class="icon-btn" (click)="onOptionsClick()" aria-label="More options"
+                title="More options">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="1.6"></circle>
+            <circle cx="12" cy="12" r="1.6"></circle>
+            <circle cx="12" cy="19" r="1.6"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-bot">
+      <span class="range-label">{{ rangeLabel() }}</span>
+      <span class="dot-sep">&bull;</span>
+      <span class="avg-label">avg: {{ avgMinutes() }} mins</span>
+    </div>
+    @if (hardLimitMinutes !== null) {
+      <div class="hint-note">(dynamic + hard limit)</div>
+    }
+  </div>
+
+  <div class="chart-wrap">
+    <svg [attr.viewBox]="viewBox" class="chart-svg">
+      <defs>
+        <pattern id="hatchFill" patternUnits="userSpaceOnUse" width="6" height="6"
+                 patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--accent-muted, #9ca3af)"
+                stroke-width="1"></line>
+        </pattern>
+      </defs>
+
+      <!-- gridlines -->
+      @for (g of gridLines(); track g.value) {
+        <line
+          [attr.x1]="paddingLeft"
+          [attr.x2]="chartWidth - paddingRight"
+          [attr.y1]="g.y"
+          [attr.y2]="g.y"
+          class="grid-line">
+        </line>
+        <text [attr.x]="paddingLeft - 8" [attr.y]="g.y + 4" class="grid-label"
+              text-anchor="end">{{ g.value }}
+        </text>
+      }
+
+      <!-- hard limit line -->
+      @if (hardLimitY() !== null) {
+        <line
+          [attr.x1]="paddingLeft"
+          [attr.x2]="chartWidth - paddingRight"
+          [attr.y1]="hardLimitY()"
+          [attr.y2]="hardLimitY()"
+          class="hard-limit-line">
+        </line>
+        <text [attr.x]="chartWidth - paddingRight" [attr.y]="hardLimitY()! - 4"
+              class="hard-limit-label" text-anchor="end">limit
+        </text>
+      }
+
+      <!-- area fill -->
+      <path [attr.d]="areaPath()" class="area-fill"></path>
+      <path [attr.d]="areaPath()" fill="url(#hatchFill)" opacity="0.75"></path>
+
+      <!-- comparison (previous period) line -->
+      @if (showComparison && compareLinePath()) {
+        <path [attr.d]="compareLinePath()" class="compare-line"></path>
+      }
+
+      <!-- current line -->
+      <path [attr.d]="linePath()" class="main-line"></path>
+
+      <!-- data points -->
+      @for (p of points(); track $index) {
+        <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" class="data-dot"></circle>
+      }
+
+      <!-- x-axis baseline -->
+      <line
+        [attr.x1]="paddingLeft"
+        [attr.x2]="chartWidth - paddingRight"
+        [attr.y1]="chartHeight - paddingBottom"
+        [attr.y2]="chartHeight - paddingBottom"
+        class="axis-line">
+      </line>
+
+      <!-- x-axis labels -->
+      @for (lbl of visibleXLabels(); track lbl.key) {
+        <text [attr.x]="lbl.x" [attr.y]="chartHeight - paddingBottom + 24" class="axis-label"
+              text-anchor="middle">{{ lbl.label }}
+        </text>
+      }
+    </svg>
+  </div>
+</div>
