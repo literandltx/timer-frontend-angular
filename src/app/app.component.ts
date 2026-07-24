@@ -1,10 +1,11 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, OnInit, inject, signal} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {HeaderComponent} from './shared/components/header/header.component';
 import {
   ConfirmDialogHostComponent
 } from './shared/components/confirm/confirm-dialog-host.component';
+import {HealthCheckService} from './core/netwrok/health.service';
 
 @Component({
   selector: 'ns-app-root',
@@ -13,9 +14,10 @@ import {
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  private healthCheckService = inject(HealthCheckService);
 
   scrollable = signal(false);
 
@@ -29,5 +31,9 @@ export class AppComponent {
         }
         this.scrollable.set(!!route.snapshot.data['scrollable']);
       });
+  }
+
+  ngOnInit(): void {
+    this.healthCheckService.doInitialPing().subscribe();
   }
 }
