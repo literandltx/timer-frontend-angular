@@ -1,6 +1,7 @@
-import {Component, inject, Input, Output, EventEmitter, signal, computed} from '@angular/core';
+import {Component, inject, Input, signal, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
+import {LabelService} from '../../../../../core/services/label.service';
 
 type Granularity = 'day' | 'week' | 'month';
 
@@ -23,13 +24,11 @@ interface ChartPoint {
 })
 export class LineChartHistogramComponentV3 {
   public historyService = inject(HistoryService);
+  public labelService = inject(LabelService);
 
   @Input() categoryLabel = 'Activity';
-  @Input() labelId?: string;
   @Input() hardLimitMinutes: number | null = null;
   @Input() showComparison = true;
-
-  @Output() optionsClick = new EventEmitter<void>();
 
   readonly chartWidth = 680;
   readonly chartHeight = 350;
@@ -40,6 +39,9 @@ export class LineChartHistogramComponentV3 {
   readonly viewBox = `0 0 ${this.chartWidth} ${this.chartHeight}`;
 
   granularity = signal<Granularity>('day');
+  isLabelMenuOpen = signal<boolean>(false);
+  hiddenLabelIds = signal<Set<string>>(new Set());
+
   private referenceDate = signal<Date>(new Date());
 
   private currentBuckets = computed<ChartBucket[]>(() =>
@@ -104,11 +106,7 @@ export class LineChartHistogramComponentV3 {
       .map((b, i) => ({key: i, label: b.label, x: pts[i]?.x ?? 0}))
       .filter((_, i) => {
         if (i === buckets.length - 1) return true;
-
-        if (i % step === 0) {
-          return (buckets.length - 1 - i) >= step;
-        }
-
+        if (i % step === 0) return (buckets.length - 1 - i) >= step;
         return false;
       });
   });
@@ -125,14 +123,36 @@ export class LineChartHistogramComponentV3 {
     this.granularity.set(value);
   }
 
-  onOptionsClick() {
-    this.optionsClick.emit();
+  toggleLabelMenu() {
+    this.isLabelMenuOpen.update(v => !v);
+  }
+
+  toggleLabel(uuid: string) {
+    this.hiddenLabelIds.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(uuid)) {
+        newSet.delete(uuid);
+      } else {
+        newSet.add(uuid);
+      }
+      return newSet;
+    });
+  }
+
+  toggleAllLabels() {
+    const allLabels = this.labelService.labels();
+    if (this.hiddenLabelIds().size === 0) {
+      this.hiddenLabelIds.set(new Set(allLabels.map(l => l.uuid)));
+    } else {
+      this.hiddenLabelIds.set(new Set());
+    }
   }
 
   private buildBuckets(ref: Date, granularity: Granularity): ChartBucket[] {
+    const hidden = this.hiddenLabelIds();
     const entries = this.historyService
       .entries()
-      .filter(e => !e.deleted && (!this.labelId || e.labelId === this.labelId));
+      .filter(e => !e.deleted && !hidden.has(e.labelId));
 
     if (granularity === 'day') {
       const year = ref.getFullYear();

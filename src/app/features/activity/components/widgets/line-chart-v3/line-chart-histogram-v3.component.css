@@ -178,6 +178,119 @@
   fill: var(--text-muted, #9ca3af);
 }
 
+.label-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 30;
+}
+
+.label-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 250px;
+  max-width: min(320px, calc(100vw - 48px));
+  max-height: min(400px, calc(100dvh - 96px));
+  background: var(--card-bg, #1c1c1e);
+  border: 1px solid var(--border-light, #333333);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md, 0 8px 20px rgba(0, 0, 0, 0.5));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 31;
+}
+
+.label-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-light, #333333);
+  background: var(--bg-subtle, #2c2c2e);
+}
+
+.label-menu-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-heading, #ffffff);
+  margin: 0;
+}
+
+.label-menu-toggle-btn {
+  font-size: 0.8rem;
+  color: var(--accent, #ef4444);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.label-menu-toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.label-menu-list {
+  padding: 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--text-color, #d1d5db);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.label-menu-item:hover {
+  background: var(--bg-hover, #3a3a3c);
+  color: var(--text-heading, #ffffff);
+}
+
+.label-menu-item.active {
+  background: rgba(22, 163, 74, 0.15);
+  color: #4ade80;
+}
+
+.label-menu-empty {
+  padding: 12px;
+  color: var(--text-muted, #6b7280);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.label-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.label-name {
+  font-size: 15px;
+  max-width: 150px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 @media (max-width: 768px) {
   .widget-container {
     aspect-ratio: auto;
