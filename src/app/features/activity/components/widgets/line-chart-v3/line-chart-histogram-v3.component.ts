@@ -72,8 +72,8 @@ export class LineChartHistogramComponentV3 {
 
   gridLines = computed(() => {
     const max = this.maxValue();
-    const step = max / 3;
-    return [step, step * 2, step * 3].map(value => ({
+    const step = max / 5;
+    return [step, step * 2, step * 3, step * 4, step * 5].map(value => ({
       value: Math.round(value),
       y: this.valueToY(value)
     }));
@@ -102,7 +102,15 @@ export class LineChartHistogramComponentV3 {
     const step = Math.ceil(buckets.length / 20);
     return buckets
       .map((b, i) => ({key: i, label: b.label, x: pts[i]?.x ?? 0}))
-      .filter((_, i) => i % step === 0 || i === buckets.length - 1);
+      .filter((_, i) => {
+        if (i === buckets.length - 1) return true;
+
+        if (i % step === 0) {
+          return (buckets.length - 1 - i) >= step;
+        }
+
+        return false;
+      });
   });
 
   prev() {
@@ -200,7 +208,7 @@ export class LineChartHistogramComponentV3 {
 
   private niceMax(value: number): number {
     if (value <= 0) return 60;
-    const rawStep = value / 3;
+    const rawStep = value / 5;
     const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
     const normalized = rawStep / magnitude;
 
@@ -210,7 +218,7 @@ export class LineChartHistogramComponentV3 {
     else if (normalized <= 5) niceStep = 5;
     else niceStep = 10;
 
-    return niceStep * magnitude * 3;
+    return niceStep * magnitude * 4;
   }
 
   private valueToY(value: number): number {

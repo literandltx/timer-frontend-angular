@@ -182,7 +182,7 @@
   .widget-container {
     aspect-ratio: auto;
     min-height: auto;
-    padding: 24px 16px 16px;
+    padding: 24px 12px 0;
   }
 
   .widget-header {
@@ -209,7 +209,12 @@
     font-size: 18px;
   }
 
-
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
 
   .chart-wrap {
     aspect-ratio: 16 / 10;
