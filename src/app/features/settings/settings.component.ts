@@ -1,13 +1,14 @@
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ButtonComponent } from '../../shared/components/button/button.component';
+import { ThemeService } from '../../core/services/core/theme.service';
 
 @Component({
   selector: 'ns-app-settings',
   standalone: true,
-  template: `
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%;">
-      <h1 style="margin: 0;">Coming soon</h1>
-    </div>
-  `
+  imports: [ButtonComponent],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.css'
 })
 export class SettingsComponent {
+  public themeService = inject(ThemeService);
 }
