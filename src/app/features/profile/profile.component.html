@@ -1,0 +1,33 @@
+<div class="profile-container">
+  <h1 class="profile-title">Profile</h1>
+
+  <h2>Account Details</h2>
+
+  <hr class="profile-divider" />
+
+  <h2>Danger Zone</h2>
+
+  <div class="danger-zone-card">
+    <div class="danger-zone-group">
+      <div class="danger-text">
+        <strong>Reset local data</strong>
+        <p>Clear all local data and preferences, restoring default values and settings.</p>
+      </div>
+      <ns-app-button variant="outline-btn fixed-width-btn" (click)="onDeleteAccount()">
+        Reset
+      </ns-app-button>
+    </div>
+
+    <hr class="danger-divider" />
+
+    <div class="danger-zone-group">
+      <div class="danger-text">
+        <strong>Delete account</strong>
+        <p>Permanently delete your account and all local data, and remove associated data.</p>
+      </div>
+      <ns-app-button variant="solid-danger-btn fixed-width-btn" (click)="onDeleteAccount()">
+        Delete
+      </ns-app-button>
+    </div>
+  </div>
+</div>

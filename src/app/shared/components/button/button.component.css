@@ -72,6 +72,23 @@
   color: var(--danger-hover);
 }
 
+.solid-danger-btn {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.solid-danger-btn:hover:not(:disabled) {
+  background-color: #d9363e;
+}
+
+.solid-danger-btn:active:not(:disabled) {
+  background-color: #b32a31;
+}
+
+.fixed-width-btn {
+  width: 100px;
+}
+
 @media (max-width: 768px) {
   .btn {
     padding: 4px 10px;
