@@ -220,9 +220,45 @@
   padding: 0;
 }
 
+@media (max-width: 768px) {
+  .main-nav {
+    padding: 8px 16px;
+  }
+
+  .left-section {
+    gap: 6px;
+  }
+
+  .nav-text {
+    display: none;
+  }
+
+  .main-nav .nav-links a {
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  .main-nav .nav-links a.active {
+    border-radius: 12px;
+  }
+
+  .nav-links {
+    gap: 4px;
+  }
+
+  .nav-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .user-link-btn {
+    padding: 4px;
+  }
+}
+
 @media (max-width: 400px) {
   .main-nav {
-    padding: 12px;
+    padding: 6px 12px;
   }
 
   .left-section {
