@@ -99,7 +99,13 @@ export class HeaderComponent {
 
   private shouldIgnoreSwipe(element: HTMLElement | null): boolean {
     while (element && element !== this.document.body && element !== this.document.documentElement) {
-      if (element.classList.contains('no-swipe')) {
+      const tagName = element.tagName.toLowerCase();
+
+      if (
+        element.classList.contains('no-swipe') ||
+        element.classList.contains('timeline-wrap') ||
+        tagName === 'ns-timeline-widget'
+      ) {
         return true;
       }
 
@@ -108,7 +114,6 @@ export class HeaderComponent {
         return true;
       }
 
-      const tagName = element.tagName.toLowerCase();
       if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
         return true;
       }

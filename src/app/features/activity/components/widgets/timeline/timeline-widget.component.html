@@ -1,0 +1,64 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <div class="header-top">
+      <h3 class="current-label">Calendar</h3>
+
+      <div class="header-controls">
+        <button class="icon-btn" (click)="prev()" aria-label="Previous week" title="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" (click)="next()" aria-label="Next week" title="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-bot">
+      <span class="range-label">{{ rangeLabel() }}</span>
+    </div>
+  </div>
+
+  <div class="timeline-wrap"
+       (touchstart)="onTouchStart($event)"
+       (touchend)="onTouchEnd($event)">
+
+    <div class="hour-column">
+      <div class="hour-rail">
+        @for (h of hourMarks; track h) {
+          <div class="hour-mark" [style.top.%]="(h / 24) * 100">
+            <span class="hour-label">{{ h.toString().padStart(2, '0') }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="day-columns">
+      @for (day of days(); track day.key) {
+        <div class="day-column">
+          <div class="day-header" [class.is-today]="day.isToday">{{ day.label }}</div>
+          <div class="day-track">
+            @for (h of allHours; track h) {
+              <div class="grid-tick" [class.grid-tick-major]="hourMarks.includes(h)"
+                   [style.top.%]="(h / 24) * 100"></div>
+            }
+            @for (block of day.blocks; track block.id) {
+              <div
+                class="entry-block"
+                [style.top.%]="block.top"
+                [style.height.%]="block.height"
+                [style.background]="block.color"
+                [title]="block.labelName">
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
