@@ -1,6 +1,6 @@
-import { Component, inject, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HistoryService } from '../../../history.service';
+import {Component, inject, computed, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HistoryService} from '../../../history.service';
 
 interface TimelineBlock {
   id: string;
@@ -18,7 +18,9 @@ interface DayColumn {
   blocks: TimelineBlock[];
 }
 
-const HOUR_MARKS = [3, 6, 9, 12, 15, 18, 21];
+// const HOUR_MARKS = [3, 6, 9, 12, 15, 18, 21];
+const HOUR_MARKS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+const ALL_HOURS = Array.from({length: 23}, (_, i) => i + 1);
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -33,6 +35,7 @@ export class TimelineWidgetComponent {
   public historyService = inject(HistoryService);
 
   readonly hourMarks = HOUR_MARKS;
+  readonly allHours = ALL_HOURS;
 
   private referenceDate = signal<Date>(this.startOfWeek(new Date()));
 
