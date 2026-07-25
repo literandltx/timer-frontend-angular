@@ -70,14 +70,16 @@
   height: 16px;
 }
 
-/* --- timeline grid --- */
-
 .timeline-wrap {
   display: flex;
   width: 100%;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.hour-column {
+  padding-top: 20px;
 }
 
 .hour-rail {

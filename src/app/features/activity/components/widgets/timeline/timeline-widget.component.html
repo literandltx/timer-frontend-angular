@@ -28,12 +28,14 @@
        (touchstart)="onTouchStart($event)"
        (touchend)="onTouchEnd($event)">
 
-    <div class="hour-rail">
-      @for (h of hourMarks; track h) {
-        <div class="hour-mark" [style.top.%]="(h / 24) * 100">
-          <span class="hour-label">{{ h.toString().padStart(2, '0') }}</span>
-        </div>
-      }
+    <div class="hour-column">
+      <div class="hour-rail">
+        @for (h of hourMarks; track h) {
+          <div class="hour-mark" [style.top.%]="(h / 24) * 100">
+            <span class="hour-label">{{ h.toString().padStart(2, '0') }}</span>
+          </div>
+        }
+      </div>
     </div>
 
     <div class="day-columns">
