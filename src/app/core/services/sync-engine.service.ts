@@ -1,11 +1,9 @@
 import {Injectable, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {Table} from 'dexie';
 import {AppDB, EntityType} from '../db/app.db';
 import {HealthCheckService} from '../netwrok/health.service';
 import {AuthService} from '../auth/auth.service';
 import {SyncTimestampService} from '../netwrok/sync-state.service';
-import {SyncApiService} from '../netwrok/sync-api.service';
 import {HttpClient} from "@angular/common/http";
 import {environment} from '../../../environments/environment';
 
@@ -23,7 +21,7 @@ export class SyncEngineService {
   private syncTimestamp: SyncTimestampService = inject(SyncTimestampService);
   private http: HttpClient = inject(HttpClient);
 
-  private endpoint = `${environment.base_url}/api/v1/sync/queue`;
+  private readonly endpoint = `${environment.base_url}/api/v1/sync/queue`;
 
   async executeMutation<T>(
     action: 'CREATE' | 'UPDATE' | 'DELETE',
@@ -31,8 +29,7 @@ export class SyncEngineService {
     entityId: string,
     payload: unknown,
     apiCall: () => Promise<T>,
-    optimisticDbUpdate: () => Promise<void>,
-    dbTable: Table<unknown, string>
+    optimisticDbUpdate: () => Promise<void>
   ): Promise<void> {
     await optimisticDbUpdate();
 
@@ -51,65 +48,10 @@ export class SyncEngineService {
   }
 
   /**
-   * V1 Processing: Processes items one by one.
-   */
-  async processQueue<T>(entityType: EntityType, apiService: SyncApiService<T, unknown, unknown>): Promise<void> {
-    const pendingActions = await this.db.syncQueue
-      .where('entityType')
-      .equals(entityType)
-      .filter(item => item.status === 'PENDING' || item.status === 'ERROR')
-      .sortBy('timestamp');
-
-    for (const item of pendingActions) {
-      try {
-        switch (item.action) {
-          case 'CREATE':
-            await firstValueFrom(apiService.save(item.payload));
-            break;
-          case 'UPDATE':
-            await firstValueFrom(apiService.update(item.entityId, item.payload));
-            break;
-          case 'DELETE':
-            await firstValueFrom(apiService.delete(item.entityId));
-            break;
-        }
-
-        if (item.id) {
-          await this.db.syncQueue.delete(item.id);
-        }
-      } catch (error) {
-        if (item.id) {
-          await this.db.syncQueue.update(item.id, {
-            status: 'ERROR',
-            retries: (item.retries || 0) + 1,
-            lastError: error instanceof Error ? error.message : String(error)
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * V2 Orchestrator: Enforces exact dependency execution order.
-   */
-  async processAllQueuesInOrder(): Promise<void> {
-    // Exact order: Independent entities first, dependent entities last
-    const executionOrder: EntityType[] = [
-      'TIMER_OPTION',
-      'LABEL',
-      'TIMER_SETTING',
-      'TIMER_ENTRY'
-    ];
-
-    for (const entityType of executionOrder) {
-      await this.processQueueV2(entityType);
-    }
-  }
-
-  /**
    * V2 Bulk Processing: Sends all pending queue items for an entity in one request.
    */
   async processQueueV2(entityType: EntityType): Promise<void> {
+    console.log("processQueueV2")
     const pendingActions = await this.db.syncQueue
       .where('entityType')
       .equals(entityType)

@@ -47,7 +47,14 @@
       </div>
 
       <!-- Bottom Data List / Legend -->
-      <div class="data-list chart-legend">
+      <div class="data-list chart-legend"
+           (click)="toggleListFormat()"
+           (keydown.enter)="toggleListFormat()"
+           (keydown.space)="toggleListFormat(); $event.preventDefault()"
+           tabindex="0"
+           role="button"
+           aria-label="Toggle between time and percentage"
+           title="Click to toggle time/percentage">
         @for (item of groupedData(); track item.labelName) {
           <div class="list-item legend-row">
             <div class="label-info legend-left">
@@ -59,8 +66,11 @@
               <span class="label-name item-name">{{ item.labelName }}</span>
             </div>
             <div class="legend-right">
-              <span class="duration item-time">{{ formatDuration(item.duration) }}</span>
-              <span class="item-badge">{{ item.percentage }}%</span>
+              @if (showPercentage()) {
+                <span class="item-badge">{{ item.percentage }}%</span>
+              } @else {
+                <span class="duration item-badge">{{ formatDuration(item.duration) }}</span>
+              }
             </div>
           </div>
         } @empty {

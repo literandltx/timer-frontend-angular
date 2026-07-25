@@ -1,16 +1,14 @@
-import {Component, inject, HostListener, ElementRef, signal} from '@angular/core';
+import {Component, inject, HostListener, ElementRef} from '@angular/core';
 import {RouterLink, RouterLinkActive, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
 import {ThemeService} from '../../../core/services/core/theme.service';
-import {ButtonComponent} from '../button/button.component';
 import {HealthCheckService} from '../../../core/netwrok/health.service';
 import {AuthService} from '../../../core/auth/auth.service';
-import {ConfirmDialogService} from '../confirm/confirm-dialog.service';
 
 @Component({
   selector: 'ns-app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ButtonComponent],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -18,20 +16,14 @@ export class HeaderComponent {
   public healthService = inject(HealthCheckService);
   public themeService = inject(ThemeService);
   public authService = inject(AuthService);
-  private confirmDialog = inject(ConfirmDialogService);
   private elementRef = inject(ElementRef);
   private document = inject(DOCUMENT);
   private router = inject(Router);
 
-  public isFullscreen = signal(false);
-  public isFullscreenSupported = signal<boolean>(
-    typeof this.document !== 'undefined' && this.document.fullscreenEnabled
-  );
-
   public isUserMenuOpen = false;
   public errorMessage: string | null = null;
 
-  private readonly navRoutes = ['/preset', '/home', '/history'];
+  private readonly navRoutes = ['/preset', '/home', '/activity'];
   private touchStartX = 0;
   private touchStartY = 0;
   private touchEndX = 0;
@@ -79,9 +71,37 @@ export class HeaderComponent {
     this.ignoreSwipe = false;
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isUserMenuOpen && !this.elementRef.nativeElement.contains(event.target)) {
+      this.closeUserMenu();
+    }
+  }
+
+  toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  closeUserMenu(): void {
+    this.isUserMenuOpen = false;
+  }
+
+  logout(): void {
+    this.closeUserMenu();
+    this.authService.logout().subscribe({
+      error: (err) => console.error('Logout error:', err)
+    });
+  }
+
+  dismissError(): void {
+    this.errorMessage = null;
+  }
+
   private shouldIgnoreSwipe(element: HTMLElement | null): boolean {
     while (element && element !== this.document.body && element !== this.document.documentElement) {
-      if (element.classList.contains('no-swipe')) return true;
+      if (element.classList.contains('no-swipe')) {
+        return true;
+      }
 
       const style = window.getComputedStyle(element);
       if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && element.scrollWidth > element.clientWidth) {
@@ -95,6 +115,7 @@ export class HeaderComponent {
 
       element = element.parentElement;
     }
+
     return false;
   }
 
@@ -125,86 +146,5 @@ export class HeaderComponent {
       this.document.documentElement.className = 'slide-right';
       this.router.navigate([this.navRoutes[currentIndex - 1]]);
     }
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.isUserMenuOpen && !this.elementRef.nativeElement.contains(event.target)) {
-      this.closeUserMenu();
-    }
-  }
-
-  @HostListener('document:fullscreenchange')
-  onFullscreenChange(): void {
-    this.isFullscreen.set(!!this.document.fullscreenElement);
-  }
-
-  toggleFullscreen(): void {
-    const elem = this.document.documentElement;
-
-    if (!this.document.fullscreenElement) {
-      elem.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable fullscreen: ${err.message}`);
-      });
-    } else {
-      if (this.document.exitFullscreen) {
-        this.document.exitFullscreen();
-      }
-    }
-  }
-
-  toggleUserMenu(): void {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
-  }
-
-  closeUserMenu(): void {
-    this.isUserMenuOpen = false;
-  }
-
-  async reset(): Promise<void> {
-    this.closeUserMenu();
-    const ok = await this.confirmDialog.confirm(
-      'Are you sure you want to reset all local data? This action will clear all your local database and presets.'
-    );
-    if (ok) {
-      this.authService.resetLocalData();
-    }
-  }
-
-  async resetAuth(): Promise<void> {
-    this.closeUserMenu();
-    const ok = await this.confirmDialog.confirm('Are you sure you want to reset all local data? This action will clear all your local database and presets.');
-    if (ok) {
-      this.authService.clearAuthState();
-    }
-  }
-
-  logout(): void {
-    this.closeUserMenu();
-    this.authService.logout().subscribe({
-      error: (err) => console.error('Logout error:', err)
-    });
-  }
-
-  async deleteAccount(): Promise<void> {
-    this.closeUserMenu();
-    const ok = await this.confirmDialog.confirm(
-      'Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.',
-      { confirmLabel: 'Delete', variant: 'danger' }
-    );
-    if (!ok) return;
-
-    this.authService.deleteAccount().subscribe({
-      next: () => { /* empty */
-      },
-      error: (err) => {
-        console.error('Account deletion failed', err);
-        this.errorMessage = 'Failed to delete account. Please try again later.';
-      }
-    });
-  }
-
-  dismissError(): void {
-    this.errorMessage = null;
   }
 }
