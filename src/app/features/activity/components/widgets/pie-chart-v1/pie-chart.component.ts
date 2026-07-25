@@ -31,6 +31,7 @@ export class PieChartComponent {
   range = signal<TimeRange>('day');
   offset = signal<number>(0);
   entries = this.historyService.entries;
+  showPercentage = signal<boolean>(false);
 
   targetDate = computed(() => {
     const d = new Date();
@@ -168,6 +169,10 @@ export class PieChartComponent {
 
     return `conic-gradient(${gradientStops.join(', ')})`;
   });
+
+  toggleListFormat() {
+    this.showPercentage.update(val => !val);
+  }
 
   onRangeChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
