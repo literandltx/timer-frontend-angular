@@ -10,7 +10,7 @@ import {ConfirmDialogService} from '../confirm/confirm-dialog.service';
 @Component({
   selector: 'ns-app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ButtonComponent],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

@@ -1,11 +1,9 @@
 import {Injectable, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {Table} from 'dexie';
 import {AppDB, EntityType} from '../db/app.db';
 import {HealthCheckService} from '../netwrok/health.service';
 import {AuthService} from '../auth/auth.service';
 import {SyncTimestampService} from '../netwrok/sync-state.service';
-import {SyncApiService} from '../netwrok/sync-api.service';
 import {HttpClient} from "@angular/common/http";
 import {environment} from '../../../environments/environment';
 
@@ -23,7 +21,7 @@ export class SyncEngineService {
   private syncTimestamp: SyncTimestampService = inject(SyncTimestampService);
   private http: HttpClient = inject(HttpClient);
 
-  private endpoint = `${environment.base_url}/api/v1/sync/queue`;
+  private readonly endpoint = `${environment.base_url}/api/v1/sync/queue`;
 
   async executeMutation<T>(
     action: 'CREATE' | 'UPDATE' | 'DELETE',

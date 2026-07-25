@@ -13,6 +13,7 @@ import {isEqual} from '../../shared/utils/object.utils';
 import {SyncEntity} from '../models/sync-entity.model';
 import {SyncApiService} from './sync-api.service';
 import {LogService} from '../log/log.service';
+import {EntityType} from '../db/app.db';
 
 @Injectable({providedIn: 'root'})
 export class EntitySyncOrchestrator {
@@ -24,7 +25,7 @@ export class EntitySyncOrchestrator {
   private log = inject(LogService);
 
   public setupSync<T extends SyncEntity, CreateReq, UpdateReq>(
-    entityType: Parameters<SyncEngineService['processQueueV2']>[0],
+    entityType: EntityType,
     wsTopic: string,
     apiService: SyncApiService<T, CreateReq, UpdateReq>,
     dbTable: Table<T, string>,
