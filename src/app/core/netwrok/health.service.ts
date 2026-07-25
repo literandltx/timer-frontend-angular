@@ -18,7 +18,6 @@ interface UserPingResponse {
 }
 
 const SMART_POLL_INTERVAL_MS = 60_000;
-const DEVICE_ID_KEY = 'app_device_uuid';
 
 @Injectable({
   providedIn: 'root'

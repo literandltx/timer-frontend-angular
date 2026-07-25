@@ -88,8 +88,7 @@ export class TimerOptionsService {
         : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.put(optimisticOption);
-      },
-      this.db.timerOptions
+      }
     );
     await this.loadOptions();
   }
@@ -108,8 +107,7 @@ export class TimerOptionsService {
         : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.put(optimisticOption);
-      },
-      this.db.timerOptions
+      }
     );
     await this.loadOptions();
   }
@@ -125,8 +123,7 @@ export class TimerOptionsService {
         : Promise.reject(new Error('Unauthenticated. Routing to offline queue.')),
       async () => {
         await this.db.timerOptions.delete(uuid);
-      },
-      this.db.timerOptions
+      }
     );
     await this.loadOptions();
   }

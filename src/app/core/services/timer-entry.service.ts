@@ -112,8 +112,7 @@ export class TimerEntryService {
         : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.put(optimisticEntry);
-      },
-      this.db.timerEntries
+      }
     );
     await this.loadEntries();
   }
@@ -132,8 +131,7 @@ export class TimerEntryService {
         : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.put(optimisticEntry);
-      },
-      this.db.timerEntries
+      }
     );
     await this.loadEntries();
   }
@@ -149,8 +147,7 @@ export class TimerEntryService {
         : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.timerEntries.delete(uuid);
-      },
-      this.db.timerEntries
+      }
     );
     await this.loadEntries();
   }

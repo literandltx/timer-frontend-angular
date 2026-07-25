@@ -31,8 +31,7 @@ export class SyncEngineService {
     entityId: string,
     payload: unknown,
     apiCall: () => Promise<T>,
-    optimisticDbUpdate: () => Promise<void>,
-    dbTable: Table<unknown, string>
+    optimisticDbUpdate: () => Promise<void>
   ): Promise<void> {
     await optimisticDbUpdate();
 
@@ -51,65 +50,10 @@ export class SyncEngineService {
   }
 
   /**
-   * V1 Processing: Processes items one by one.
-   */
-  async processQueue<T>(entityType: EntityType, apiService: SyncApiService<T, unknown, unknown>): Promise<void> {
-    const pendingActions = await this.db.syncQueue
-      .where('entityType')
-      .equals(entityType)
-      .filter(item => item.status === 'PENDING' || item.status === 'ERROR')
-      .sortBy('timestamp');
-
-    for (const item of pendingActions) {
-      try {
-        switch (item.action) {
-          case 'CREATE':
-            await firstValueFrom(apiService.save(item.payload));
-            break;
-          case 'UPDATE':
-            await firstValueFrom(apiService.update(item.entityId, item.payload));
-            break;
-          case 'DELETE':
-            await firstValueFrom(apiService.delete(item.entityId));
-            break;
-        }
-
-        if (item.id) {
-          await this.db.syncQueue.delete(item.id);
-        }
-      } catch (error) {
-        if (item.id) {
-          await this.db.syncQueue.update(item.id, {
-            status: 'ERROR',
-            retries: (item.retries || 0) + 1,
-            lastError: error instanceof Error ? error.message : String(error)
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * V2 Orchestrator: Enforces exact dependency execution order.
-   */
-  async processAllQueuesInOrder(): Promise<void> {
-    // Exact order: Independent entities first, dependent entities last
-    const executionOrder: EntityType[] = [
-      'TIMER_OPTION',
-      'LABEL',
-      'TIMER_SETTING',
-      'TIMER_ENTRY'
-    ];
-
-    for (const entityType of executionOrder) {
-      await this.processQueueV2(entityType);
-    }
-  }
-
-  /**
    * V2 Bulk Processing: Sends all pending queue items for an entity in one request.
    */
   async processQueueV2(entityType: EntityType): Promise<void> {
+    console.log("processQueueV2")
     const pendingActions = await this.db.syncQueue
       .where('entityType')
       .equals(entityType)

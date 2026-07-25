@@ -57,8 +57,7 @@ export class LabelService {
       () => this.auth.isAuthenticatedSignal() ? firstValueFrom(this.labelApi.save(request)) : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.put(optimisticLabel);
-      },
-      this.db.labels
+      }
     );
     await this.loadLabels();
   }
@@ -77,8 +76,7 @@ export class LabelService {
         : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.put(optimisticLabel);
-      },
-      this.db.labels
+      }
     );
     await this.loadLabels();
   }
@@ -94,8 +92,7 @@ export class LabelService {
         : Promise.reject(new Error('Unauthenticated')),
       async () => {
         await this.db.labels.delete(uuid);
-      },
-      this.db.labels
+      }
     );
     await this.loadLabels();
   }
