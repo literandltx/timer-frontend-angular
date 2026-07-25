@@ -243,18 +243,18 @@
 @media (max-width: 768px) {
   .widget-container {
     aspect-ratio: auto;
-    min-height: 280px;
+    min-height: 240px;
     padding: 12px;
   }
 
   .widget-content {
-    grid-template-columns: 46% 54% !important;
-    padding: 12px;
+    grid-template-columns: 55% 45% !important;
+    padding: 8px;
     gap: 4px;
   }
 
   .donut-chart {
-    width: clamp(120px, 95%, 200px);
+    width: clamp(140px, 95%, 240px);
   }
 
   .donut-hole {
@@ -271,7 +271,7 @@
   }
 
   .header-controls {
-    padding: 24px 8px 12px;
+    padding: 24px 0 12px 0;
     align-items: center !important;
   }
 
