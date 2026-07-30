@@ -1,0 +1,60 @@
+<div class="widget-container">
+  <div class="widget-header">
+<!--    <span class="eyebrow">{{ title }}</span>-->
+
+    <div class="month-row">
+      <button class="icon-btn" (click)="prev()" aria-label="Previous month" title="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+
+      <h3 class="month-label">{{ monthLabel() }}</h3>
+
+      <button class="icon-btn" (click)="next()" aria-label="Next month" title="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18l6-6-6-6"></path>
+        </svg>
+      </button>
+    </div>
+
+    <span class="total-label">{{ totalCount() }} {{ unitLabel }} this month</span>
+  </div>
+
+  <div class="weekday-row">
+    @for (wd of weekDays; track $index) {
+      <span class="weekday-cell">{{ wd }}</span>
+    }
+  </div>
+
+  <div class="calendar-grid">
+    @for (cell of cells(); track $index) {
+      @if (cell === null) {
+        <div class="day-cell empty"></div>
+      } @else {
+        <div class="day-cell"
+             [class.level-0]="cell.level === 0"
+             [class.level-1]="cell.level === 1"
+             [class.level-2]="cell.level === 2"
+             [class.level-3]="cell.level === 3"
+             [class.level-4]="cell.level === 4"
+             [class.today]="cell.isToday"
+             [attr.title]="cell.count + ' ' + unitLabel">
+          {{ cell.day }}
+        </div>
+      }
+    }
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-text">Less</span>
+    <span class="legend-dot level-0"></span>
+    <span class="legend-dot level-1"></span>
+    <span class="legend-dot level-2"></span>
+    <span class="legend-dot level-3"></span>
+    <span class="legend-dot level-4"></span>
+    <span class="legend-text">More</span>
+  </div>
+</div>

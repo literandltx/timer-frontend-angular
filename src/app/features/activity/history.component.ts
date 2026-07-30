@@ -16,6 +16,9 @@ import {
   LineChartHistogramComponentV3
 } from './components/widgets/line-chart-v3/line-chart-histogram-v3.component';
 import {TimelineWidgetComponent} from './components/widgets/timeline/timeline-widget.component';
+import {
+  CalendarHeatmapWidgetComponent
+} from './components/widgets/calendar-heatmap/calendar-heatmap-widget.component';
 
 @Component({
   selector: 'ns-app-history',
@@ -31,6 +34,7 @@ import {TimelineWidgetComponent} from './components/widgets/timeline/timeline-wi
     LineChartHistogramComponentV2,
     LineChartHistogramComponentV3,
     TimelineWidgetComponent,
+    CalendarHeatmapWidgetComponent,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css'
