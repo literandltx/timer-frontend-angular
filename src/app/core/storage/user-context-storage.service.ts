@@ -10,8 +10,20 @@ export class UserContextStorageService {
 
   private readonly KEYS = {
     ACTIVE_LABEL_UUID: 'app_active_label_uuid',
-    ACTIVE_TIMER_SETTING: 'app_active_timer_setting'
+    ACTIVE_TIMER_SETTING: 'app_active_timer_setting',
+    HAS_SESSION: 'hasSession'
   };
+
+  private readonly SYNC_PREFIX: string = 'last_sync_';
+
+  // --- Session State ---
+  get hasSession(): boolean {
+    return this.storage.get<boolean>(this.KEYS.HAS_SESSION) ?? false;
+  }
+
+  setHasSession(hasSession: boolean): void {
+    this.storage.set(this.KEYS.HAS_SESSION, hasSession);
+  }
 
   // --- Active Label ---
   get activeLabelUuid(): string | undefined {
@@ -35,8 +47,33 @@ export class UserContextStorageService {
     this.storage.set(this.KEYS.ACTIVE_TIMER_SETTING, setting);
   }
 
+  // --- Sync Timestamps ---
+  updateSyncTimestamp(entityType: string): void {
+    this.storage.set(this.getSyncKey(entityType), new Date().toISOString());
+  }
+
+  getSyncTimestamp(entityType: string): string | null {
+    return this.storage.get<string>(this.getSyncKey(entityType));
+  }
+
+  clearSyncTimestamp(entityType: string): void {
+    this.storage.remove(this.getSyncKey(entityType));
+  }
+
+  clearAllSyncTimestamps(): void {
+    this.storage.removeByPrefix(this.SYNC_PREFIX);
+  }
+
+  private getSyncKey(entityType: string): string {
+    return `${this.SYNC_PREFIX}${entityType.toLowerCase()}`;
+  }
+
+  // --- Utility ---
   resetContext(): void {
     this.storage.remove(this.KEYS.ACTIVE_LABEL_UUID);
     this.storage.remove(this.KEYS.ACTIVE_TIMER_SETTING);
+    this.storage.remove(this.KEYS.HAS_SESSION);
+
+    this.clearAllSyncTimestamps();
   }
 }

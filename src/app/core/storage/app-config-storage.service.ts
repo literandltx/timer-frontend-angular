@@ -32,7 +32,6 @@ export class AppConfigStorageService {
 
   // --- Session State ---
   get hasSession(): boolean {
-    // Your StorageService automatically parses JSON, so 'true' becomes a boolean
     return this.storage.get<boolean>(this.KEYS.HAS_SESSION) ?? false;
   }
 

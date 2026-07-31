@@ -18,7 +18,7 @@ import {TitleBlinkerService} from '../../core/services/core/title-blinker.servic
 })
 export class HomeComponent implements OnInit {
   protected labelService = inject(LabelService);
-  protected presetService = inject(TimerPresetService); // Renamed from settingService
+  protected presetService = inject(TimerPresetService);
   protected optionsService = inject(TimerOptionsService);
   protected entryService = inject(TimerEntryService);
 
