@@ -6,7 +6,7 @@ import {Table} from 'dexie';
 import {HealthCheckService} from './health.service';
 import {AuthService} from '../auth/auth.service';
 import {WebSocketCoreService} from './websocket.service';
-import {SyncTimestampService} from './sync-state.service';
+import {UserContextStorageService} from '../storage/user-context-storage.service';
 import {SyncEngineService} from '../services/sync-engine.service';
 import {SyncMessage, SyncAction} from './sync-message.model';
 import {isEqual} from '../../shared/utils/object.utils';
@@ -20,7 +20,7 @@ export class EntitySyncOrchestrator {
   private health = inject(HealthCheckService);
   private auth = inject(AuthService);
   private wsCore = inject(WebSocketCoreService);
-  private syncTimestamp = inject(SyncTimestampService);
+  private userContextStorage = inject(UserContextStorageService);
   private syncEngine = inject(SyncEngineService);
   private log = inject(LogService);
 
@@ -77,7 +77,7 @@ export class EntitySyncOrchestrator {
     dbTable: Table<T, string>
   ): Promise<void> {
     try {
-      const lastSync = this.syncTimestamp.get(entityType);
+      const lastSync = this.userContextStorage.getSyncTimestamp(entityType);
       const updates = await firstValueFrom(apiService.pullUpdates(lastSync));
 
       if (updates && updates.length > 0) {
@@ -100,7 +100,7 @@ export class EntitySyncOrchestrator {
       } else {
         this.log.info(`[SyncOrchestrator][${entityType}] HTTP Pull complete. No new updates found.`);
       }
-      this.syncTimestamp.update(entityType);
+      this.userContextStorage.updateSyncTimestamp(entityType);
     } catch (error) {
       this.log.error(`[SyncOrchestrator][${entityType}] Failed to pull HTTP updates:`, error);
     }
@@ -139,7 +139,7 @@ export class EntitySyncOrchestrator {
           this.log.warn(`[SyncOrchestrator][${entityType}] Unhandled WS action: ${action}`);
           return;
       }
-      this.syncTimestamp.update(entityType);
+      this.userContextStorage.updateSyncTimestamp(entityType);
     } catch (error) {
       this.log.error(`[SyncOrchestrator][${entityType}] Failed to process WS message:`, error);
     }

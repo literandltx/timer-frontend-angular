@@ -3,7 +3,7 @@ import {firstValueFrom} from 'rxjs';
 import {AppDB, EntityType} from '../db/app.db';
 import {HealthCheckService} from '../netwrok/health.service';
 import {AuthService} from '../auth/auth.service';
-import {SyncTimestampService} from '../netwrok/sync-state.service';
+import {UserContextStorageService} from '../storage/user-context-storage.service';
 import {HttpClient} from "@angular/common/http";
 import {environment} from '../../../environments/environment';
 
@@ -18,7 +18,7 @@ export class SyncEngineService {
   private db: AppDB = inject(AppDB);
   private health: HealthCheckService = inject(HealthCheckService);
   private auth: AuthService = inject(AuthService);
-  private syncTimestamp: SyncTimestampService = inject(SyncTimestampService);
+  private userContextStorage: UserContextStorageService = inject(UserContextStorageService);
   private http: HttpClient = inject(HttpClient);
 
   private readonly endpoint = `${environment.base_url}/api/v1/sync/queue`;
@@ -41,7 +41,7 @@ export class SyncEngineService {
     }
 
     apiCall()
-      .then(() => this.syncTimestamp.update(entityType))
+      .then(() => this.userContextStorage.updateSyncTimestamp(entityType))
       .catch(async () => {
         await this.enqueue(action, entityType, entityId, payload);
       });

@@ -6,7 +6,7 @@ import {AppDB} from '../db/app.db';
 import {AuthService} from '../auth/auth.service';
 import {TimerPresetApiService} from './api/timer-preset-api.service';
 import {LogService} from '../log/log.service';
-import {TimerSettingStorageService} from '../storage/timer-setting-storage.service';
+import {UserContextStorageService} from '../storage/user-context-storage.service';
 import {LabelService} from './label.service';
 
 @Injectable({providedIn: 'root'})
@@ -15,11 +15,11 @@ export class TimerPresetService implements OnDestroy {
   private db = inject(AppDB);
   private auth = inject(AuthService);
   private log = inject(LogService);
-  private settingStorage = inject(TimerSettingStorageService);
+  private userContextStorage = inject(UserContextStorageService);
   private labelService = inject(LabelService);
   private subscriptions = new Subscription();
 
-  public activePreset = signal<TimerPreset>(this.settingStorage.activeSetting ?? this.createLocalDefault());
+  public activePreset = signal<TimerPreset>(this.userContextStorage.activeTimerSetting ?? this.createLocalDefault());
 
   public activeLabelUuid = computed<string | undefined>(() => {
     const labels = this.labelService.labels();
@@ -166,7 +166,7 @@ export class TimerPresetService implements OnDestroy {
 
   private setActiveSetting(setting: TimerPreset): void {
     this.activePreset.set(setting);
-    this.settingStorage.setActiveSetting(setting);
+    this.userContextStorage.setActiveTimerSetting(setting);
   }
 
   private createLocalDefault(): TimerPreset {
@@ -180,5 +180,4 @@ export class TimerPresetService implements OnDestroy {
       deleted: false
     } as TimerPreset;
   }
-
 }

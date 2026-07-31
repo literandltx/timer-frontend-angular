@@ -1,13 +1,13 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {AppSettingsStorageService, Theme} from '../../storage/app-settings-storage.service';
+import {AppConfigStorageService, Theme} from '../../storage/app-config-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
   private document = inject(DOCUMENT);
-  private settingsStorage = inject(AppSettingsStorageService);
+  private appConfigStorage = inject(AppConfigStorageService);
 
   public isDarkMode = signal<boolean>(false);
 
@@ -16,7 +16,7 @@ export class ThemeService {
   }
 
   private loadInitialTheme() {
-    const savedTheme = this.settingsStorage.theme;
+    const savedTheme = this.appConfigStorage.theme;
 
     if (savedTheme === 'dark') {
       this.setTheme('dark');
@@ -33,7 +33,7 @@ export class ThemeService {
 
   private setTheme(theme: Theme) {
     this.isDarkMode.set(theme === 'dark');
-    this.settingsStorage.setTheme(theme);
+    this.appConfigStorage.setTheme(theme);
 
     if (theme === 'dark') {
       this.document.body.setAttribute('data-theme', 'dark');
