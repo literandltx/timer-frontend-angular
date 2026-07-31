@@ -149,19 +149,19 @@
 }
 
 .logout-btn {
-  color: #c92a2a;
+  color: var(--danger-color);
 }
 
 .logout-btn:hover {
-  background-color: rgba(201, 42, 42, 0.1);
+  background-color: var(--danger-bg);
 }
 
 .delete-btn {
-  color: #fa5252;
+  color: var(--danger-color);
 }
 
 .delete-btn:hover {
-  background-color: rgba(250, 82, 82, 0.1);
+  background-color: var(--danger-bg);
 }
 
 @media (max-width: 768px) {
@@ -197,7 +197,7 @@
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #c92a2a;
+  background-color: var(--danger-color);
   color: #fff;
   padding: 12px 16px;
   border-radius: 8px;

@@ -73,16 +73,16 @@
 }
 
 .solid-danger-btn {
-  background-color: #ff4d4f;
+  background-color: var(--danger-color);
   color: white;
 }
 
 .solid-danger-btn:hover:not(:disabled) {
-  background-color: #d9363e;
+  background-color: var(--danger-hover);
 }
 
 .solid-danger-btn:active:not(:disabled) {
-  background-color: #b32a31;
+  background-color: var(--danger-active);
 }
 
 .fixed-width-btn {

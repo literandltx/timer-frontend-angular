@@ -1,13 +1,10 @@
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'ns-app-about',
   standalone: true,
-  template: `
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%;">
-      <h1 style="margin: 0;">Coming soon</h1>
-    </div>
-  `
+  templateUrl: './about.component.html',
+  styleUrl: './about.component.css'
 })
 export class AboutComponent {
 }

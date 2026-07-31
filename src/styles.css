@@ -29,6 +29,7 @@
   /* Danger / Errors (Red) */
   --danger-color: #ef4444;
   --danger-hover: #dc2626;
+  --danger-active: #b91c1c;
   --danger-bg: #fef2f2;
   --danger-border: #fecaca;
 
@@ -80,6 +81,7 @@
   /* Danger / Errors (Red) */
   --danger-color: #f87171;
   --danger-hover: #ef4444;
+  --danger-active: #dc2626;
   --danger-bg: #451a1a;
   --danger-border: #7f1d1d;
 
