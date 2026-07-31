@@ -54,18 +54,18 @@
 }
 
 .confirm-action-btn {
-  background-color: var(--link-active-bg, #1c7ed6);
+  background-color: var(--primary-color);
   color: #fff;
 }
 
 .confirm-action-btn:hover {
-  opacity: 0.9;
+  background-color: var(--primary-hover);
 }
 
 .confirm-action-btn.danger {
-  background-color: #c92a2a;
+  background-color: var(--danger-color);
 }
 
 .confirm-action-btn.danger:hover {
-  background-color: #a61e1e;
+  background-color: var(--danger-hover);
 }
