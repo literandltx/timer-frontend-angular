@@ -41,7 +41,11 @@ export class SyncEngineService {
     }
 
     apiCall()
-      .then(() => this.userContextStorage.updateSyncTimestamp(entityType))
+      .then((result: any) => {
+        if (result?.serverUpdatedAt) {
+          this.userContextStorage.updateSyncTimestamp(entityType, result.serverUpdatedAt);
+        }
+      })
       .catch(async () => {
         await this.enqueue(action, entityType, entityId, payload);
       });

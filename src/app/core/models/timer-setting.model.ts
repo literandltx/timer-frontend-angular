@@ -4,6 +4,7 @@ export interface TimerPreset {
   timerOptionUuid: string;
   createdAt: string;
   updatedAt: string;
+  serverUpdatedAt: string;
   deleted: boolean;
 }
 

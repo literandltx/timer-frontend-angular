@@ -11,6 +11,7 @@ export interface TimerEntry {
   };
   createdAt: string;
   updatedAt: string;
+  serverUpdatedAt: string;
   deleted: boolean;
 }
 

@@ -19,7 +19,7 @@ export class TimerEntryApiService implements SyncApiService<TimerEntry, CreateTi
   pullUpdates(lastSyncTime: string | null): Observable<TimerEntry[]> {
     let params = new HttpParams();
     if (lastSyncTime) {
-      params = params.set('updatedAfter', lastSyncTime);
+      params = params.set('serverUpdatedAt', lastSyncTime);
     }
     return this.http.get<TimerEntry[]>(this.endpoint, {params});
   }

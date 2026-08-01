@@ -97,10 +97,17 @@ export class EntitySyncOrchestrator {
           await dbTable.bulkDelete(toDeleteIds);
           this.log.info(`[SyncOrchestrator][${entityType}] Purged ${toDeleteIds.length} deleted items from local DB.`);
         }
+
+        const maxServerUpdatedAt = updates
+          .map(u => u.serverUpdatedAt)
+          .filter(Boolean)
+          .sort()
+          .at(-1);
+
+        this.advanceSyncTimestamp(entityType, maxServerUpdatedAt);
       } else {
         this.log.info(`[SyncOrchestrator][${entityType}] HTTP Pull complete. No new updates found.`);
       }
-      this.userContextStorage.updateSyncTimestamp(entityType);
     } catch (error) {
       this.log.error(`[SyncOrchestrator][${entityType}] Failed to pull HTTP updates:`, error);
     }
@@ -139,9 +146,20 @@ export class EntitySyncOrchestrator {
           this.log.warn(`[SyncOrchestrator][${entityType}] Unhandled WS action: ${action}`);
           return;
       }
-      this.userContextStorage.updateSyncTimestamp(entityType);
+
+      this.advanceSyncTimestamp(entityType, payload.serverUpdatedAt);
     } catch (error) {
       this.log.error(`[SyncOrchestrator][${entityType}] Failed to process WS message:`, error);
+    }
+  }
+
+  private advanceSyncTimestamp(entityType: string, candidate?: string): void {
+    if (!candidate) {
+      return;
+    }
+    const current = this.userContextStorage.getSyncTimestamp(entityType);
+    if (!current || new Date(candidate) > new Date(current)) {
+      this.userContextStorage.updateSyncTimestamp(entityType, candidate);
     }
   }
 }

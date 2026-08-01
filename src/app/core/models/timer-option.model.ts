@@ -3,6 +3,7 @@ export interface TimerOption {
   value: number;
   createdAt: string;
   updatedAt: string;
+  serverUpdatedAt: string;
   deleted: boolean;
 }
 
