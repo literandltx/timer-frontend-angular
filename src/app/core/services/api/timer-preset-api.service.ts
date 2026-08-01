@@ -17,7 +17,7 @@ export class TimerPresetApiService {
     let url = `${this.baseUrl}/sync`;
 
     if (updatedAfter) {
-      url += `?updatedAfter=${updatedAfter}`;
+      url += `?serverUpdatedAt=${updatedAfter}`;
     }
 
     return this.http.get<TimerPreset>(url);

@@ -19,7 +19,7 @@ export class TimerOptionApiService implements SyncApiService<TimerOption, Create
   pullUpdates(lastSyncTime: string | null): Observable<TimerOption[]> {
     let params = new HttpParams();
     if (lastSyncTime) {
-      params = params.set('updatedAfter', lastSyncTime);
+      params = params.set('serverUpdatedAt', lastSyncTime);
     }
     return this.http.get<TimerOption[]>(this.endpoint, {params});
   }

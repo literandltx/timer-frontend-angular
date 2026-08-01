@@ -48,8 +48,8 @@ export class UserContextStorageService {
   }
 
   // --- Sync Timestamps ---
-  updateSyncTimestamp(entityType: string): void {
-    this.storage.set(this.getSyncKey(entityType), new Date().toISOString());
+  updateSyncTimestamp(entityType: string, timestamp?: string): void {
+    this.storage.set(this.getSyncKey(entityType), timestamp ?? new Date().toISOString());
   }
 
   getSyncTimestamp(entityType: string): string | null {

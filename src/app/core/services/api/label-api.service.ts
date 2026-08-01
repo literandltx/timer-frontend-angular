@@ -16,7 +16,7 @@ export class LabelApiService implements SyncApiService<Label, CreateLabelRequest
   pullUpdates(lastSyncTime: string | null): Observable<Label[]> {
     let params = new HttpParams();
     if (lastSyncTime) {
-      params = params.set('updatedAfter', lastSyncTime);
+      params = params.set('serverUpdatedAt', lastSyncTime);
     }
     return this.http.get<Label[]>(this.endpoint, {params});
   }
