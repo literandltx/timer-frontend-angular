@@ -3,17 +3,17 @@ import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {switchMap, firstValueFrom, EMPTY, from} from 'rxjs';
 import {Table} from 'dexie';
 
-import {HealthCheckService} from './health.service';
-import {AuthService} from '../auth/auth.service';
-import {WebSocketCoreService} from './websocket.service';
-import {UserContextStorageService} from '../storage/user-context-storage.service';
-import {SyncEngineService} from '../services/sync-engine.service';
-import {SyncMessage, SyncAction} from './sync-message.model';
-import {isEqual} from '../../shared/utils/object.utils';
-import {SyncEntity} from '../models/sync-entity.model';
-import {SyncApiService} from './sync-api.service';
-import {LogService} from '../log/log.service';
-import {EntityType} from '../db/app.db';
+import {HealthCheckService} from '../../netwrok/health.service';
+import {AuthService} from '../../auth/auth.service';
+import {WebSocketCoreService} from '../../netwrok/websocket.service';
+import {UserContextStorageService} from '../../storage/user-context-storage.service';
+import {SyncEngineService} from './sync-engine.service';
+import {SyncMessage, SyncAction} from '../../netwrok/sync-message.model';
+import {isEqual} from '../../../shared/utils/object.utils';
+import {SyncEntity} from '../../models/sync-entity.model';
+import {SyncApiService} from '../../netwrok/sync-api.service';
+import {LogService} from '../../log/log.service';
+import {EntityType} from '../../db/app.db';
 
 @Injectable({providedIn: 'root'})
 export class EntitySyncOrchestrator {

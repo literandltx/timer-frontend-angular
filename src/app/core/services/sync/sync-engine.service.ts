@@ -1,11 +1,11 @@
 import {Injectable, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
-import {AppDB, EntityType} from '../db/app.db';
-import {HealthCheckService} from '../netwrok/health.service';
-import {AuthService} from '../auth/auth.service';
-import {UserContextStorageService} from '../storage/user-context-storage.service';
+import {AppDB, EntityType} from '../../db/app.db';
+import {HealthCheckService} from '../../netwrok/health.service';
+import {AuthService} from '../../auth/auth.service';
+import {UserContextStorageService} from '../../storage/user-context-storage.service';
 import {HttpClient} from "@angular/common/http";
-import {environment} from '../../../environments/environment';
+import {environment} from '../../../../environments/environment';
 
 export interface SyncBulkResponse {
   successfulIds: number[];
