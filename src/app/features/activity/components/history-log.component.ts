@@ -5,6 +5,9 @@ import { HistoryService } from '../history.service';
 import { TimerEntry, CreateTimerEntryRequest, UpdateTimerEntryRequest } from '../../../core/models/timer-entry.model';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { ListItemComponent } from '../../../shared/components/list-item/list-item.component';
+import {
+  ActionButtonComponent
+} from '../../../shared/components/action-button/action-button.component';
 
 const INITIAL_PAGE = 0;
 const DEFAULT_PAGE_SIZE = 20;
@@ -12,7 +15,7 @@ const DEFAULT_PAGE_SIZE = 20;
 @Component({
   selector: 'ns-history-log',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent, ActionButtonComponent],
   templateUrl: './history-log.component.html',
   styleUrl: './history-log.component.css'
 })
