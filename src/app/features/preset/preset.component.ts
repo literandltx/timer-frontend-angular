@@ -7,11 +7,12 @@ import {TimerPresetService} from '../../core/services/timer-preset.service';
 import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
+import {ActionButtonComponent} from '../../shared/components/action-button/action-button.component';
 
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
-  imports: [CommonModule, FormsModule, ListItemComponent],
+  imports: [CommonModule, FormsModule, ListItemComponent, ActionButtonComponent],
   templateUrl: './preset.component.html',
   styleUrls: ['./preset.component.css']
 })
@@ -25,6 +26,7 @@ export class PresetComponent implements OnInit {
   activePreset = this.presetService.activePreset;
 
   isAdding = false;
+  isEditingTimers = false;
   newValue: number | null = null;
   editingLabel: Partial<Label> | null = null;
 
@@ -69,6 +71,13 @@ export class PresetComponent implements OnInit {
 
   async setActiveTimerOption(uuid: string) {
     await this.presetService.setActiveTimerOption(uuid);
+  }
+
+  toggleEditTimers() {
+    this.isEditingTimers = !this.isEditingTimers;
+    if (!this.isEditingTimers) {
+      this.cancelAdd();
+    }
   }
 
   startAdd() {

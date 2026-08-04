@@ -3,6 +3,14 @@
   <section class="preset-section">
     <div class="section-header">
       <h2 class="section-title">Timers</h2>
+      <ns-action-button
+        action="edit"
+        customClass="icon-btn edit-icon-btn"
+        [class.active]="isEditingTimers"
+        (actionClick)="toggleEditTimers()"
+        ariaLabel="Toggle edit mode"
+        buttonTitle="Toggle edit mode">
+      </ns-action-button>
     </div>
 
     <div class="content-divider"></div>
@@ -18,20 +26,22 @@
           (keydown.enter)="setActiveTimerOption(option.uuid)"
           (keydown.space)="setActiveTimerOption(option.uuid); $event.preventDefault()">
           <span class="chip-value">{{ option.value }}m</span>
-          <button
-            type="button"
-            class="chip-delete"
-            (click)="deleteOption($event, option.uuid)"
-            aria-label="Delete option"
-            title="Delete option">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-              <path d="M10 11v6"></path>
-              <path d="M14 11v6"></path>
-              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-            </svg>
-          </button>
+          @if (isEditingTimers) {
+            <button
+              type="button"
+              class="chip-delete"
+              (click)="deleteOption($event, option.uuid)"
+              aria-label="Delete option"
+              title="Delete option">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
+              </svg>
+            </button>
+          }
         </div>
       }
 
@@ -57,20 +67,20 @@
             (keyup.escape)="cancelAdd()"/>
 
           <div class="edit-actions">
-            <button type="button" class="icon-btn confirm-btn" (click)="confirmAdd()" aria-label="Save" title="Save">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </button>
-            <button type="button" class="icon-btn cancel-btn" (click)="cancelAdd()" aria-label="Cancel" title="Cancel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-                <path d="M10 11v6"></path>
-                <path d="M14 11v6"></path>
-                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-              </svg>
-            </button>
+            <ns-action-button
+              action="save"
+              customClass="icon-btn confirm-btn"
+              (actionClick)="confirmAdd()"
+              ariaLabel="Save"
+              buttonTitle="Save">
+            </ns-action-button>
+            <ns-action-button
+              action="close"
+              customClass="icon-btn cancel-btn"
+              (actionClick)="cancelAdd()"
+              ariaLabel="Cancel"
+              buttonTitle="Cancel">
+            </ns-action-button>
           </div>
         </div>
       </div>
@@ -82,12 +92,13 @@
   <section class="preset-section label-section">
     <div class="header-row">
       <h2 class="page-title">Labels</h2>
-      <button type="button" class="icon-btn add-icon-btn" (click)="startAddLabel($event)" aria-label="Add label" title="Add label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
+      <ns-action-button
+        action="add"
+        customClass="icon-btn add-icon-btn"
+        (actionClick)="startAddLabel($event)"
+        ariaLabel="Add label"
+        buttonTitle="Add label">
+      </ns-action-button>
     </div>
 
     <div class="content-divider"></div>
@@ -102,22 +113,21 @@
                  title="Choose label color"/>
 
           <div class="edit-actions">
-            <button type="button" class="icon-btn confirm-btn"
-                    (click)="editingLabel.uuid ? updateLabel() : createLabel()"
-                    aria-label="Save" title="Save">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </button>
-            <button type="button" class="icon-btn cancel-btn" (click)="cancelLabel()" aria-label="Cancel" title="Cancel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-                <path d="M10 11v6"></path>
-                <path d="M14 11v6"></path>
-                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-              </svg>
-            </button>
+            <ns-action-button
+              action="save"
+              customClass="icon-btn confirm-btn"
+              (actionClick)="editingLabel.uuid ? updateLabel() : createLabel()"
+              ariaLabel="Save"
+              buttonTitle="Save">
+            </ns-action-button>
+
+            <ns-action-button
+              action="close"
+              customClass="icon-btn cancel-btn"
+              (actionClick)="cancelLabel()"
+              ariaLabel="Cancel"
+              buttonTitle="Cancel">
+            </ns-action-button>
           </div>
         </div>
       </div>
@@ -157,23 +167,21 @@
             </button>
 
             <div class="action-group">
-              <button type="button" class="icon-btn edit-icon-btn" (click)="startEditLabel(label, $event)"
-                      aria-label="Edit label" title="Edit label">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
-              <button type="button" class="icon-btn delete-icon-btn" (click)="deleteLabel($event, label.uuid)"
-                      aria-label="Delete label" title="Delete label">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-                  <path d="M10 11v6"></path>
-                  <path d="M14 11v6"></path>
-                  <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-                </svg>
-              </button>
+              <ns-action-button
+                action="edit"
+                customClass="icon-btn edit-icon-btn"
+                (actionClick)="startEditLabel(label, $event)"
+                ariaLabel="Edit label"
+                buttonTitle="Edit label">
+              </ns-action-button>
+
+              <ns-action-button
+                action="delete"
+                customClass="icon-btn delete-icon-btn"
+                (actionClick)="deleteLabel($event, label.uuid)"
+                ariaLabel="Delete label"
+                buttonTitle="Delete label">
+              </ns-action-button>
             </div>
           </ng-container>
         </ns-app-list-item>
