@@ -1,11 +1,18 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .history-container {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-color);
   max-width: 700px;
   margin: 16px auto;
-  padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  width: 90%;
 }
 
 .top-section {
