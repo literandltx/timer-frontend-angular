@@ -79,7 +79,7 @@ export class ActionButtonComponent {
 
   @Input() buttonTitle?: string;
   @Input() ariaLabel?: string;
-  @Input() customClass = 'chip-action';
+  @Input() customClass = '';
 
   @Output() actionClick = new EventEmitter<MouseEvent>();
 
