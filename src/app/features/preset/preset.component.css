@@ -193,15 +193,9 @@
   line-height: 20px;
   padding: 3px;
   cursor: pointer;
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
-}
-
-.option-chip:hover .chip-delete,
-.option-chip:focus-within .chip-delete {
   opacity: 1;
   transform: scale(1);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .chip-delete:hover {

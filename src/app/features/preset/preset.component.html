@@ -3,6 +3,14 @@
   <section class="preset-section">
     <div class="section-header">
       <h2 class="section-title">Timers</h2>
+      <ns-action-button
+        action="edit"
+        customClass="icon-btn edit-icon-btn"
+        [class.active]="isEditingTimers"
+        (actionClick)="toggleEditTimers()"
+        ariaLabel="Toggle edit mode"
+        buttonTitle="Toggle edit mode">
+      </ns-action-button>
     </div>
 
     <div class="content-divider"></div>
@@ -18,20 +26,22 @@
           (keydown.enter)="setActiveTimerOption(option.uuid)"
           (keydown.space)="setActiveTimerOption(option.uuid); $event.preventDefault()">
           <span class="chip-value">{{ option.value }}m</span>
-          <button
-            type="button"
-            class="chip-delete"
-            (click)="deleteOption($event, option.uuid)"
-            aria-label="Delete option"
-            title="Delete option">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
-              <path d="M10 11v6"></path>
-              <path d="M14 11v6"></path>
-              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
-            </svg>
-          </button>
+          @if (isEditingTimers) {
+            <button
+              type="button"
+              class="chip-delete"
+              (click)="deleteOption($event, option.uuid)"
+              aria-label="Delete option"
+              title="Delete option">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"></path>
+              </svg>
+            </button>
+          }
         </div>
       }
 
