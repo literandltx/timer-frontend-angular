@@ -9,8 +9,11 @@
         <strong>Email Address</strong>
         <p>Change your account email address.</p>
       </div>
-      <ns-app-button variant="outline-btn fixed-width-btn" (click)="onChangeEmail()">
-        Update
+      <ns-app-button
+        variant="outline-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onChangeEmail()">
+        Change
       </ns-app-button>
     </div>
 
@@ -21,7 +24,10 @@
         <strong>Password</strong>
         <p>Change your account password.</p>
       </div>
-      <ns-app-button variant="outline-btn fixed-width-btn" (click)="onChangePassword()">
+      <ns-app-button
+        variant="outline-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onChangePassword()">
         Change
       </ns-app-button>
     </div>
@@ -57,4 +63,28 @@
       </ns-app-button>
     </div>
   </div>
+
+  <dialog #emailModal class="simple-modal">
+    <div class="modal-content">
+      <h3>Update Email Address</h3>
+      <input type="email" class="modal-input" placeholder="Enter new email address" />
+      <div class="modal-actions">
+        <ns-app-button variant="ghost-btn" (click)="closeEmailModal()">Cancel</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="saveEmail()">Save</ns-app-button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog #passwordModal class="simple-modal">
+    <div class="modal-content">
+      <h3>Change Password</h3>
+      <input type="password" class="modal-input" placeholder="Current password" />
+      <input type="password" class="modal-input" placeholder="New password" />
+      <input type="password" class="modal-input" placeholder="Confirm new password" />
+      <div class="modal-actions">
+        <ns-app-button variant="ghost-btn" (click)="closePasswordModal()">Cancel</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="savePassword()">Save</ns-app-button>
+      </div>
+    </div>
+  </dialog>
 </div>

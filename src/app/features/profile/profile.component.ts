@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, inject, ViewChild, ElementRef} from '@angular/core';
 import {AuthService} from '../../core/auth/auth.service';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ConfirmDialogService} from '../../shared/components/confirm/confirm-dialog.service';
@@ -20,14 +20,35 @@ export class ProfileComponent {
 
   public isDeleteDisabled = computed(() => !this.authService.isAuthenticatedSignal());
 
+  @ViewChild('emailModal') emailModal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('passwordModal') passwordModal!: ElementRef<HTMLDialogElement>;
+
   onChangeEmail(): void {
-    // TODO: Wire up to email change modal or service
-    console.log('Change email initiated');
+    this.emailModal.nativeElement.showModal();
+  }
+
+  closeEmailModal(): void {
+    this.emailModal.nativeElement.close();
+  }
+
+  saveEmail(): void {
+    console.log('Saving new email...');
+    // TODO: Wire up to backend
+    this.closeEmailModal();
   }
 
   onChangePassword(): void {
-    // TODO: Wire up to password change modal or service
-    console.log('Change password initiated');
+    this.passwordModal.nativeElement.showModal();
+  }
+
+  closePasswordModal(): void {
+    this.passwordModal.nativeElement.close();
+  }
+
+  savePassword(): void {
+    console.log('Saving new password...');
+    // TODO: Wire up to backend
+    this.closePasswordModal();
   }
 
   async onResetLocalData(): Promise<void> {
