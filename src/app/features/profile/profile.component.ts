@@ -31,9 +31,17 @@ export class ProfileComponent {
     this.emailModal.nativeElement.close();
   }
 
-  saveEmail(): void {
-    console.log('Saving new email...');
-    // TODO: Wire up to backend
+  saveEmail(newEmail: string): void {
+    if (!newEmail) {
+      this.log.error('Email cannot be empty');
+      return;
+    }
+
+    this.log.info('Ready to send to backend:', newEmail);
+
+    // TODO: Wire up to backend API
+    // this.authService.updateEmail(newEmail).subscribe(...)
+
     this.closeEmailModal();
   }
 
@@ -45,9 +53,17 @@ export class ProfileComponent {
     this.passwordModal.nativeElement.close();
   }
 
-  savePassword(): void {
-    console.log('Saving new password...');
-    // TODO: Wire up to backend
+  savePassword(currentPass: string, newPass: string, confirmPass: string): void {
+    if (newPass !== confirmPass) {
+      this.log.error('New passwords do not match!');
+      return;
+    }
+
+    this.log.info('Ready to send to backend:', { currentPass, newPass });
+
+    // TODO: Wire up to backend API
+    // this.authService.updatePassword(currentPass, newPass).subscribe(...)
+
     this.closePasswordModal();
   }
 
@@ -59,7 +75,7 @@ export class ProfileComponent {
     if (!ok) return;
 
     await this.authService.resetLocalData();
-    console.log('Local data reset confirmed');
+    this.log.info('Local data reset confirmed');
   }
 
   async onDeleteAccount(): Promise<void> {

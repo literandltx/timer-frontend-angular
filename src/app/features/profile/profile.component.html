@@ -67,10 +67,11 @@
   <dialog #emailModal class="simple-modal">
     <div class="modal-content">
       <h3>Update Email Address</h3>
-      <input type="email" class="modal-input" placeholder="Enter new email address" />
+      <input #emailInput type="email" class="modal-input" placeholder="Enter new email address" />
+
       <div class="modal-actions">
         <ns-app-button variant="ghost-btn" (click)="closeEmailModal()">Cancel</ns-app-button>
-        <ns-app-button variant="primary-btn" (click)="saveEmail()">Save</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="saveEmail(emailInput.value)">Save</ns-app-button>
       </div>
     </div>
   </dialog>
@@ -78,12 +79,17 @@
   <dialog #passwordModal class="simple-modal">
     <div class="modal-content">
       <h3>Change Password</h3>
-      <input type="password" class="modal-input" placeholder="Current password" />
-      <input type="password" class="modal-input" placeholder="New password" />
-      <input type="password" class="modal-input" placeholder="Confirm new password" />
+      <input #currentPassInput type="password" class="modal-input" placeholder="Current password" />
+      <input #newPassInput type="password" class="modal-input" placeholder="New password" />
+      <input #confirmPassInput type="password" class="modal-input" placeholder="Confirm new password" />
+
       <div class="modal-actions">
         <ns-app-button variant="ghost-btn" (click)="closePasswordModal()">Cancel</ns-app-button>
-        <ns-app-button variant="primary-btn" (click)="savePassword()">Save</ns-app-button>
+        <ns-app-button
+          variant="primary-btn"
+          (click)="savePassword(currentPassInput.value, newPassInput.value, confirmPassInput.value)">
+          Save
+        </ns-app-button>
       </div>
     </div>
   </dialog>
