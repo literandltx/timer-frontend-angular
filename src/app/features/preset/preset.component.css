@@ -256,14 +256,6 @@
   border-color: transparent;
 }
 
-.empty-hint {
-  margin: 0;
-  padding: 20px;
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
 .section-divider {
   height: 2px;
   margin: 12px 0 12px;
