@@ -1,6 +1,9 @@
 import {Component, inject, computed, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
+import {
+  WidgetButtonComponent
+} from '../../../../../shared/components/widget-button/widget-button.component';
 
 interface TimelineBlock {
   id: string;
@@ -27,7 +30,7 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 @Component({
   selector: 'ns-timeline-widget',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './timeline-widget.component.html',
   styleUrl: './timeline-widget.component.css'
 })

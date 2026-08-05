@@ -2,6 +2,9 @@ import {Component, inject, Input, signal, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
 import {LabelService} from '../../../../../core/services/label.service';
+import {
+  WidgetButtonComponent
+} from '../../../../../shared/components/widget-button/widget-button.component';
 
 type Granularity = 'day' | 'week' | 'month';
 
@@ -18,7 +21,7 @@ interface ChartPoint {
 @Component({
   selector: 'ns-line-chart-histogram-v3',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './line-chart-histogram-v3.component.html',
   styleUrl: './line-chart-histogram-v3.component.css'
 })

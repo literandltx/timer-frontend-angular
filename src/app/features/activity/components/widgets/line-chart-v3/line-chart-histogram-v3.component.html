@@ -4,37 +4,30 @@
       <h3 class="current-label">History</h3>
 
       <div class="header-controls">
-        <button class="icon-btn" (click)="prev()" aria-label="Previous period" title="Previous">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 18l-6-6 6-6"></path>
-          </svg>
-        </button>
+        <ns-widget-button icon="prev"
+                          ariaLabel="Previous period"
+                          buttonTitle="Previous"
+                          (buttonClick)="prev()"/>
 
         <select class="granularity-select" [value]="granularity()"
                 (change)="setGranularity($any($event.target).value)">
           <option value="day">days</option>
-<!--          <option value="week">weeks</option>-->
+          <!--          <option value="week">weeks</option>-->
           <option value="month">months</option>
         </select>
 
-        <button class="icon-btn" (click)="next()" aria-label="Next period" title="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18l6-6-6-6"></path>
-          </svg>
-        </button>
+        <ns-widget-button icon="next"
+                          ariaLabel="Next period"
+                          buttonTitle="Next"
+                          (buttonClick)="next()"/>
 
         <div class="label-btn-gap">
-          <button class="icon-btn" (click)="toggleLabelMenu()" aria-label="Labels"
-                  title="Labels" aria-haspopup="listbox"
-                  [attr.aria-expanded]="isLabelMenuOpen()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                 stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
-            </svg>
-          </button>
+          <ns-widget-button icon="labels"
+                            ariaLabel="Labels"
+                            buttonTitle="Labels"
+                            ariaHasPopup="listbox"
+                            [ariaExpanded]="isLabelMenuOpen()"
+                            (buttonClick)="toggleLabelMenu()"/>
         </div>
       </div>
     </div>

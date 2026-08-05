@@ -99,37 +99,6 @@
   margin-bottom: 6px;
 }
 
-/* Identical Line Chart Icon Buttons */
-.icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border-light, #333333);
-  background: var(--bg-subtle, #2c2c2e);
-  color: var(--text-muted, #9ca3af);
-  cursor: pointer;
-  padding: 0;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.icon-btn:hover:not(:disabled) {
-  background: var(--bg-hover, #3a3a3c);
-  color: var(--text-heading, #ffffff);
-}
-
-.icon-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
 /* Identical Line Chart Select Styling */
 .granularity-select {
   height: 30px;
@@ -308,16 +277,6 @@
     font-size: 0.75rem;
     padding: 0 8px;
     min-width: 60px;
-  }
-
-  .icon-btn {
-    width: 28px;
-    height: 28px;
-  }
-
-  .icon-btn svg {
-    width: 14px;
-    height: 14px;
   }
 
   .stats-row {

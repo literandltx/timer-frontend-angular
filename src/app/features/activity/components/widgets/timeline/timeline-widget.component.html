@@ -4,18 +4,14 @@
       <h3 class="current-label">Calendar</h3>
 
       <div class="header-controls">
-        <button class="icon-btn" (click)="prev()" aria-label="Previous week" title="Previous">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 18l-6-6 6-6"></path>
-          </svg>
-        </button>
-        <button class="icon-btn" (click)="next()" aria-label="Next week" title="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18l6-6-6-6"></path>
-          </svg>
-        </button>
+        <ns-widget-button icon="prev"
+                          ariaLabel="Previous week"
+                          buttonTitle="Previous"
+                          (buttonClick)="prev()"/>
+        <ns-widget-button icon="next"
+                          ariaLabel="Next week"
+                          buttonTitle="Next"
+                          (buttonClick)="next()"/>
       </div>
     </div>
 

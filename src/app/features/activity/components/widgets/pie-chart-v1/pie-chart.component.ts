@@ -1,6 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../../history.service';
+import {
+  WidgetButtonComponent
+} from '../../../../../shared/components/widget-button/widget-button.component';
 
 export interface TimerEntry {
   uuid: string;
@@ -21,7 +24,7 @@ type TimeRange = 'day' | 'week' | 'month' | 'all';
 @Component({
   selector: 'ns-pie-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './pie-chart.component.html',
   styleUrls: ['./pie-chart.component.css']
 })

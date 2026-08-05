@@ -1,23 +1,20 @@
 <div class="widget-container">
   <div class="widget-header">
-<!--    <span class="eyebrow">{{ title }}</span>-->
+    <!--    <span class="eyebrow">{{ title }}</span>-->
 
     <div class="month-row">
-      <button class="icon-btn" (click)="prev()" aria-label="Previous month" title="Previous">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 18l-6-6 6-6"></path>
-        </svg>
-      </button>
+      <ns-widget-button icon="prev"
+                        ariaLabel="Previous month"
+                        buttonTitle="Previous"
+                        (buttonClick)="prev()"/>
 
       <h3 class="month-label">{{ monthLabel() }}</h3>
 
-      <button class="icon-btn" (click)="next()" aria-label="Next month" title="Next">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18l6-6-6-6"></path>
-        </svg>
-      </button>
+      <ns-widget-button
+        icon="next"
+                        ariaLabel="Next month"
+                        buttonTitle="Next"
+                        (buttonClick)="next()"/>
     </div>
 
     <span class="total-label">{{ totalCount() }} {{ unitLabel }} this month</span>

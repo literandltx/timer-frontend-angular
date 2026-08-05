@@ -49,31 +49,6 @@
   color: var(--text-muted, #9ca3af);
 }
 
-.icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border-light, #333333);
-  background: var(--bg-subtle, #2c2c2e);
-  color: var(--text-muted, #9ca3af);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.icon-btn:hover {
-  background: var(--bg-hover, #3a3a3c);
-  color: var(--text-heading, #ffffff);
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
 .weekday-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -158,11 +133,25 @@
   border-radius: 4px;
 }
 
-.legend-dot.level-0 { background-color: var(--heat-0, #2c2c2e); }
-.legend-dot.level-1 { background-color: var(--heat-1, #14532d); }
-.legend-dot.level-2 { background-color: var(--heat-2, #15803d); }
-.legend-dot.level-3 { background-color: var(--heat-3, #16a34a); }
-.legend-dot.level-4 { background-color: var(--heat-4, #4ade80); }
+.legend-dot.level-0 {
+  background-color: var(--heat-0, #2c2c2e);
+}
+
+.legend-dot.level-1 {
+  background-color: var(--heat-1, #14532d);
+}
+
+.legend-dot.level-2 {
+  background-color: var(--heat-2, #15803d);
+}
+
+.legend-dot.level-3 {
+  background-color: var(--heat-3, #16a34a);
+}
+
+.legend-dot.level-4 {
+  background-color: var(--heat-4, #4ade80);
+}
 
 @media (max-width: 640px) {
   .widget-container {
