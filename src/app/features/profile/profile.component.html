@@ -3,6 +3,30 @@
 
   <h2>Account Details</h2>
 
+  <div class="standard-zone-card">
+    <div class="profile-zone-group">
+      <div class="profile-text">
+        <strong>Email Address</strong>
+        <p>Change your account email address.</p>
+      </div>
+      <ns-app-button variant="outline-btn fixed-width-btn" (click)="onChangeEmail()">
+        Update
+      </ns-app-button>
+    </div>
+
+    <hr class="standard-divider" />
+
+    <div class="profile-zone-group">
+      <div class="profile-text">
+        <strong>Password</strong>
+        <p>Change your account password.</p>
+      </div>
+      <ns-app-button variant="outline-btn fixed-width-btn" (click)="onChangePassword()">
+        Change
+      </ns-app-button>
+    </div>
+  </div>
+
   <hr class="profile-divider" />
 
   <h2>Danger Zone</h2>
@@ -25,7 +49,10 @@
         <strong>Delete account</strong>
         <p>Permanently delete your account and all local data, and remove associated data.</p>
       </div>
-      <ns-app-button variant="solid-danger-btn fixed-width-btn" (click)="onDeleteAccount()">
+      <ns-app-button
+        variant="solid-danger-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onDeleteAccount()">
         Delete
       </ns-app-button>
     </div>

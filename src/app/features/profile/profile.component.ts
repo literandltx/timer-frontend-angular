@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {AuthService} from '../../core/auth/auth.service';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ConfirmDialogService} from '../../shared/components/confirm/confirm-dialog.service';
@@ -17,6 +17,8 @@ export class ProfileComponent {
   private log = inject(LogService);
   private authService = inject(AuthService);
   private confirmDialog = inject(ConfirmDialogService);
+
+  public isDeleteDisabled = computed(() => !this.authService.isAuthenticatedSignal());
 
   onChangeEmail(): void {
     // TODO: Wire up to email change modal or service

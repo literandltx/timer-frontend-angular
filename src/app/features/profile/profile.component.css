@@ -71,3 +71,38 @@ p {
   border-top: 1px solid rgba(255, 77, 79, 0.2);
   margin: 0;
 }
+
+.standard-zone-card {
+  border: 1px solid var(--nav-border, #444);
+  border-radius: 8px;
+  padding: 0 20px;
+  background-color: var(--card-bg, transparent);
+  margin-top: 10px;
+}
+
+.profile-zone-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  gap: 4px;
+}
+
+.profile-text strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.profile-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.standard-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--nav-border, #444);
+  margin: 0;
+}
