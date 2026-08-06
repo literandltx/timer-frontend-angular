@@ -1,9 +1,9 @@
 .widget-container {
   width: 100%;
-  background-color: var(--card-bg, #1c1c1e);
-  border: 1px solid var(--border-light, #333333);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
-  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.3));
+  box-shadow: var(--shadow-md);
   padding: 24px 24px 20px;
   box-sizing: border-box;
   display: flex;
@@ -24,7 +24,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted, #9ca3af);
+  color: var(--text-muted);
 }
 
 .month-row {
@@ -39,14 +39,14 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-heading, #ffffff);
+  color: var(--text-heading);
   min-width: 160px;
   text-align: center;
 }
 
 .total-label {
   font-size: 0.9rem;
-  color: var(--text-muted, #9ca3af);
+  color: var(--text-muted);
 }
 
 .weekday-row {
@@ -59,7 +59,7 @@
   text-align: center;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
 }
 
 .calendar-grid {
@@ -76,8 +76,8 @@
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-heading, #e5e7eb);
-  background-color: var(--bg-subtle, #2c2c2e);
+  color: var(--text-heading);
+  background-color: var(--bg-subtle);
   box-sizing: border-box;
 }
 
@@ -86,13 +86,13 @@
 }
 
 .day-cell.today {
-  outline: 2px solid var(--accent-info, #22d3ee);
+  outline: 2px solid var(--primary-color); /* Updated to use your primary color variable */
   outline-offset: -2px;
 }
 
 .day-cell.level-0 {
-  background-color: var(--heat-0, #2c2c2e);
-  color: var(--text-heading, #e5e7eb);
+  background-color: var(--heat-0, var(--bg-subtle));
+  color: var(--text-heading);
 }
 
 .day-cell.level-1 {
@@ -124,7 +124,7 @@
 
 .legend-text {
   font-size: 0.85rem;
-  color: var(--text-muted, #9ca3af);
+  color: var(--text-muted);
 }
 
 .legend-dot {
@@ -134,7 +134,7 @@
 }
 
 .legend-dot.level-0 {
-  background-color: var(--heat-0, #2c2c2e);
+  background-color: var(--heat-0, var(--bg-subtle));
 }
 
 .legend-dot.level-1 {
