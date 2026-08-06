@@ -26,7 +26,14 @@
       </button>
 
       @if (isLabelMenuOpen()) {
-        <div class="label-menu-backdrop" (click)="isLabelMenuOpen.set(false)"></div>
+        <div class="label-menu-backdrop"
+             (click)="isLabelMenuOpen.set(false)"
+             (keyup.enter)="isLabelMenuOpen.set(false)"
+             (keyup.space)="isLabelMenuOpen.set(false)"
+             tabindex="0"
+             role="button"
+             aria-label="Close label menu">
+        </div>
 
         <div class="label-menu" role="listbox">
           @for (label of labelService.labels(); track label.uuid) {
