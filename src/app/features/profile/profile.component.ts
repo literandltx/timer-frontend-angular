@@ -31,17 +31,14 @@ export class ProfileComponent {
     this.emailModal.nativeElement.close();
   }
 
-  saveEmail(newEmail: string): void {
+  saveEmail(newEmail: string, password: string): void {
     if (!newEmail) {
       this.log.error('Email cannot be empty');
       return;
     }
-
-    this.log.info('Ready to send to backend:', newEmail);
-
-    // TODO: Wire up to backend API
-    // this.authService.updateEmail(newEmail).subscribe(...)
-
+    this.authService.changeEmail(newEmail, password).subscribe({
+      error: (err) => this.log.error('Failed to change user\'s email ', err)
+    });
     this.closeEmailModal();
   }
 
@@ -58,12 +55,9 @@ export class ProfileComponent {
       this.log.error('New passwords do not match!');
       return;
     }
-
-    this.log.info('Ready to send to backend:', { currentPass, newPass });
-
-    // TODO: Wire up to backend API
-    // this.authService.updatePassword(currentPass, newPass).subscribe(...)
-
+    this.authService.changePassword(currentPass, newPass, confirmPass).subscribe({
+      error: (err) => this.log.error('Failed to change user\'s password ', err)
+    });
     this.closePasswordModal();
   }
 

@@ -68,10 +68,11 @@
     <div class="modal-content">
       <h3>Update Email Address</h3>
       <input #emailInput type="email" class="modal-input" placeholder="Enter new email address" />
+      <input #currentPassInput type="password" class="modal-input" placeholder="Current password" />
 
       <div class="modal-actions">
         <ns-app-button variant="ghost-btn" (click)="closeEmailModal()">Cancel</ns-app-button>
-        <ns-app-button variant="primary-btn" (click)="saveEmail(emailInput.value)">Save</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="saveEmail(emailInput.value, currentPassInput.value)">Save</ns-app-button>
       </div>
     </div>
   </dialog>
