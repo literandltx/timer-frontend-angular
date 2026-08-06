@@ -8,8 +8,8 @@
 }
 
 .settings-title {
-  margin-top: 0;
-  margin-bottom: 24px;
+  margin: 0 auto 20px auto;
+  width: fit-content;
 }
 
 .setting-card {

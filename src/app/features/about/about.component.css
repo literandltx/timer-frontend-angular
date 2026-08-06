@@ -1,11 +1,20 @@
 .about-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
   width: 100%;
+  height: 100vh;
 }
 
-.about-container h1 {
+.about-title {
+  margin: 0 auto 20px auto;
+  width: fit-content;
+}
+
+.standard-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--nav-border, #444);
   margin: 0;
 }
