@@ -5,7 +5,7 @@
       <h2 class="section-title">Timers</h2>
       <ns-action-button
         action="edit"
-        customClass="icon-btn edit-icon-btn"
+        customClass=""
         [class.active]="isEditingTimers"
         (actionClick)="toggleEditTimers()"
         ariaLabel="Toggle edit mode"
@@ -69,14 +69,14 @@
           <div class="edit-actions">
             <ns-action-button
               action="save"
-              customClass="icon-btn confirm-btn"
+              customClass=" confirm-btn"
               (actionClick)="confirmAdd()"
               ariaLabel="Save"
               buttonTitle="Save">
             </ns-action-button>
             <ns-action-button
               action="close"
-              customClass="icon-btn cancel-btn"
+              customClass=" cancel-btn"
               (actionClick)="cancelAdd()"
               ariaLabel="Cancel"
               buttonTitle="Cancel">
@@ -94,7 +94,7 @@
       <h2 class="page-title">Labels</h2>
       <ns-action-button
         action="add"
-        customClass="icon-btn add-icon-btn"
+        customClass=""
         (actionClick)="startAddLabel($event)"
         ariaLabel="Add label"
         buttonTitle="Add label">
@@ -115,7 +115,7 @@
           <div class="edit-actions">
             <ns-action-button
               action="save"
-              customClass="icon-btn confirm-btn"
+              customClass=" confirm-btn"
               (actionClick)="editingLabel.uuid ? updateLabel() : createLabel()"
               ariaLabel="Save"
               buttonTitle="Save">
@@ -123,7 +123,7 @@
 
             <ns-action-button
               action="close"
-              customClass="icon-btn cancel-btn"
+              customClass=" cancel-btn"
               (actionClick)="cancelLabel()"
               ariaLabel="Cancel"
               buttonTitle="Cancel">
@@ -169,7 +169,7 @@
             <div class="action-group">
               <ns-action-button
                 action="edit"
-                customClass="icon-btn edit-icon-btn"
+                customClass=""
                 (actionClick)="startEditLabel(label, $event)"
                 ariaLabel="Edit label"
                 buttonTitle="Edit label">
@@ -177,7 +177,7 @@
 
               <ns-action-button
                 action="delete"
-                customClass="icon-btn delete-icon-btn"
+                customClass=""
                 (actionClick)="deleteLabel($event, label.uuid)"
                 ariaLabel="Delete label"
                 buttonTitle="Delete label">

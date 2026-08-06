@@ -70,16 +70,36 @@ export class AuthService {
     );
   }
 
+  changeEmail(newEmail: string, password: string): Observable<unknown> {
+    const payload = {newEmail, password};
+
+    return this.http.post(
+      `${this.usersApiUrl}/change/email`,
+      payload,
+      {withCredentials: true}
+    )
+  }
+
+  changePassword(currentPassword: string, newPassword: string, confirmationPassword: string): Observable<unknown> {
+    const payload = {currentPassword, newPassword, confirmationPassword}
+
+    return this.http.post(
+      `${this.usersApiUrl}/change/password`,
+      payload,
+      {withCredentials: true}
+    )
+  }
+
   getToken(): string | null {
     return this.accessToken;
   }
 
-  public async resetLocalData(): Promise<void> {
+  async resetLocalData(): Promise<void> {
     await this.performFullCleanup();
     window.location.reload();
   }
 
-  public clearAuthState(): void {
+  clearAuthState(): void {
     this.accessToken = null;
     this._isAuthenticated.set(false);
     localStorage.removeItem(SESSION_STORAGE_KEY);

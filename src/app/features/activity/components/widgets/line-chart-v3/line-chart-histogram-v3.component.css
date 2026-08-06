@@ -73,30 +73,6 @@
   color: var(--text-muted, #9ca3af);
 }
 
-.icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border-light, #333333);
-  background: var(--bg-subtle, #2c2c2e);
-  color: var(--text-muted, #9ca3af);
-  cursor: pointer;
-  padding: 0;
-}
-
-.icon-btn:hover {
-  background: var(--bg-hover, #3a3a3c);
-  color: var(--text-heading, #ffffff);
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
 .label-btn-gap {
   padding-left: 4px;
 }

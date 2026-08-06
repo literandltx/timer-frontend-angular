@@ -22,18 +22,14 @@ export class WebSocketCoreService {
   constructor() {
     effect(() => {
       const isAuth = this.authService.isAuthenticatedSignal();
-      const isHealthy = this.healthService.isHealthy();
+      const isWsEnabled = this.healthService.isWsEnabled();
 
-      if (isAuth && isHealthy) {
+      if (isAuth && isWsEnabled) {
         this.connect();
       } else {
         this.disconnect();
       }
     });
-  }
-
-  public get onConnected$(): Observable<number> {
-    return this.rxStomp.connected$;
   }
 
   private connect(): void {

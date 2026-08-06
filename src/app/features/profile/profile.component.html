@@ -3,6 +3,36 @@
 
   <h2>Account Details</h2>
 
+  <div class="standard-zone-card">
+    <div class="profile-zone-group">
+      <div class="profile-text">
+        <strong>Email Address</strong>
+        <p>Change your account email address.</p>
+      </div>
+      <ns-app-button
+        variant="outline-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onChangeEmail()">
+        Change
+      </ns-app-button>
+    </div>
+
+    <hr class="standard-divider" />
+
+    <div class="profile-zone-group">
+      <div class="profile-text">
+        <strong>Password</strong>
+        <p>Change your account password.</p>
+      </div>
+      <ns-app-button
+        variant="outline-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onChangePassword()">
+        Change
+      </ns-app-button>
+    </div>
+  </div>
+
   <hr class="profile-divider" />
 
   <h2>Danger Zone</h2>
@@ -25,9 +55,47 @@
         <strong>Delete account</strong>
         <p>Permanently delete your account and all local data, and remove associated data.</p>
       </div>
-      <ns-app-button variant="solid-danger-btn fixed-width-btn" (click)="onDeleteAccount()">
+      <ns-app-button
+        variant="solid-danger-btn fixed-width-btn"
+        [disabled]="isDeleteDisabled()"
+        (click)="onDeleteAccount()">
         Delete
       </ns-app-button>
     </div>
   </div>
+
+  <dialog #emailModal class="simple-modal">
+    <div class="modal-content">
+      <h3>Update Email Address</h3>
+      <input #newEmailInput type="email" class="modal-input" placeholder="Enter new email address" />
+      <input #currentPassEmailInput type="password" class="modal-input" placeholder="Current password" />
+      @if (emailError()) {
+        <div class="modal-error">{{ emailError() }}</div>
+      }
+      <div class="modal-actions">
+        <ns-app-button variant="ghost-btn" (click)="closeEmailModal()">Cancel</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="saveEmail(newEmailInput.value, currentPassEmailInput.value)">Save</ns-app-button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog #passwordModal class="simple-modal">
+    <div class="modal-content">
+      <h3>Change Password</h3>
+      <input #currentPassInput type="password" class="modal-input" placeholder="Current password" />
+      <input #newPassInput type="password" class="modal-input" placeholder="New password" />
+      <input #confirmPassInput type="password" class="modal-input" placeholder="Confirm new password" />
+      @if (passwordError()) {
+        <div class="modal-error">{{ passwordError() }}</div>
+      }
+      <div class="modal-actions">
+        <ns-app-button variant="ghost-btn" (click)="closePasswordModal()">Cancel</ns-app-button>
+        <ns-app-button
+          variant="primary-btn"
+          (click)="savePassword(currentPassInput.value, newPassInput.value, confirmPassInput.value)">
+          Save
+        </ns-app-button>
+      </div>
+    </div>
+  </dialog>
 </div>

@@ -1,7 +1,6 @@
 <div class="widget-container chart-container">
   <div class="widget-content chart-content-layout">
 
-    <!-- Left Side: Chart -->
     <div class="chart-section pie-chart-wrapper">
       <div class="donut-chart pie-chart" [style.background]="conicGradient()">
         <div class="donut-hole">
@@ -13,18 +12,13 @@
       </div>
     </div>
 
-    <!-- Right Side: Controls and Data -->
     <div class="data-section">
-
-      <!-- Top Header Controls -->
       <div class="header-controls chart-header">
         <div class="nav-row">
-          <button class="icon-btn" (click)="navigate(-1)" aria-label="Previous period" title="Previous">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 18l-6-6 6-6"></path>
-            </svg>
-          </button>
+          <ns-widget-button icon="prev"
+                            ariaLabel="Previous period"
+                            buttonTitle="Previous"
+                            (buttonClick)="navigate(-1)"/>
 
           <select class="granularity-select" [value]="range()" (change)="onRangeChange($event)">
             <option value="day">day</option>
@@ -33,12 +27,11 @@
             <option value="all">all</option>
           </select>
 
-          <button class="icon-btn" (click)="navigate(1)" [disabled]="range() === 'all'" aria-label="Next period" title="Next">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18l6-6-6-6"></path>
-            </svg>
-          </button>
+          <ns-widget-button icon="next"
+                            ariaLabel="Next period"
+                            buttonTitle="Next"
+                            [disabled]="range() === 'all'"
+                            (buttonClick)="navigate(1)"/>
         </div>
 
         <div class="stats-row">
@@ -58,7 +51,8 @@
         @for (item of groupedData(); track item.labelName) {
           <div class="list-item legend-row">
             <div class="label-info legend-left">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                   stroke-width="1.5"
                    [attr.stroke]="item.color" class="label-icon">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>

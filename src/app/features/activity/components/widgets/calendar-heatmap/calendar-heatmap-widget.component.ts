@@ -1,6 +1,9 @@
 import {Component, inject, Input, signal, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
+import {
+  WidgetButtonComponent
+} from '../../../../../shared/components/widget-button/widget-button.component';
 
 interface DayCell {
   day: number;
@@ -13,7 +16,7 @@ interface DayCell {
 @Component({
   selector: 'ns-calendar-heatmap',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './calendar-heatmap-widget.component.html',
   styleUrl: './calendar-heatmap-widget.component.css'
 })
