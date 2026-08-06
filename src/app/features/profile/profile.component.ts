@@ -3,6 +3,7 @@ import {AuthService} from '../../core/auth/auth.service';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ConfirmDialogService} from '../../shared/components/confirm/confirm-dialog.service';
 import {LogService} from '../../core/log/log.service';
+import {isValidEmail} from '../../shared/utils/email-validator.util';
 
 @Component({
   selector: 'ns-app-profile',
@@ -34,6 +35,10 @@ export class ProfileComponent {
   saveEmail(newEmail: string, password: string): void {
     if (!newEmail) {
       this.log.error('Email cannot be empty');
+      return;
+    }
+    if (!isValidEmail(newEmail)) {
+      this.log.error('Please enter a valid email address');
       return;
     }
     this.authService.changeEmail(newEmail, password).subscribe({
