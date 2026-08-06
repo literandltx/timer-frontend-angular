@@ -67,12 +67,14 @@
   <dialog #emailModal class="simple-modal">
     <div class="modal-content">
       <h3>Update Email Address</h3>
-      <input #emailInput type="email" class="modal-input" placeholder="Enter new email address" />
-      <input #currentPassInput type="password" class="modal-input" placeholder="Current password" />
-
+      <input #newEmailInput type="email" class="modal-input" placeholder="Enter new email address" />
+      <input #currentPassEmailInput type="password" class="modal-input" placeholder="Current password" />
+      @if (emailError()) {
+        <div class="modal-error">{{ emailError() }}</div>
+      }
       <div class="modal-actions">
         <ns-app-button variant="ghost-btn" (click)="closeEmailModal()">Cancel</ns-app-button>
-        <ns-app-button variant="primary-btn" (click)="saveEmail(emailInput.value, currentPassInput.value)">Save</ns-app-button>
+        <ns-app-button variant="primary-btn" (click)="saveEmail(newEmailInput.value, currentPassEmailInput.value)">Save</ns-app-button>
       </div>
     </div>
   </dialog>
@@ -83,7 +85,9 @@
       <input #currentPassInput type="password" class="modal-input" placeholder="Current password" />
       <input #newPassInput type="password" class="modal-input" placeholder="New password" />
       <input #confirmPassInput type="password" class="modal-input" placeholder="Confirm new password" />
-
+      @if (passwordError()) {
+        <div class="modal-error">{{ passwordError() }}</div>
+      }
       <div class="modal-actions">
         <ns-app-button variant="ghost-btn" (click)="closePasswordModal()">Cancel</ns-app-button>
         <ns-app-button
