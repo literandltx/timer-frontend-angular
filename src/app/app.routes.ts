@@ -23,10 +23,10 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent)
   },
-  {
-    path: 'about',
-    loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent)
-  },
+  // {
+  //   path: 'about',
+  //   loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent)
+  // },
   {
     path: 'profile',
     loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
