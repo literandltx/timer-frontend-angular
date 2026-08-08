@@ -1,6 +1,8 @@
 import {Component, OnInit, inject, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
+
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {TimerPresetService} from '../../core/services/timer-preset.service';
@@ -12,7 +14,7 @@ import {ActionButtonComponent} from '../../shared/components/action-button/actio
 @Component({
   selector: 'ns-app-preset-config',
   standalone: true,
-  imports: [CommonModule, FormsModule, ListItemComponent, ActionButtonComponent],
+  imports: [CommonModule, FormsModule, ListItemComponent, ActionButtonComponent, DragDropModule],
   templateUrl: './preset.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./preset.component.css']
@@ -70,6 +72,20 @@ export class PresetComponent implements OnInit {
     }
   }
 
+  // --- Drag and Drop Handlers ---
+  dropTimer(event: CdkDragDrop<any[]>) {
+    const currentOptions = [...this.options()];
+    moveItemInArray(currentOptions, event.previousIndex, event.currentIndex);
+    this.optionsService.options.set(currentOptions);
+  }
+
+  dropLabel(event: CdkDragDrop<Label[]>) {
+    const currentLabels = [...this.labels()];
+    moveItemInArray(currentLabels, event.previousIndex, event.currentIndex);
+    this.labelService.labels.set(currentLabels);
+  }
+
+  // --- Timer Methods ---
   async setActiveTimerOption(uuid: string) {
     await this.presetService.setActiveTimerOption(uuid);
   }
@@ -115,6 +131,7 @@ export class PresetComponent implements OnInit {
     await this.optionsService.delete(uuid);
   }
 
+  // --- Label Methods ---
   startAddLabel(event?: Event) {
     event?.stopPropagation();
     const isAlreadyAdding = this.editingLabel && !this.editingLabel.uuid;
