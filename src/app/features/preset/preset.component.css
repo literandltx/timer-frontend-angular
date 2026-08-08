@@ -133,6 +133,10 @@
   gap: 12px;
 }
 
+.draggable-chip-wrapper {
+  display: block;
+}
+
 .option-chip {
   position: relative;
   display: inline-flex;
@@ -147,9 +151,13 @@
   color: var(--text-color);
   font-size: 1rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.draggable-chip-wrapper:active .option-chip {
+  cursor: grabbing;
 }
 
 .option-chip:hover {
@@ -252,7 +260,7 @@
 .option-chip-default.active {
   background-color: var(--bg-subtle, #f3f4f6);
   color: var(--text-muted);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
   border-color: transparent;
 }
 
@@ -285,6 +293,10 @@
 .options-list::-webkit-scrollbar-thumb {
   background-color: var(--border-light);
   border-radius: 4px;
+}
+
+.draggable-row {
+  display: block;
 }
 
 .label-tag {
@@ -347,4 +359,42 @@
 
 .active-toggle-btn.active {
   color: var(--success-color);
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  color: var(--text-muted);
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-color);
+
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  z-index: 1000 !important;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.chip-grid.cdk-drop-list-dragging .draggable-chip-wrapper:not(.cdk-drag-placeholder),
+.options-list.cdk-drop-list-dragging .draggable-row:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
