@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 export type WidgetIconType = 'prev' | 'next' | 'labels';
 
@@ -34,6 +34,7 @@ export type WidgetIconType = 'prev' | 'next' | 'labels';
       }
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host {
       display: contents;

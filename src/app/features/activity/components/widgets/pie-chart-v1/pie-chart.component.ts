@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../../history.service';
 import {
@@ -26,6 +26,7 @@ type TimeRange = 'day' | 'week' | 'month' | 'all';
   standalone: true,
   imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './pie-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pie-chart.component.css']
 })
 export class PieChartComponent {

@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, computed, signal, HostListener} from '@angular/core';
+import {Component, OnInit, inject, computed, signal, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {TimerComponent} from './components/timer.component';
@@ -14,6 +14,7 @@ import {TitleBlinkerService} from '../../core/services/core/title-blinker.servic
   standalone: true,
   imports: [CommonModule, RouterModule, TimerComponent],
   templateUrl: './home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {

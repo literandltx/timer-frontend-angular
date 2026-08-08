@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryService } from '../../../history.service';
 
@@ -7,6 +7,7 @@ import { HistoryService } from '../../../history.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './line-chart-histogram.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./line-chart-histogram.component.css']
 })
 export class LineChartHistogramComponentV1 {

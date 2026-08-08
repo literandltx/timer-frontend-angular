@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HistoryService } from '../history.service';
@@ -17,6 +17,7 @@ const DEFAULT_PAGE_SIZE = 20;
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonComponent, ListItemComponent, ActionButtonComponent],
   templateUrl: './history-log.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './history-log.component.css'
 })
 export class HistoryLogComponent implements OnInit {

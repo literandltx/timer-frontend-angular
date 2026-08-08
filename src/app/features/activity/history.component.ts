@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryLogComponent } from './components/history-log.component';
 import { ToggleGroupComponent } from '../../shared/components/toggle/toggle-group.component';
@@ -26,6 +26,7 @@ import {
     CalendarHeatmapWidgetComponent,
   ],
   templateUrl: './history.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './history.component.css'
 })
 export class HistoryComponent {

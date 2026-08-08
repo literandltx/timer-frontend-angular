@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
       <ng-content></ng-content>
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./toggle-button.component.css']
 })
 export class ToggleButtonComponent {

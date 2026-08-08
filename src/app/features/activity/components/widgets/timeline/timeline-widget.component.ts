@@ -1,4 +1,4 @@
-import {Component, inject, computed, signal} from '@angular/core';
+import {Component, inject, computed, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
 import {
@@ -32,6 +32,7 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
   standalone: true,
   imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './timeline-widget.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './timeline-widget.component.css'
 })
 export class TimelineWidgetComponent {

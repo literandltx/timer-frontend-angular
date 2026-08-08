@@ -1,4 +1,4 @@
-import {Component, inject, Input, signal, computed} from '@angular/core';
+import {Component, inject, Input, signal, computed, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
 import {
@@ -18,6 +18,7 @@ interface DayCell {
   standalone: true,
   imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './calendar-heatmap-widget.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './calendar-heatmap-widget.component.css'
 })
 export class CalendarHeatmapWidgetComponent {

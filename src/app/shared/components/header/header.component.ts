@@ -1,4 +1,4 @@
-import {Component, inject, HostListener, ElementRef} from '@angular/core';
+import {Component, inject, HostListener, ElementRef, ChangeDetectionStrategy} from '@angular/core';
 import {RouterLink, RouterLinkActive, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
 import {ThemeService} from '../../../core/services/core/theme.service';
@@ -10,6 +10,7 @@ import {AuthService} from '../../../core/auth/auth.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
