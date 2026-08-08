@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { ThemeService } from '../../core/services/core/theme.service';
 
@@ -7,6 +7,7 @@ import { ThemeService } from '../../core/services/core/theme.service';
   standalone: true,
   imports: [ButtonComponent],
   templateUrl: './settings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings.component.css'
 })
 export class SettingsComponent {

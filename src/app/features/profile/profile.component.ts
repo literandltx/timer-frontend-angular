@@ -1,4 +1,4 @@
-import {Component, computed, inject, ViewChild, ElementRef, signal} from '@angular/core';
+import {Component, computed, inject, ViewChild, ElementRef, signal, ChangeDetectionStrategy} from '@angular/core';
 import {AuthService} from '../../core/auth/auth.service';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {ConfirmDialogService} from '../../shared/components/confirm/confirm-dialog.service';
@@ -10,6 +10,7 @@ import {isValidEmail} from '../../shared/utils/email-validator.util';
   standalone: true,
   templateUrl: './profile.component.html',
   imports: [ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {

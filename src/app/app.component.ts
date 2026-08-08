@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, signal} from '@angular/core';
+import {Component, OnInit, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {HeaderComponent} from './shared/components/header/header.component';
@@ -12,6 +12,7 @@ import {HealthCheckService} from './core/netwrok/health.service';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, ConfirmDialogHostComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {

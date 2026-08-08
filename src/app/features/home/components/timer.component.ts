@@ -8,7 +8,8 @@ import {
   OnChanges,
   SimpleChanges,
   inject,
-  computed
+  computed,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {TimerService} from './timer.service';
 
@@ -18,6 +19,7 @@ const noop = () => { /* empty */ };
   selector: 'ns-app-timer',
   standalone: true,
   templateUrl: './timer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./timer.component.css']
 })
 export class TimerComponent implements OnInit, OnDestroy, OnChanges {

@@ -1,10 +1,11 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {ConfirmDialogService} from './confirm-dialog.service';
 
 @Component({
   selector: 'ns-confirm-dialog-host',
   standalone: true,
   templateUrl: './confirm-dialog-host.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './confirm-dialog-host.component.css'
 })
 export class ConfirmDialogHostComponent {

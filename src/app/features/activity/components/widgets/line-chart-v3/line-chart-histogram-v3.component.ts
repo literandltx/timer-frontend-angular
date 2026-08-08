@@ -1,4 +1,4 @@
-import {Component, inject, Input, signal, computed} from '@angular/core';
+import {Component, inject, Input, signal, computed, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HistoryService} from '../../../history.service';
 import {LabelService} from '../../../../../core/services/label.service';
@@ -23,6 +23,7 @@ interface ChartPoint {
   standalone: true,
   imports: [CommonModule, WidgetButtonComponent],
   templateUrl: './line-chart-histogram-v3.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './line-chart-histogram-v3.component.css'
 })
 export class LineChartHistogramComponentV3 {

@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, HostListener} from '@angular/core';
+import {Component, OnInit, inject, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
@@ -14,6 +14,7 @@ import {ActionButtonComponent} from '../../shared/components/action-button/actio
   standalone: true,
   imports: [CommonModule, FormsModule, ListItemComponent, ActionButtonComponent],
   templateUrl: './preset.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./preset.component.css']
 })
 export class PresetComponent implements OnInit {

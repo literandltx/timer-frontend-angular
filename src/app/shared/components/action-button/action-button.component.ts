@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 export type ActionType = 'delete' | 'edit' | 'add' | 'close' | 'save';
 
@@ -48,6 +48,7 @@ export type ActionType = 'delete' | 'edit' | 'add' | 'close' | 'save';
       }
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host {
       display: contents;
