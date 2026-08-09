@@ -1,8 +1,7 @@
-import {Component, OnInit, inject, HostListener, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, inject, HostListener, ChangeDetectionStrategy, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
-
 import {ListItemComponent} from '../../shared/components/list-item/list-item.component';
 import {TimerOptionsService} from '../../core/services/timer-options.service';
 import {TimerPresetService} from '../../core/services/timer-preset.service';
@@ -10,6 +9,7 @@ import {CreateTimerOptionRequest} from '../../core/models/timer-option.model';
 import {LabelService} from '../../core/services/label.service';
 import {Label, CreateLabelRequest, UpdateLabelRequest} from '../../core/models/label.model';
 import {ActionButtonComponent} from '../../shared/components/action-button/action-button.component';
+import {StorageService} from '../../core/storage/storage.service';
 
 @Component({
   selector: 'ns-app-preset-config',
@@ -23,10 +23,26 @@ export class PresetComponent implements OnInit {
   private optionsService = inject(TimerOptionsService);
   private labelService = inject(LabelService);
   private presetService = inject(TimerPresetService);
+  private storageService = inject(StorageService);
 
   labels = this.labelService.labels;
   options = this.optionsService.options;
   activePreset = this.presetService.activePreset;
+
+  orderedLabels = computed(() => {
+    const labels = this.labels();
+    const order = this.storageService.get<string[]>('app_label_order');
+    if (!order || order.length === 0) return labels;
+
+    return [...labels].sort((a, b) => {
+      const idxA = order.indexOf(a.uuid);
+      const idxB = order.indexOf(b.uuid);
+      if (idxA === -1 && idxB === -1) return 0;
+      if (idxA === -1) return 1;
+      if (idxB === -1) return -1;
+      return idxA - idxB;
+    });
+  });
 
   isAdding = false;
   isEditingTimers = false;
@@ -72,20 +88,13 @@ export class PresetComponent implements OnInit {
     }
   }
 
-  // --- Drag and Drop Handlers ---
-  dropTimer(event: CdkDragDrop<any[]>) {
-    const currentOptions = [...this.options()];
-    moveItemInArray(currentOptions, event.previousIndex, event.currentIndex);
-    this.optionsService.options.set(currentOptions);
-  }
-
   dropLabel(event: CdkDragDrop<Label[]>) {
-    const currentLabels = [...this.labels()];
+    const currentLabels = [...this.orderedLabels()];
     moveItemInArray(currentLabels, event.previousIndex, event.currentIndex);
     this.labelService.labels.set(currentLabels);
+    this.storageService.set('app_label_order', currentLabels.map(l => l.uuid));
   }
 
-  // --- Timer Methods ---
   async setActiveTimerOption(uuid: string) {
     await this.presetService.setActiveTimerOption(uuid);
   }
@@ -131,7 +140,6 @@ export class PresetComponent implements OnInit {
     await this.optionsService.delete(uuid);
   }
 
-  // --- Label Methods ---
   startAddLabel(event?: Event) {
     event?.stopPropagation();
     const isAlreadyAdding = this.editingLabel && !this.editingLabel.uuid;

@@ -15,10 +15,9 @@
 
     <div class="content-divider"></div>
 
-    <div class="chip-grid" cdkDropList cdkDropListOrientation="mixed"
-         (cdkDropListDropped)="dropTimer($event)">
+    <div class="chip-grid">
       @for (option of options(); track option.uuid) {
-        <div class="draggable-chip-wrapper" cdkDrag>
+        <div class="draggable-chip-wrapper">
           <div
             class="option-chip"
             role="button"
@@ -49,7 +48,6 @@
             }
           </div>
         </div>
-
       }
 
       <button
@@ -141,7 +139,7 @@
     }
 
     <div class="options-list" cdkDropList (cdkDropListDropped)="dropLabel($event)">
-      @for (label of labels(); track label.uuid) {
+      @for (label of orderedLabels(); track label.uuid) {
         <div class="draggable-row" cdkDrag>
           <ns-app-list-item>
             <ng-container info>
