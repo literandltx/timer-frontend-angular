@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 
@@ -13,6 +13,7 @@ import {TimelineWidgetComponent} from './components/widgets/timeline/timeline-wi
 import {
   CalendarHeatmapWidgetComponent
 } from './components/widgets/calendar-heatmap/calendar-heatmap-widget.component';
+import {StorageService} from '../../core/storage/storage.service';
 
 @Component({
   selector: 'ns-app-history',
@@ -32,10 +33,21 @@ import {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './history.component.css'
 })
-export class HistoryComponent {
+export class HistoryComponent implements OnInit {
+  private storageService = inject(StorageService);
+
   activeView: 'activity' | 'logs' = 'activity';
   isEditingWidgets = false;
   widgetOrder = ['pie', 'histogram', 'timeline', 'heatmap'];
+
+  ngOnInit() {
+    const savedOrder = this.storageService.get<string[]>('app_widget_order');
+    if (savedOrder && savedOrder.length > 0) {
+      const validSaved = savedOrder.filter(w => this.widgetOrder.includes(w));
+      const missing = this.widgetOrder.filter(w => !validSaved.includes(w));
+      this.widgetOrder = [...validSaved, ...missing];
+    }
+  }
 
   setView(view: 'activity' | 'logs') {
     this.activeView = view;
@@ -51,5 +63,6 @@ export class HistoryComponent {
 
   dropWidget(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.widgetOrder, event.previousIndex, event.currentIndex);
+    this.storageService.set('app_widget_order', this.widgetOrder);
   }
 }
