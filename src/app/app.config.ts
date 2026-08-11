@@ -1,20 +1,18 @@
 import {ApplicationConfig, ErrorHandler, provideAppInitializer, inject} from '@angular/core';
 import {provideRouter, withViewTransitions} from '@angular/router';
 import {provideHttpClient, withInterceptors, withXhr} from '@angular/common/http';
-import {catchError, of} from 'rxjs';
 import {routes} from './app.routes';
 import {authInterceptor} from './core/interceptors/auth.interceptor';
 import {networkStatusInterceptor} from './core/interceptors/network-status.interceptor';
 import {GlobalErrorHandler} from './core/errors/global-error-handler';
 import {DatabaseInitializer} from './core/services/db/database-initializer.service';
 import {AuthService} from './core/auth/auth.service';
-import {AppConfigStorageService} from './core/storage/app-config-storage.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withViewTransitions()),
 
-    provideHttpClient(withXhr(), 
+    provideHttpClient(withXhr(),
       withInterceptors([authInterceptor, networkStatusInterceptor])
     ),
 
@@ -30,18 +28,7 @@ export const appConfig: ApplicationConfig = {
 
     provideAppInitializer(() => {
       const authService = inject(AuthService);
-      const appConfigStorageService = inject(AppConfigStorageService);
-
-      if (appConfigStorageService.hasSession) {
-        return authService.refreshToken().pipe(
-          catchError(() => {
-            authService.clearAuthState();
-            return of(null);
-          })
-        );
-      }
-
-      return of(null);
+      return authService.initSession();
     })
   ]
 };
