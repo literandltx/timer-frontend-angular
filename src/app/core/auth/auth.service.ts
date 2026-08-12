@@ -1,6 +1,6 @@
 import {Injectable, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, tap, catchError, finalize, of, from, switchMap} from 'rxjs';
+import {Observable, tap, catchError, finalize, of, from, switchMap, shareReplay} from 'rxjs';
 import {Router} from '@angular/router';
 import {environment} from '../../../environments/environment';
 import {AppDB} from '../db/app.db';
@@ -67,7 +67,8 @@ export class AuthService {
       }),
       finalize(() => {
         this.refreshInFlight = null;
-      })
+      }),
+      shareReplay({bufferSize: 1, refCount: true})
     );
 
     this.refreshInFlight = request$;

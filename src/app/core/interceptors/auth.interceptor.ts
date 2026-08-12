@@ -9,8 +9,11 @@ import {Router} from '@angular/router';
 import {AuthService} from '../auth/auth.service';
 import {BehaviorSubject, throwError, catchError, filter, switchMap, take} from 'rxjs';
 
+const REFRESH_FAILED = Symbol('refresh-failed');
+type RefreshState = string | null | typeof REFRESH_FAILED;
+
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+const refreshTokenSubject = new BehaviorSubject<RefreshState>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -65,15 +68,19 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
       }),
       catchError((err) => {
         isRefreshing = false;
+        refreshTokenSubject.next(REFRESH_FAILED);
         authService.clearAuthState();
         return throwError(() => err);
       })
     );
   } else {
     return refreshTokenSubject.pipe(
-      filter(token => token !== null),
+      filter((token): token is string | typeof REFRESH_FAILED => token !== null),
       take(1),
       switchMap((token) => {
+        if (token === REFRESH_FAILED) {
+          return throwError(() => new HttpErrorResponse({status: 401}));
+        }
         const newReq = req.clone({
           setHeaders: {Authorization: `Bearer ${token}`}
         });
